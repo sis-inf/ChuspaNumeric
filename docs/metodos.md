@@ -55,7 +55,6 @@ La tabla reemplaza los documentos separados `metodos.md` y `metodos-implementado
 | `calcularNumeroCondicion` | Matricial | `src/matricial/numero_condicion.js` | Estimación del número de condición. | Implementado | Pendiente |
 | `biseccion` | No lineales | `src/no-lineales/biseccion.js` | Búsqueda de raíces por bisección. | Implementado | Pendiente |
 | `falsaPosicion` | No lineales | `src/no-lineales/falsa-posicion.js` | Método de falsa posición. | Implementado | Pendiente |
-| `regulaFalsi` | No lineales | `src/no-lineales/regula_falsi.js` | Variante del método regula falsi. | Implementado | Pendiente |
 | `newtonRaphson` | No lineales | `src/no-lineales/newton-raphson.js` | Método de Newton-Raphson. | Implementado | Pendiente |
 | `secante` | No lineales | `src/no-lineales/secante.js` | Método de la secante. | Implementado | Pendiente |
 | `puntoFijo` | No lineales | `src/no-lineales/punto-fijo.js` | Iteración de punto fijo. | Implementado | Pendiente |
