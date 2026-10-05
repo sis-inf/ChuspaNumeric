@@ -22,7 +22,7 @@ La tabla reemplaza los documentos separados `metodos.md` y `metodos-implementado
 | `simpson13` | Integración | `src/integracion/simpson-13.js` | Integración por regla de Simpson 1/3. | Implementado | Pendiente |
 | `simpson38` | Integración | `src/integracion/simpson-38.js` | Integración por regla de Simpson 3/8. | Implementado | Pendiente |
 | `simpsonCompuesto` | Integración | `src/integracion/simpson_compuesto.js` | Variante compuesta del método de Simpson. | Implementado | Pendiente |
-| `romberg` | Integración | `src/integracion/romberg.js` | Integración de Romberg usando extrapolación de Richardson. | Implementado | Sí |
+| `romberg` | Integración | `src/integracion/romberg.js` | Integración de Romberg usando extrapolación de Richardson. | No exportado | Sí |
 | `integracionMonteCarlo` | Integración | `src/integracion/monte_carlo.js` | Integración multidimensional por Monte Carlo. | Implementado | Pendiente |
 | `gaussLegendre` | Integración | `src/integracion/gauss_legendre.js` | Cuadratura de Gauss-Legendre para integración numérica. | Implementado | Sí |
 | `lagrange` | Interpolación | `src/interpolacion/lagrange.js` | Interpolación polinómica de Lagrange. | Implementado | Sí |
@@ -43,7 +43,7 @@ La tabla reemplaza los documentos separados `metodos.md` y `metodos-implementado
 | `det3x3` | Lineales | `src/lineales/determinant.js` | Determinante de matrices 3x3. | Implementado | Pendiente |
 | `calcularInversa` | Lineales | `src/lineales/inversa.js` | Cálculo de la matriz inversa. | Implementado | Pendiente |
 | `determinanteSarrus` | Matricial | `src/matricial/determinante_sarrus.js` | Determinante 3x3 mediante regla de Sarrus. | Implementado | Sí |
-| `rango` | Matricial | `src/matricial/rango.js` | Cálculo del rango de una matriz. | Implementado | Pendiente |
+| `rango` | Matricial | `src/matricial/rango.js` | Cálculo del rango de una matriz. | No exportado | Pendiente |
 | `normaEuclideana` | Matricial | `src/matricial/norma_matriz.js` | Norma euclidiana de matriz/vector. | Implementado | Sí |
 | `normaInfinita` | Matricial | `src/matricial/norma_matriz.js` | Norma infinito. | Implementado | Sí |
 | `normaFrobenius` | Matricial | `src/matricial/norma_matriz.js` | Norma de Frobenius. | Implementado | Sí |
@@ -59,7 +59,7 @@ La tabla reemplaza los documentos separados `metodos.md` y `metodos-implementado
 | `secante` | No lineales | `src/no-lineales/secante.js` | Método de la secante. | Implementado | Pendiente |
 | `puntoFijo` | No lineales | `src/no-lineales/punto-fijo.js` | Iteración de punto fijo. | Implementado | Pendiente |
 | `muller` | No lineales | `src/no-lineales/muller.js` | Método de Müller. | Implementado | Pendiente |
-| `buscarTodasLasRaices` | No lineales | `src/no-lineales/buscar_raices.js` | Búsqueda de múltiples raíces por subintervalos. | Implementado | Pendiente |
+| `buscarTodasLasRaices` | No lineales | `src/no-lineales/buscar_raices.js` | Búsqueda de múltiples raíces por subintervalos. | No exportado | Pendiente |
 | `evaluarHorner` | Polinomios | `src/polinomios/horner.js` | Evaluación de polinomios mediante Horner. | Implementado | Pendiente |
 | `media` | Estadística | `src/utils/estadistica.js` | Media aritmética. | Implementado | Pendiente |
 | `varianza` | Estadística | `src/utils/estadistica.js` | Varianza. | Implementado | Pendiente |
@@ -74,7 +74,7 @@ La tabla reemplaza los documentos separados `metodos.md` y `metodos-implementado
 | `moduloComplejo` | Utilidades | `src/utils/numeros_complejos.js` | Módulo de un número complejo. | Implementado | Pendiente |
 | `conjugadoComplejo` | Utilidades | `src/utils/numeros_complejos.js` | Conjugado de un número complejo. | Implementado | Pendiente |
 | `divisionComplejos` | Utilidades | `src/utils/numeros_complejos.js` | División de números complejos. | Implementado | Pendiente |
-| `memoizarFuncion` | Utilidades | `src/utils/memoizar.js` | Memoización opcional para funciones costosas. | Implementado | Pendiente |
+| `memoizarFuncion` | Utilidades | `src/utils/memoizar.js` | Memoización opcional para funciones costosas. | No exportado | Pendiente |
 | `crearGeneradorAleatorio` | Utilidades | `src/utils/prng.js` | Generador pseudoaleatorio reproducible con semilla. | Implementado | Pendiente |
 | `exportarMarkdown` | IO | `src/io/exportar_markdown.js` | Exportación de resultados a Markdown. | Implementado | Pendiente |
 
