@@ -34,4 +34,25 @@ describe('Pruebas de integración', () => {
         const { errorRelativo } = await import('../../../src/utils/error_relativo.js');
         expect(() => errorRelativo(0, 5)).toThrow('El valor verdadero no puede ser 0');
     });
+
+    test('debería cargar src/index.js completo sin lanzar excepciones y contener todas las categorías esperadas', async () => {
+        const module = await import('../../../src/index.js');
+        expect(module).toBeDefined();
+        expect(module.default).toBeDefined();
+        const categoriasEsperadas = [
+            'lineales',
+            'noLineales',
+            'interpolacion',
+            'integracion',
+            'edo',
+            'analisis',
+            'diferencias',
+            'matricial',
+            'polinomios',
+            'estadistica'
+        ];
+        const claves = Object.keys(module.default);
+        expect(claves).toEqual(expect.arrayContaining(categoriasEsperadas));
+        expect(new Set(claves).size).toBe(claves.length);
+    });
 });
