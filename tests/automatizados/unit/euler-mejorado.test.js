@@ -46,16 +46,21 @@ describe('Métodos EDO - Euler mejorado', () => {
         expect(() => eulerMejorado({})).toThrow();
         expect(() => eulerMejorado({ f: 'no es funcion', x0: 0, y0: 1, h: 0.1, xFinal: 1 })).toThrow();
         expect(() => eulerMejorado({ f: (x, y) => y, x0: 0, y0: 1, h: -0.1, xFinal: 1 })).toThrow();
+        expect(() => eulerMejorado({ f: (x, y) => y, x0: 0, y0: 1, h: 0, xFinal: 1 })).toThrow();
     });
 
-    test('Maneja o lanza error cuando los parámetros conducen a no convergencia / paso inválido', () => {
-        expect(() => eulerMejorado({
-            f: (x, y) => y,
+    test('Maneja la falta de convergencia / valores divergentes en iteraciones', () => {
+        const resultado = eulerMejorado({
+            f: (x, y) => 1 / (x - 0.2),
             x0: 0,
             y0: 1,
-            h: 0,
-            xFinal: 1
-        })).toThrow();
+            h: 0.1,
+            xFinal: 0.5,
+        });
+
+        expect(resultado).toBeDefined();
+        const ultimoPunto = resultado.resultado[resultado.resultado.length - 1];
+        expect(Number.isFinite(ultimoPunto[1])).toBe(false);
     });
 
     test('Calcula correctamente la convergencia en un caso exitoso adicional (y\' = y, y(0) = 1)', () => {
@@ -72,7 +77,6 @@ describe('Métodos EDO - Euler mejorado', () => {
         const yCalculado = ultimoPunto[1];
         const yEsperado = Math.exp(0.5);
 
-        // Tolerancia razonable para Euler mejorado con paso 0.05
         expect(Math.abs(yCalculado - yEsperado)).toBeLessThan(0.01);
     });
 });
