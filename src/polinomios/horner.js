@@ -1,4 +1,5 @@
 import { ErrorParametros } from '../core/errores.js';
+import { validarNumero } from '../utils/validaciones.js';
 
 /**
  * Evalúa un polinomio en un punto x usando el esquema de Horner.
@@ -13,7 +14,8 @@ import { ErrorParametros } from '../core/errores.js';
  *   Ejemplo: [1, -3, 2] representa x² - 3x + 2.
  * @param {number} x - Punto en el que se evalúa el polinomio.
  * @returns {number} Valor del polinomio evaluado en x.
- * @throws {ErrorParametros} Si coeficientes está vacío o no es un array.
+ * @throws {ErrorParametros} Si coeficientes está vacío o no es un array, si x no es un
+ *   número finito o si algún coeficiente no es un número finito.
  *
  * @example
  * evaluarHorner([1, -3, 2], 2); // 0  (raíces en 1 y 2)
@@ -25,6 +27,9 @@ function evaluarHorner(coeficientes, x) {
       `Trazo.evaluarHorner: 'coeficientes' debe ser un array no vacío. Se recibió: ${JSON.stringify(coeficientes)}.`
     );
   }
+
+  validarNumero(x, 'x');
+  coeficientes.forEach((coeficiente, i) => validarNumero(coeficiente, `coeficientes[${i}]`));
 
   let resultado = coeficientes[0];
 
