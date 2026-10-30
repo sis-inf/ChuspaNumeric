@@ -14,18 +14,18 @@
  */
 function regresionLineal(xs, ys) {
   if (!Array.isArray(xs) || !Array.isArray(ys)) {
-    throw new Error('Trazo.regresionLineal: xs e ys deben ser arrays.');
+    throw new Error('ChuspaNumeric.regresionLineal: xs e ys deben ser arrays.');
   }
 
   if (xs.length < 2) {
     throw new Error(
-      `Trazo.regresionLineal: se necesitan al menos 2 puntos. Se recibió: ${xs.length}.`
+      `ChuspaNumeric.regresionLineal: se necesitan al menos 2 puntos. Se recibió: ${xs.length}.`
     );
   }
 
   if (xs.length !== ys.length) {
     throw new Error(
-      `Trazo.regresionLineal: xs e ys deben tener la misma longitud. ` +
+      `ChuspaNumeric.regresionLineal: xs e ys deben tener la misma longitud. ` +
       `xs.length=${xs.length}, ys.length=${ys.length}.`
     );
   }
@@ -74,25 +74,25 @@ function regresionLineal(xs, ys) {
  */
 function regresionPolinomial(xs, ys, grado) {
   if (!Array.isArray(xs) || !Array.isArray(ys)) {
-    throw new Error('Trazo.regresionPolinomial: xs e ys deben ser arrays.');
+    throw new Error('ChuspaNumeric.regresionPolinomial: xs e ys deben ser arrays.');
   }
 
   if (!Number.isInteger(grado) || grado < 1) {
     throw new Error(
-      `Trazo.regresionPolinomial: 'grado' debe ser un entero >= 1. Se recibió: ${grado}.`
+      `ChuspaNumeric.regresionPolinomial: 'grado' debe ser un entero >= 1. Se recibió: ${grado}.`
     );
   }
 
   if (xs.length < grado + 1) {
     throw new Error(
-      `Trazo.regresionPolinomial: se necesitan al menos ${grado + 1} puntos para grado ${grado}. ` +
+      `ChuspaNumeric.regresionPolinomial: se necesitan al menos ${grado + 1} puntos para grado ${grado}. ` +
       `Se recibió: ${xs.length}.`
     );
   }
 
   if (xs.length !== ys.length) {
     throw new Error(
-      `Trazo.regresionPolinomial: xs e ys deben tener la misma longitud.`
+      `ChuspaNumeric.regresionPolinomial: xs e ys deben tener la misma longitud.`
     );
   }
 
