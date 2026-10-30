@@ -71,7 +71,7 @@ Trazo CLI
 ---------
 
 Uso:
-  trazo <metodo> [opciones]
+  chuspanumeric <metodo> [opciones]
 
 Métodos disponibles:
   biseccion
@@ -88,7 +88,7 @@ Opciones para biseccion:
   --maxIter       Máximo de iteraciones opcional
 
 Ejemplo:
-  trazo biseccion --f "x^2-4" --a 0 --b 3 --grafico
+  chuspanumeric biseccion --f "x^2-4" --a 0 --b 3 --grafico
 
 Opciones para newtonRaphson:
   --f             Función, ejemplo: "x^2-4"
@@ -98,7 +98,7 @@ Opciones para newtonRaphson:
   --maxIter       Máximo de iteraciones opcional
 
 Ejemplo:
-  trazo newtonRaphson --f "x^2-4" --df "2*x" --x0 3 --grafico
+  chuspanumeric newtonRaphson --f "x^2-4" --df "2*x" --x0 3 --grafico
 `);
 }
 
