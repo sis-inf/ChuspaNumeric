@@ -42,7 +42,7 @@ export function memoizarFuncion(f) {
     validarFuncion(f, 'f');
   } catch (error) {
     throw new ErrorParametros(
-      `Trazo.memoizarFuncion: 'f' debe ser una función válida. ${error.message}`
+      `ChuspaNumeric.memoizarFuncion: 'f' debe ser una función válida. ${error.message}`
     );
   }
 
