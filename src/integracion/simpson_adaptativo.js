@@ -41,13 +41,13 @@ export function simpsonAdaptativo({
 
     if (typeof tolerancia !== 'number' || !Number.isFinite(tolerancia) || tolerancia <= 0) {
         throw new ErrorParametros(
-            `Trazo: 'tolerancia' debe ser un número positivo. Se recibió: ${tolerancia}.`
+            `ChuspaNumeric: 'tolerancia' debe ser un número positivo. Se recibió: ${tolerancia}.`
         );
     }
 
     if (!Number.isInteger(maxProfundidad) || maxProfundidad < 0) {
         throw new ErrorParametros(
-            `Trazo: 'maxProfundidad' debe ser un entero mayor o igual a 0. Se recibió: ${maxProfundidad}.`
+            `ChuspaNumeric: 'maxProfundidad' debe ser un entero mayor o igual a 0. Se recibió: ${maxProfundidad}.`
         );
     }
 
@@ -61,7 +61,7 @@ export function simpsonAdaptativo({
 
         if (typeof valor !== 'number' || !Number.isFinite(valor)) {
             throw new ErrorParametros(
-                `Trazo: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
+                `ChuspaNumeric: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
             );
         }
 
