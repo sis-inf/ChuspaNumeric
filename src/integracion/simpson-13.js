@@ -1,3 +1,7 @@
+import { crearResultado } from "../core/contrato.js";
+import { ErrorParametros } from "../core/errores.js";
+import { validarFuncion, validarIntervalo } from "../utils/validaciones.js";
+
 /**
  * Regla de Simpson 1/3 para aproximacion de integrales.
  *
@@ -6,19 +10,22 @@
  * @param {number} params.a Extremo inferior.
  * @param {number} params.b Extremo superior.
  * @param {number} [params.n=100] Numero de subintervalos (par).
- * @returns {Object} Resultado del metodo.
+ * @returns {Object} Resultado siguiendo el contrato definido por crearResultado.
+ * @throws {ErrorParametros} Si f no es funcion, [a, b] es invalido o n no es entero positivo y par.
  */
 function simpson13({ f, a, b, n = 100 }) {
-  if (typeof f !== "function") {
-    throw new TypeError("f debe ser una función.");
-  }
-
-  if (typeof a !== "number" || typeof b !== "number" || a >= b) {
-    throw new Error("Intervalo inválido.");
+  validarFuncion(f, "f");
+  try {
+    validarIntervalo(a, b);
+  } catch (error) {
+    // Se conserva el texto histórico "Intervalo inválido" del mensaje.
+    throw new ErrorParametros(`Intervalo inválido. ${error.message}`);
   }
 
   if (!Number.isInteger(n) || n <= 0 || n % 2 !== 0) {
-    throw new Error("n debe ser un entero positivo y par.");
+    throw new ErrorParametros(
+      `Trazo: n debe ser un entero positivo y par. Se recibió: ${n}.`
+    );
   }
 
   const h = (b - a) / n;
@@ -53,11 +60,17 @@ function simpson13({ f, a, b, n = 100 }) {
 
   const resultado = (h / 3) * suma;
 
-  return {
-    metodo: "Regla de Simpson 1/3",
+    return crearResultado({
     resultado,
     iteraciones,
-  };
+    convergio: true,
+    mensaje: `Simpson 1/3 completado con ${n} subintervalos.`,
+    meta: {
+      metodo: "Regla de Simpson 1/3",
+      parametros: { a, b, n },
+      tiempo_ms: 0,
+    },
+  });
 }
 
 export { simpson13 };
