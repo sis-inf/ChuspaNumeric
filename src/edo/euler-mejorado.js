@@ -11,7 +11,7 @@ import { validarFuncion, validarNumero } from '../utils/validaciones.js';
  * @param {number}   opciones.y0     - Valor inicial de y.
  * @param {number}   opciones.h      - Tamaño del paso (debe ser > 0).
  * @param {number}   opciones.xFinal - Valor final de x (debe ser > x0).
- * @returns {Object} Objeto con la forma uniforme de resultados de Trazo.
+ * @returns {Object} Objeto con la forma uniforme de resultados de ChuspaNumeric.
  * @throws {ErrorParametros} Si h <= 0 o xFinal <= x0.
  */
 function eulerMejorado({ f, x0, y0, h, xFinal }) {
@@ -23,12 +23,12 @@ function eulerMejorado({ f, x0, y0, h, xFinal }) {
   validarNumero(xFinal, 'xFinal');
   if (h <= 0) {
     throw new ErrorParametros(
-      `Trazo.eulerMejorado: 'h' debe ser mayor a cero. Se recibió: ${h}.`
+      `ChuspaNumeric.eulerMejorado: 'h' debe ser mayor a cero. Se recibió: ${h}.`
     );
   }
   if (xFinal <= x0) {
     throw new ErrorParametros(
-      `Trazo.eulerMejorado: 'xFinal' (${xFinal}) debe ser mayor que 'x0' (${x0}).`
+      `ChuspaNumeric.eulerMejorado: 'xFinal' (${xFinal}) debe ser mayor que 'x0' (${x0}).`
     );
   }
   // ── Cálculo ─────────────────────────────────────────────────
