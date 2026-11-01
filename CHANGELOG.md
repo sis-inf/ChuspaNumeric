@@ -31,7 +31,7 @@ Este archivo es la fuente oficial de verdad para las versiones publicadas. Para 
 
 - Fixed missing export in `gaussLegendre` and trapezoidal rule integration (#938).
 - Fixed and cleaned up missing exports and alias issues in playground.
-- Fixed function signatures and imports in Web Worker and React examples (`useTrazo`).
+- Fixed function signatures and imports in Web Worker and React examples.
 - Removed duplicate and orphaned files (`gauss_seidel.js`, `punto_fijo.js`, `trapezoidal.js`, and LU decomposition).
 - Removed redundant `NumericalError.js` class.
 - Converted legacy Python tests to Jest.
@@ -41,5 +41,5 @@ Este archivo es la fuente oficial de verdad para las versiones publicadas. Para 
 
 ### Added
 
-- Initial Trazo project setup.
+- Initial ChuspaNumeric project setup.
 - Repository creation.
