@@ -2,17 +2,17 @@ import { ErrorParametros } from '../core/errores.js';
 
 function validarVector(v, nombre) {
   if (!Array.isArray(v)) {
-    throw new ErrorParametros(`Trazo.algebraVectores: '${nombre}' debe ser un vector.`);
+    throw new ErrorParametros(`ChuspaNumeric.algebraVectores: '${nombre}' debe ser un vector.`);
   }
 
   if (v.length === 0) {
-    throw new ErrorParametros(`Trazo.algebraVectores: '${nombre}' no puede estar vacío.`);
+    throw new ErrorParametros(`ChuspaNumeric.algebraVectores: '${nombre}' no puede estar vacío.`);
   }
 
   for (const valor of v) {
     if (typeof valor !== 'number' || !Number.isFinite(valor)) {
       throw new ErrorParametros(
-        `Trazo.algebraVectores: '${nombre}' solo debe contener números finitos.`
+        `ChuspaNumeric.algebraVectores: '${nombre}' solo debe contener números finitos.`
       );
     }
   }
@@ -21,7 +21,7 @@ function validarVector(v, nombre) {
 function validarMismaDimension(v1, v2) {
   if (v1.length !== v2.length) {
     throw new ErrorParametros(
-      `Trazo.algebraVectores: los vectores deben tener la misma dimensión. ` +
+      `ChuspaNumeric.algebraVectores: los vectores deben tener la misma dimensión. ` +
       `Se recibió ${v1.length} y ${v2.length}.`
     );
   }
@@ -69,7 +69,7 @@ export function productoCruz(v1, v2) {
 
   if (v1.length !== 3 || v2.length !== 3) {
     throw new ErrorParametros(
-      'Trazo.algebraVectores: productoCruz solo está definido para vectores de dimensión 3.'
+      'ChuspaNumeric.algebraVectores: productoCruz solo está definido para vectores de dimensión 3.'
     );
   }
 
@@ -99,7 +99,7 @@ export function normalizarVector(v) {
 
   if (magnitud === 0) {
     throw new ErrorParametros(
-      'Trazo.algebraVectores: no se puede normalizar el vector cero.'
+      'ChuspaNumeric.algebraVectores: no se puede normalizar el vector cero.'
     );
   }
 
@@ -112,7 +112,7 @@ export function normalizarVector(v) {
 export function escalarPorVector(escalar, v) {
   if (typeof escalar !== 'number' || !Number.isFinite(escalar)) {
     throw new ErrorParametros(
-      `Trazo.algebraVectores: 'escalar' debe ser un número finito. Se recibió: ${escalar}.`
+      `ChuspaNumeric.algebraVectores: 'escalar' debe ser un número finito. Se recibió: ${escalar}.`
     );
   }
 
@@ -150,7 +150,7 @@ export function anguloEntreVectores(v1, v2) {
 
   if (magnitud1 === 0 || magnitud2 === 0) {
     throw new ErrorParametros(
-      'Trazo.algebraVectores: no se puede calcular el ángulo con un vector de magnitud cero.'
+      'ChuspaNumeric.algebraVectores: no se puede calcular el ángulo con un vector de magnitud cero.'
     );
   }
 

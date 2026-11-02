@@ -10,7 +10,7 @@ export async function verificarVersion() {
         }, TIMEOUT);
 
         const respuesta = await fetch(
-            "https://registry.npmjs.org/ChuspaNumeric/latest",
+            "https://registry.npmjs.org/chuspanumeric/latest",
             {
                 signal: controller.signal,
             }

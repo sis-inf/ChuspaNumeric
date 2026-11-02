@@ -43,7 +43,7 @@ import { gauss } from '../lineales/gauss.js';
  *   converge cuando la norma euclideana de Δθ cae por debajo de este valor.
  * @param {number}   [params.maxIter=100] - Número máximo de iteraciones.
  *
- * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo:
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric:
  *   - `resultado`: array de parámetros ajustados θ*, o null si no convergió.
  *   - `iteraciones`: historial con { n, parametros, normaResiduo, normaDelta } por paso.
  *   - `convergio`: true si la norma de Δθ cayó por debajo de tolerancia.
@@ -55,7 +55,7 @@ import { gauss } from '../lineales/gauss.js';
  *
  * @example
  * // Ajustar y = a·e^(b·x) a datos de crecimiento exponencial
- * import { regresionNoLineal } from 'trazo/src/analisis/regresion_no_lineal.js';
+ * import { regresionNoLineal } from 'chuspanumeric/src/analisis/regresion_no_lineal.js';
  *
  * const puntos = [[0,2.1],[1,4.9],[2,10.8],[3,22.1],[4,47.3]];
  *
@@ -87,25 +87,25 @@ export function regresionNoLineal({
   // --- Validación de parámetros ---
   if (!Array.isArray(puntos) || puntos.length === 0) {
     throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "puntos" debe ser un array no vacío de pares [x, y].'
+      'ChuspaNumeric.regresionNoLineal: "puntos" debe ser un array no vacío de pares [x, y].'
     );
   }
 
   if (typeof modelo !== 'function') {
     throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "modelo" debe ser una función (x, parametros) => y.'
+      'ChuspaNumeric.regresionNoLineal: "modelo" debe ser una función (x, parametros) => y.'
     );
   }
 
   if (typeof jacobianoModelo !== 'function') {
     throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "jacobianoModelo" debe ser una función (x, parametros) => number[].'
+      'ChuspaNumeric.regresionNoLineal: "jacobianoModelo" debe ser una función (x, parametros) => number[].'
     );
   }
 
   if (!Array.isArray(parametrosIniciales) || parametrosIniciales.length === 0) {
     throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "parametrosIniciales" debe ser un array no vacío.'
+      'ChuspaNumeric.regresionNoLineal: "parametrosIniciales" debe ser un array no vacío.'
     );
   }
 
@@ -114,20 +114,20 @@ export function regresionNoLineal({
 
   if (m < p) {
     throw new ErrorParametros(
-      `Trazo.regresionNoLineal: se necesitan al menos ${p} puntos para ajustar ${p} parámetros. ` +
+      `ChuspaNumeric.regresionNoLineal: se necesitan al menos ${p} puntos para ajustar ${p} parámetros. ` +
       `Se recibió: ${m}.`
     );
   }
 
   if (typeof tolerancia !== 'number' || tolerancia <= 0) {
     throw new ErrorParametros(
-      `Trazo.regresionNoLineal: "tolerancia" debe ser un número positivo. Se recibió: ${tolerancia}.`
+      `ChuspaNumeric.regresionNoLineal: "tolerancia" debe ser un número positivo. Se recibió: ${tolerancia}.`
     );
   }
 
   if (!Number.isInteger(maxIter) || maxIter < 1) {
     throw new ErrorParametros(
-      `Trazo.regresionNoLineal: "maxIter" debe ser un entero positivo. Se recibió: ${maxIter}.`
+      `ChuspaNumeric.regresionNoLineal: "maxIter" debe ser un entero positivo. Se recibió: ${maxIter}.`
     );
   }
 
@@ -167,7 +167,7 @@ export function regresionNoLineal({
       resGauss = gauss({ A, b: b_vec });
     } catch (e) {
       throw new ErrorDominio(
-        `Trazo.regresionNoLineal: el sistema de ecuaciones normales J^T·J es singular ` +
+        `ChuspaNumeric.regresionNoLineal: el sistema de ecuaciones normales J^T·J es singular ` +
         `en la iteración ${iter}. El Jacobiano puede ser rank-deficiente para los ` +
         `parámetros actuales θ = [${theta.map(v => v.toFixed(6)).join(', ')}]. ` +
         `Causa: ${e.message}`

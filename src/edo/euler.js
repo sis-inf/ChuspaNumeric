@@ -1,4 +1,5 @@
 import { crearResultado } from '../core/contrato.js';
+import { ErrorParametros } from '../core/errores.js';
 import { validarFuncion, validarNumero } from '../utils/validaciones.js';
 
 /**
@@ -18,16 +19,20 @@ import { validarFuncion, validarNumero } from '../utils/validaciones.js';
  * // res.resultado en x=1 es aproximadamente 2.5937
  */
 export function euler({ f, x0, y0, h, xFinal }) {
-    validarFuncion(f);
-    validarNumero(x0);
-    validarNumero(y0);
-    validarNumero(h);
-    validarNumero(xFinal);
+    validarFuncion(f, 'f');
+    validarNumero(x0, 'x0');
+    validarNumero(y0, 'y0');
+    validarNumero(h, 'h');
+    validarNumero(xFinal, 'xFinal');
     if (h <= 0) {
-        throw new Error('El paso h debe ser mayor que cero.');
+        throw new ErrorParametros(
+            `ChuspaNumeric: el paso 'h' debe ser mayor que cero. Se recibió: ${h}.`
+        );
     }
     if (xFinal <= x0) {
-        throw new Error('xFinal debe ser mayor que x0.');
+        throw new ErrorParametros(
+            `ChuspaNumeric: 'xFinal' (${xFinal}) debe ser mayor que 'x0' (${x0}).`
+        );
     }
     const iteraciones = [];
     const resultado   = [];
