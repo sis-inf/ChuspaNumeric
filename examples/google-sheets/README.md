@@ -1,10 +1,10 @@
-# Trazo en Google Sheets — Funciones personalizadas
+# ChuspaNumeric en Google Sheets — Funciones personalizadas
 
-Este directorio contiene un script de Google Apps Script que permite usar métodos numéricos de Trazo directamente como funciones de hoja de cálculo en Google Sheets.
+Este directorio contiene un script de Google Apps Script que permite usar métodos numéricos de ChuspaNumeric directamente como funciones de hoja de cálculo en Google Sheets.
 
 ## Funciones disponibles
 
-| Función en Sheets | Método de Trazo | Descripción |
+| Función en Sheets | Método de ChuspaNumeric | Descripción |
 |---|---|---|
 | `=TRAZO_BISECCION(func, a, b)` | `biseccion` | Raíz de f en [a, b] |
 | `=TRAZO_NEWTON(func, x0)` | `newtonRaphson` | Raíz de f a partir de x0 |
@@ -130,15 +130,15 @@ Luego puedes usar `=TRAZO_BISECCION("mi_funcion", 1, 2)` inmediatamente.
 
 ## Limitaciones de Google Apps Script
 
-Estas son las limitaciones técnicas que afectan la integración de Trazo con Google Sheets:
+Estas son las limitaciones técnicas que afectan la integración de ChuspaNumeric con Google Sheets:
 
 ### 1. Sin soporte para módulos ES ni npm
 
-Apps Script ejecuta JavaScript en el servidor de Google usando el motor V8, pero **no soporta `import`/`export` ni el ecosistema de paquetes npm**. No es posible hacer `import { biseccion } from 'trazo'` directamente.
+Apps Script ejecuta JavaScript en el servidor de Google usando el motor V8, pero **no soporta `import`/`export` ni el ecosistema de paquetes npm**. No es posible hacer `import { biseccion } from 'chuspanumeric'` directamente.
 
-**Consecuencia**: las implementaciones de los métodos numéricos están copiadas directamente en `funciones-personalizadas.gs` como código standalone. Si la librería Trazo se actualiza, este script debe actualizarse manualmente.
+**Consecuencia**: las implementaciones de los métodos numéricos están copiadas directamente en `funciones-personalizadas.gs` como código standalone. Si la librería ChuspaNumeric se actualiza, este script debe actualizarse manualmente.
 
-**Alternativa avanzada**: publicar un Apps Script Web App separado que use Node.js con Trazo instalado y exponga los métodos como endpoints HTTP. El script de Sheets llamaría a ese endpoint vía `UrlFetchApp.fetch()`. Esto requiere un servidor propio o un despliegue en Cloud Run/App Engine.
+**Alternativa avanzada**: publicar un Apps Script Web App separado que use Node.js con ChuspaNumeric instalado y exponga los métodos como endpoints HTTP. El script de Sheets llamaría a ese endpoint vía `UrlFetchApp.fetch()`. Esto requiere un servidor propio o un despliegue en Cloud Run/App Engine.
 
 ### 2. Sin `eval()` dinámico para expresiones matemáticas
 
@@ -162,15 +162,15 @@ Las cuentas gratuitas de Google tienen un límite de 6 minutos de tiempo de ejec
 
 ---
 
-## Comparación con la versión npm de Trazo
+## Comparación con la versión npm de ChuspaNumeric
 
-| Característica | Trazo (npm / Node.js) | Este script (Apps Script) |
+| Característica | ChuspaNumeric (npm / Node.js) | Este script (Apps Script) |
 |---|---|---|
-| Instalación | `npm install trazo` | Copiar y pegar en Apps Script |
-| Uso | `import { biseccion } from 'trazo'` | `=TRAZO_BISECCION(...)` en celda |
+| Instalación | `npm install chuspanumeric` | Copiar y pegar en Apps Script |
+| Uso | `import { biseccion } from 'chuspanumeric'` | `=TRAZO_BISECCION(...)` en celda |
 | Funciones disponibles | Todas (20+ métodos) | Las del catálogo (ampliable) |
 | Agregar función matemática | Pasar función JS | Editar `CATALOGO` en el script |
-| Actualización | `npm update trazo` | Actualización manual del script |
+| Actualización | `npm update chuspanumeric` | Actualización manual del script |
 | Rendimiento | Proceso local | Servidor de Google (30s timeout) |
 | Visualización | Terminal / código | Directamente en celdas y gráficas |
 
@@ -179,5 +179,5 @@ Las cuentas gratuitas de Google tienen un límite de 6 minutos de tiempo de ejec
 ## Recursos adicionales
 
 - [Documentación de funciones personalizadas de Apps Script](https://developers.google.com/apps-script/guides/sheets/functions)
-- [Repositorio de Trazo](https://github.com/sis-inf/trazo)
+- [Repositorio de ChuspaNumeric](https://github.com/sis-inf/chuspanumeric)
 - [Ejemplo de bisección en Observable](../observable/ejemplo-biseccion.md)
