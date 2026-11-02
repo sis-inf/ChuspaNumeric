@@ -1,43 +1,43 @@
 # Subpath Imports por Categoria
 
-Documentacion de los subpath imports disponibles en trazo y cuando usarlos.
+Documentacion de los subpath imports disponibles en chuspanumeric y cuando usarlos.
 
 ## Que son los subpath imports
 
-Los subpath imports permiten importar solo una categoria especifica de trazo en lugar del paquete completo. Esto reduce el tamano del bundle en aplicaciones que solo usan una parte de la libreria.
+Los subpath imports permiten importar solo una categoria especifica de chuspanumeric en lugar del paquete completo. Esto reduce el tamano del bundle en aplicaciones que solo usan una parte de la libreria.
 
 ## Sintaxis
 
 En lugar de importar todo el paquete:
 
-    import { biseccion, euler, simpson } from 'trazo';
+    import { biseccion, euler, simpson } from 'chuspanumeric';
 
 Puedes importar solo la categoria que necesitas:
 
-    import { euler } from 'trazo/edo';
-    import { biseccion } from 'trazo/no-lineales';
-    import { simpson } from 'trazo/integracion';
+    import { euler } from 'chuspanumeric/edo';
+    import { biseccion } from 'chuspanumeric/no-lineales';
+    import { simpson } from 'chuspanumeric/integracion';
 
 ## Categorias disponibles
 
 | Subpath | Categoria | Metodos principales |
 |---|---|---|
-| trazo/no-lineales | Ecuaciones no lineales | biseccion, newtonRaphson, secante, puntoFijo |
-| trazo/lineales | Sistemas lineales | gaussJordan, gaussSeidel, jacobi |
-| trazo/interpolacion | Interpolacion | lagrange, newtonInterpolacion, splineCubico |
-| trazo/edo | Ecuaciones diferenciales | euler, eulerMejorado, rungeKutta4 |
-| trazo/integracion | Integracion numerica | trapecio, simpson13, simpson38, gaussLegendre |
-| trazo/diferencias | Diferencias finitas | diferenciaProgresiva, diferenciaRegresiva, diferenciaCentral |
-| trazo/matricial | Algebra matricial | determinante, inversa, descomposicionLU |
-| trazo/polinomios | Operaciones con polinomios | evaluarPolinomio, sumarPolinomios |
-| trazo/analisis | Analisis numerico | regresionLineal, regresionNoLineal |
-| trazo/utils | Utilidades | convertirLongitud, convertirTemperatura, memoizar |
+| chuspanumeric/no-lineales | Ecuaciones no lineales | biseccion, newtonRaphson, secante, puntoFijo |
+| chuspanumeric/lineales | Sistemas lineales | gaussJordan, gaussSeidel, jacobi |
+| chuspanumeric/interpolacion | Interpolacion | lagrange, newtonInterpolacion, splineCubico |
+| chuspanumeric/edo | Ecuaciones diferenciales | euler, eulerMejorado, rungeKutta4 |
+| chuspanumeric/integracion | Integracion numerica | trapecio, simpson13, simpson38, gaussLegendre |
+| chuspanumeric/diferencias | Diferencias finitas | diferenciaProgresiva, diferenciaRegresiva, diferenciaCentral |
+| chuspanumeric/matricial | Algebra matricial | determinante, inversa, descomposicionLU |
+| chuspanumeric/polinomios | Operaciones con polinomios | evaluarPolinomio, sumarPolinomios |
+| chuspanumeric/analisis | Analisis numerico | regresionLineal, regresionNoLineal |
+| chuspanumeric/utils | Utilidades | convertirLongitud, convertirTemperatura, memoizar |
 
 ## Ejemplos de uso
 
 ### Importar solo metodos de EDO
 
-    import { euler, rungeKutta4 } from 'trazo/edo';
+    import { euler, rungeKutta4 } from 'chuspanumeric/edo';
 
     const f = (t, y) => -2 * y;
 
@@ -46,7 +46,7 @@ Puedes importar solo la categoria que necesitas:
 
 ### Importar solo integracion numerica
 
-    import { simpson13, trapecio } from 'trazo/integracion';
+    import { simpson13, trapecio } from 'chuspanumeric/integracion';
 
     const f = (x) => Math.sin(x);
 
@@ -58,7 +58,7 @@ Puedes importar solo la categoria que necesitas:
 
 ### Importar solo conversion de unidades
 
-    import { convertirLongitud, convertirTemperatura } from 'trazo/utils';
+    import { convertirLongitud, convertirTemperatura } from 'chuspanumeric/utils';
 
     convertirLongitud(1, 'km', 'm');      // 1000
     convertirTemperatura(100, 'C', 'F');  // 212
@@ -67,7 +67,7 @@ Puedes importar solo la categoria que necesitas:
 
 ### Usar subpath imports cuando:
 
-- Tu aplicacion usa solo una o dos categorias de trazo
+- Tu aplicacion usa solo una o dos categorias de chuspanumeric
 - El tamano del bundle es importante (aplicaciones web, moviles)
 - Quieres dejar claro en el codigo que dependencias usa cada modulo
 - Usas tree-shaking y quieres asegurarte de no incluir codigo innecesario
