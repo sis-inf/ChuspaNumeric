@@ -67,7 +67,7 @@ function mostrarResultado(resultado, args) {
 
 function showHelp() {
   console.log(`
-Trazo CLI
+ChuspaNumeric CLI
 ---------
 
 Uso:
