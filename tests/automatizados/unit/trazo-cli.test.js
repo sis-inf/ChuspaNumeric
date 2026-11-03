@@ -5,13 +5,13 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const cliPath = path.resolve(__dirname, '../../../src/cli/trazo-cli.js');
+const cliPath = path.resolve(__dirname, '../../../src/cli/chuspanumeric-cli.js');
 
 const runCli = (args) => {
   return spawnSync('node', [cliPath, ...args], { encoding: 'utf-8' });
 };
 
-describe('Trazo CLI', () => {
+describe('ChuspaNumeric CLI', () => {
   test('ejecucion exitosa del comando biseccion con argumentos validos', () => {
     const result = runCli(['biseccion', '--f', 'x^2-4', '--a', '0', '--b', '3']);
     
@@ -33,7 +33,7 @@ describe('Trazo CLI', () => {
     
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('Método "metodoInventado" no soportado');
-    expect(result.stdout).toContain('Trazo CLI');
+    expect(result.stdout).toContain('ChuspaNumeric CLI');
     expect(result.stdout).toContain('Uso:');
   });
 });
