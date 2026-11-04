@@ -34,7 +34,7 @@ async function ejecutarLoteEnWorker() {
   parentPort.postMessage({ resultados });
 }
 
-if (!isMainThread && workerData && workerData.tipo === 'ChuspaNumeric-ejecutar-paralelo') {
+if (!isMainThread && workerData && workerData.tipo === 'chuspanumeric-ejecutar-paralelo') {
   ejecutarLoteEnWorker();
 }
 
@@ -70,7 +70,7 @@ function ejecutarWorker(lote, ejecutarTarea) {
     const worker = new Worker(new URL(import.meta.url), {
       type: 'module',
       workerData: {
-        tipo: 'ChuspaNumeric-ejecutar-paralelo',
+        tipo: 'chuspanumeric-ejecutar-paralelo',
         ejecutarTarea: ejecutarTarea.toString(),
         tareas: lote
       }
