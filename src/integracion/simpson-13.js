@@ -60,7 +60,7 @@ function simpson13({ f, a, b, n = 100 }) {
 
   const resultado = (h / 3) * suma;
 
-    return crearResultado({
+  return crearResultado({
     resultado,
     iteraciones,
     convergio: true,
