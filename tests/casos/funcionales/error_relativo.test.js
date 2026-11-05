@@ -1,4 +1,5 @@
 import { newtonRaphson } from '../../../src/no-lineales/newton-raphson.js';
+import { errorRelativo, errorPorcentual } from '../../../src/utils/error_relativo.js';
 
 describe('error relativo - newton-raphson', () => {
   test('el error en cada iteración decrece hasta ser menor a tolerancia', () => {
@@ -44,5 +45,37 @@ describe('error relativo - newton-raphson', () => {
 
     const ultimaIter = res.iteraciones.at(-1);
     expect(ultimaIter.error).toBeLessThan(tolerancia);
+  });
+});
+
+describe('error relativo y porcentual - cálculo y bordes', () => {
+  test('calcula el error relativo y porcentual', () => {
+    expect(errorRelativo(4, 3)).toBe(0.25);
+    expect(errorPorcentual(4, 3)).toBe(25);
+  });
+
+  test('devuelve un error positivo cuando el valor verdadero es negativo', () => {
+    expect(errorRelativo(-4, -3)).toBe(0.25);
+    expect(errorPorcentual(-4, -3)).toBe(25);
+  });
+
+  test('lanza error cuando el valor verdadero es exactamente cero', () => {
+    expect(() => errorRelativo(0, 1)).toThrow(
+      'El valor verdadero no puede ser 0 para calcular error relativo'
+    );
+    expect(() => errorPorcentual(0, 1)).toThrow(
+      'El valor verdadero no puede ser 0 para calcular error porcentual'
+    );
+  });
+
+  test('trata -0 igual que cero', () => {
+    expect(() => errorRelativo(-0, 1)).toThrow();
+    expect(() => errorPorcentual(-0, 1)).toThrow();
+  });
+
+  test('calcula un resultado finito cuando el valor verdadero es muy cercano a cero', () => {
+    expect(errorRelativo(1e-300, 2e-300)).toBeCloseTo(1, 10);
+    expect(errorPorcentual(1e-300, 2e-300)).toBeCloseTo(100, 10);
+    expect(Number.isFinite(errorRelativo(1e-300, 1))).toBe(true);
   });
 });
