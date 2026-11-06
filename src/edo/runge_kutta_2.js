@@ -20,7 +20,7 @@ function validarEntradas(f, y0, t0, tFinal, h) {
     );
   }
   if (h <= 0) {
-    throw new Error('h debe ser mayor que 0');
+    throw new ErrorParametros("h debe ser mayor que cero.");
   }
 }
 
