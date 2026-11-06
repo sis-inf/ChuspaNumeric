@@ -1,5 +1,11 @@
 import { crearResultado } from '../core/contrato.js';
 import { ErrorParametros, ErrorConvergencia } from '../core/errores.js';
+import {
+    validarFuncion,
+    validarNumero,
+    validarTolerancia,
+    validarIteraciones
+} from '../utils/validaciones.js';
 
 /**
  * Encuentra la raíz de una función en un intervalo utilizando el método de falsa posición.
@@ -8,13 +14,20 @@ import { ErrorParametros, ErrorConvergencia } from '../core/errores.js';
  * @param {Function} params.f - Función no lineal a evaluar
  * @param {number} params.a - Extremo izquierdo del intervalo
  * @param {number} params.b - Extremo derecho del intervalo
- * @param {number} params.tolerancia - Criterio de parada para la precisión
- * @param {number} params.maxIter - Número máximo de iteraciones permitidas
+ * @param {number} [params.tolerancia=1e-6] - Criterio de parada para la precisión
+ * @param {number} [params.maxIter=100] - Número máximo de iteraciones permitidas
  * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo
- * @throws {ErrorParametros} Si f(a) * f(b) >= 0 o si los parámetros son inválidos
+ * @throws {ErrorParametros} Si f no es una función, si a o b no son números finitos,
+ *   si tolerancia o maxIter no son válidos o si f(a) * f(b) >= 0
  * @throws {ErrorConvergencia} Si se alcanza maxIter sin lograr la convergencia
  */
-export function falsaPosicion({ f, a, b, tolerancia, maxIter }) {
+export function falsaPosicion({ f, a, b, tolerancia = 1e-6, maxIter = 100 }) {
+    validarFuncion(f, 'f');
+    validarNumero(a, 'a');
+    validarNumero(b, 'b');
+    validarTolerancia(tolerancia);
+    validarIteraciones(maxIter);
+
     let fa = f(a);
     let fb = f(b);
 

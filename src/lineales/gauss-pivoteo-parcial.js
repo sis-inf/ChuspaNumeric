@@ -32,7 +32,7 @@ const UMBRAL_PIVOTE_NULO = 1e-12;
  * @param {Object} params
  * @param {number[][]} params.A - Matriz de coeficientes cuadrada (n x n)
  * @param {number[]} params.b - Vector de términos independientes (n)
- * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
  * @throws {ErrorDominio} Si el sistema no puede resolverse por pivote nulo
  */
 export function gaussPivoteoParcial({ A, b }) {

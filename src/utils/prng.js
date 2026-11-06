@@ -1,7 +1,7 @@
 /**
  * @file prng.js
  * @description Generador de números pseudoaleatorios (PRNG) con semilla
- * reproducible para uso en Trazo.
+ * reproducible para uso en ChuspaNumeric.
  *
  * ## Motivación
  *
@@ -27,14 +27,14 @@
  *
  * El LCG tiene período completo (2³² = ~4 mil millones de valores antes de
  * repetirse) y distribución uniforme, suficiente para uso en tests y métodos
- * numéricos de Trazo. Para aplicaciones criptográficas o simulaciones de
+ * numéricos de ChuspaNumeric. Para aplicaciones criptográficas o simulaciones de
  * alta calidad estadística, usar algoritmos más avanzados como Mersenne
  * Twister o xoshiro256.
  *
  * ## Uso
  *
  * ```js
- * import { crearGeneradorAleatorio } from 'trazo/src/utils/prng.js';
+ * import { crearGeneradorAleatorio } from 'chuspanumeric/src/utils/prng.js';
  *
  * const random = crearGeneradorAleatorio(42);
  * console.log(random()); // siempre el mismo valor para semilla 42
@@ -69,7 +69,7 @@ const LCG_M = 2 ** 32;
  *   finito (excepto `null`).
  *
  * @example
- * import { crearGeneradorAleatorio } from 'trazo/src/utils/prng.js';
+ * import { crearGeneradorAleatorio } from 'chuspanumeric/src/utils/prng.js';
  *
  * // Reproducible: misma semilla → misma secuencia
  * const r1 = crearGeneradorAleatorio(42);
@@ -88,7 +88,7 @@ const LCG_M = 2 ** 32;
 export function crearGeneradorAleatorio(semilla = null) {
   if (semilla !== null && (typeof semilla !== 'number' || !isFinite(semilla))) {
     throw new ErrorParametros(
-      `Trazo.crearGeneradorAleatorio: la semilla debe ser un número finito o null. ` +
+      `ChuspaNumeric.crearGeneradorAleatorio: la semilla debe ser un número finito o null. ` +
       `Se recibió: ${semilla} (${typeof semilla}).`
     );
   }

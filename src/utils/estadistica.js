@@ -111,3 +111,69 @@ export function mediana(datos) {
     return ordenados[mitad];
   }
 }
+
+/**
+ * Calcula la moda de un conjunto de datos.
+ *
+ * Devuelve un array con los valores de mayor frecuencia, en orden ascendente.
+ * Si todos los valores son únicos (ninguno se repite), devuelve un array vacío.
+ *
+ * @param {number[]} datos - Array de números
+ * @returns {number[]} Valores más frecuentes, o [] si todos son únicos
+ * @throws {Error} Si los datos no son válidos
+ *
+ * @example
+ * moda([1, 2, 2, 3]) // [2]
+ * moda([1, 1, 2, 2, 3]) // [1, 2]
+ * moda([1, 2, 3]) // []
+ */
+export function moda(datos) {
+  validarDatos(datos);
+
+  const frecuencias = new Map();
+  for (const valor of datos) {
+    frecuencias.set(valor, (frecuencias.get(valor) || 0) + 1);
+  }
+
+  const maxFrecuencia = Math.max(...frecuencias.values());
+  if (maxFrecuencia === 1) {
+    return [];
+  }
+
+  return [...frecuencias.entries()]
+    .filter(([, frecuencia]) => frecuencia === maxFrecuencia)
+    .map(([valor]) => valor)
+    .sort((a, b) => a - b);
+}
+
+/**
+ * Calcula el rango intercuartílico (IQR = Q3 - Q1) de un conjunto de datos.
+ *
+ * Los datos se ordenan internamente. Q1 es la mediana de la mitad inferior y
+ * Q3 la mediana de la mitad superior; si la cantidad de datos es impar, la
+ * mediana global no se incluye en ninguna de las dos mitades. Con un solo
+ * dato el rango es 0.
+ *
+ * @param {number[]} datos - Array de números
+ * @returns {number} El rango intercuartílico
+ * @throws {Error} Si los datos no son válidos
+ *
+ * @example
+ * rangoIntercuartilico([1, 2, 3, 4, 5, 6, 7]) // 4 (Q1 = 2, Q3 = 6)
+ * rangoIntercuartilico([1, 2, 3, 4]) // 2 (Q1 = 1.5, Q3 = 3.5)
+ */
+export function rangoIntercuartilico(datos) {
+  validarDatos(datos);
+
+  const ordenados = [...datos].sort((a, b) => a - b);
+  const n = ordenados.length;
+  if (n === 1) {
+    return 0;
+  }
+
+  const mitad = Math.floor(n / 2);
+  const inferior = ordenados.slice(0, mitad);
+  const superior = ordenados.slice(n % 2 === 0 ? mitad : mitad + 1);
+
+  return mediana(superior) - mediana(inferior);
+}

@@ -20,7 +20,7 @@ import {
  * @param {number} [opciones.tolerancia=1e-6]
  * @param {number} [opciones.maxIter=100]
  * @param {number|null} [opciones.timeoutMs=null] - Tiempo máximo de ejecución en milisegundos.
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorTimeout} Si se excede el tiempo máximo de ejecución configurado.
  * @throws {ErrorDivergencia} Si los valores se vuelven NaN o Infinity durante la iteración.
  */
@@ -41,7 +41,7 @@ function newtonRaphson({
   if (timeoutMs !== null) {
     if (typeof timeoutMs !== "number" || !isFinite(timeoutMs) || timeoutMs <= 0) {
       throw new ErrorParametros(
-        `Trazo.newtonRaphson: 'timeoutMs' debe ser un número finito mayor a cero o null. Se recibió: ${timeoutMs}.`
+        `ChuspaNumeric.newtonRaphson: 'timeoutMs' debe ser un número finito mayor a cero o null. Se recibió: ${timeoutMs}.`
       );
     }
   }
@@ -58,7 +58,7 @@ function newtonRaphson({
       if (timeoutMs !== null && (n - 1) % INTERVALO_VERIFICACION === 0) {
         if (performance.now() - inicio > timeoutMs) {
           throw new ErrorTimeout(
-            `Trazo.newtonRaphson: excedió el timeout de ${timeoutMs}ms después de ${n - 1} iteraciones.`
+            `ChuspaNumeric.newtonRaphson: excedió el timeout de ${timeoutMs}ms después de ${n - 1} iteraciones.`
           );
         }
       }
@@ -68,7 +68,7 @@ function newtonRaphson({
 
       if (dfx === 0) {
         throw new ErrorDominio(
-          `Trazo.newtonRaphson: la derivada es cero en x = ${x}.`
+          `ChuspaNumeric.newtonRaphson: la derivada es cero en x = ${x}.`
         );
       }
 

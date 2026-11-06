@@ -1,10 +1,24 @@
+import { ErrorParametros, ErrorTamano } from '../core/errores.js';
+
 export function determinanteSarrus(A) {
-  if (
-    !Array.isArray(A) ||
-    A.length !== 3 ||
-    A.some(fila => !Array.isArray(fila) || fila.length !== 3)
-  ) {
-    throw new Error('La matriz debe ser 3x3');
+  if (!Array.isArray(A)) {
+    throw new ErrorParametros('La matriz debe ser un arreglo de arreglos');
+  }
+  if (A.length !== 3) {
+    throw new ErrorTamano('La matriz debe ser 3x3');
+  }
+  for (const fila of A) {
+    if (!Array.isArray(fila)) {
+      throw new ErrorParametros('Cada fila de la matriz debe ser un arreglo');
+    }
+    if (fila.length !== 3) {
+      throw new ErrorTamano('La matriz debe ser 3x3');
+    }
+    for (const elemento of fila) {
+      if (typeof elemento !== 'number' || !Number.isFinite(elemento)) {
+        throw new ErrorParametros('Todos los elementos de la matriz deben ser números finitos');
+      }
+    }
   }
 
   const principal =

@@ -11,7 +11,7 @@ export default function EjemploComponente() {
 
   return (
     <div>
-      <h2>Ejemplo de integración de trazo con React</h2>
+      <h2>Ejemplo de integración de ChuspaNumeric con React</h2>
 
       <button onClick={calcularRaiz}>
         Ejecutar método de bisección

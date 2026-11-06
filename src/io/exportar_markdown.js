@@ -1,9 +1,9 @@
 /**
  * exportar_markdown.js
- * Trazo — Librería de Métodos Numéricos
+ * ChuspaNumeric — Librería de Métodos Numéricos
  *
  * Genera un reporte en formato Markdown a partir del resultado
- * de cualquier método numérico de Trazo, listo para pegar en
+ * de cualquier método numérico de ChuspaNumeric, listo para pegar en
  * un PR, informe o entrega académica.
  */
 
@@ -67,9 +67,9 @@ function _formatearResultado(resultado) {
 
 /**
  * Genera un reporte Markdown estructurado a partir del resultado
- * de un método numérico de Trazo.
+ * de un método numérico de ChuspaNumeric.
  *
- * @param {Object} resultado              - Objeto resultado siguiendo el contrato de Trazo.
+ * @param {Object} resultado              - Objeto resultado siguiendo el contrato de ChuspaNumeric.
  * @param {*}      resultado.resultado    - Valor o vector solución.
  * @param {Array}  resultado.iteraciones  - Historial de iteraciones.
  * @param {boolean} resultado.convergio   - Indica si el método convergió.
@@ -80,8 +80,8 @@ function _formatearResultado(resultado) {
  * @returns {string} Documento Markdown completo.
  *
  * @example
- * import { biseccion } from 'trazo';
- * import { exportarMarkdown } from 'trazo';
+ * import { biseccion } from 'chuspanumeric';
+ * import { exportarMarkdown } from 'chuspanumeric';
  *
  * const res = biseccion({ f: x => x**2 - 4, a: 0, b: 3 });
  * const md  = exportarMarkdown(res, { titulo: 'Reporte Bisección' });
@@ -89,7 +89,7 @@ function _formatearResultado(resultado) {
  */
 function exportarMarkdown(resultado, opciones = {}) {
   if (!resultado || typeof resultado !== 'object') {
-    throw new Error('exportarMarkdown: resultado debe ser un objeto válido de Trazo.');
+    throw new Error('exportarMarkdown: resultado debe ser un objeto válido de ChuspaNumeric.');
   }
 
   const {
@@ -155,7 +155,7 @@ function exportarMarkdown(resultado, opciones = {}) {
     '',
     '---',
     '',
-    `_Reporte generado por Trazo — ${new Date().toISOString()}_`,
+    `_Reporte generado por ChuspaNumeric — ${new Date().toISOString()}_`,
   );
 
   return lineas.join('\n');

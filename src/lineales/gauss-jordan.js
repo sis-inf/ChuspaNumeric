@@ -7,7 +7,7 @@ import { ErrorDominio } from "../core/errores.js";
  *
  * @param {number[][]} A - Matriz de coeficientes cuadrada (n×n).
  * @param {number[]}   b - Vector de términos independientes (longitud n).
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorDominio} Si se encuentra un pivote nulo y no puede resolverse.
  *
  * @example
@@ -35,7 +35,7 @@ function gaussJordan({ A, b }) {
  
       if (filaPivote === -1) {
         throw new ErrorDominio(
-          `Trazo.gaussJordan: pivote nulo en la columna ${k}. ` +
+          `ChuspaNumeric.gaussJordan: pivote nulo en la columna ${k}. ` +
           `El sistema puede ser singular o no tener solución única.`
         );
       }

@@ -46,8 +46,8 @@ export function errorRelativoAproximado(xNuevo, xAnterior) {
     if (isNaN(xNuevo) || isNaN(xAnterior)) {
         throw new Error('Los valores no pueden ser NaN');
     }
-    if (xAnterior === 0) {
-        throw new Error('El valor anterior no puede ser 0 para calcular error relativo aproximado');
+    if (xNuevo === 0) {
+        throw new Error('El valor nuevo no puede ser 0 para calcular error relativo aproximado');
     }
     return Math.abs((xNuevo - xAnterior) / xNuevo);
 }

@@ -1,8 +1,8 @@
-# Manejo de Errores en Trazo
+# Manejo de Errores en ChuspaNumeric
 
 ## Introducción
 
-La biblioteca Trazo utiliza distintos tipos de errores para informar problemas durante la ejecución de los métodos numéricos. Conocer estos errores permite identificar correctamente la causa de un problema y aplicar un manejo adecuado mediante bloques try/catch.
+La biblioteca ChuspaNumeric utiliza distintos tipos de errores para informar problemas durante la ejecución de los métodos numéricos. Conocer estos errores permite identificar correctamente la causa de un problema y aplicar un manejo adecuado mediante bloques try/catch.
 
 ---
 

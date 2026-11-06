@@ -21,7 +21,7 @@ import { ErrorDivergencia } from "../core/errores.js";
 function validarNumero(valor, nombre) {
   if (typeof valor !== "number" || !isFinite(valor)) {
     throw new ErrorParametros(
-      `Trazo: '${nombre}' debe ser un número finito. Se recibió: ${valor} (${typeof valor}).`
+      `ChuspaNumeric: '${nombre}' debe ser un número finito. Se recibió: ${valor} (${typeof valor}).`
     );
   }
 }
@@ -40,7 +40,7 @@ function validarNumero(valor, nombre) {
 function validarFuncion(fn, nombre) {
   if (typeof fn !== "function") {
     throw new ErrorParametros(
-      `Trazo: '${nombre}' debe ser una función. Se recibió: ${typeof fn}.`
+      `ChuspaNumeric: '${nombre}' debe ser una función. Se recibió: ${typeof fn}.`
     );
   }
 }
@@ -59,7 +59,7 @@ function validarFuncion(fn, nombre) {
 function validarTolerancia(tol) {
   if (typeof tol !== "number" || !isFinite(tol) || tol <= 0) {
     throw new ErrorParametros(
-      `Trazo: 'tolerancia' debe ser un número finito mayor a cero. Se recibió: ${tol}.`
+      `ChuspaNumeric: 'tolerancia' debe ser un número finito mayor a cero. Se recibió: ${tol}.`
     );
   }
 }
@@ -83,7 +83,7 @@ function validarIteraciones(maxIter) {
     maxIter <= 0
   ) {
     throw new ErrorParametros(
-      `Trazo: 'maxIter' debe ser un entero mayor a cero. Se recibió: ${maxIter}.`
+      `ChuspaNumeric: 'maxIter' debe ser un entero mayor a cero. Se recibió: ${maxIter}.`
     );
   }
 }
@@ -104,17 +104,17 @@ function validarIteraciones(maxIter) {
 function validarIntervalo(a, b) {
   if (typeof a !== "number" || !isFinite(a)) {
     throw new ErrorParametros(
-      `Trazo: el límite inferior 'a' debe ser un número finito. Se recibió: ${a}.`
+      `ChuspaNumeric: el límite inferior 'a' debe ser un número finito. Se recibió: ${a}.`
     );
   }
   if (typeof b !== "number" || !isFinite(b)) {
     throw new ErrorParametros(
-      `Trazo: el límite superior 'b' debe ser un número finito. Se recibió: ${b}.`
+      `ChuspaNumeric: el límite superior 'b' debe ser un número finito. Se recibió: ${b}.`
     );
   }
   if (a >= b) {
     throw new ErrorParametros(
-      `Trazo: el límite inferior 'a' (${a}) debe ser estrictamente menor que 'b' (${b}).`
+      `ChuspaNumeric: el límite inferior 'a' (${a}) debe ser estrictamente menor que 'b' (${b}).`
     );
   }
 }
@@ -133,7 +133,7 @@ function validarIntervalo(a, b) {
 function validarMatrizCuadrada(matriz) {
   if (!Array.isArray(matriz) || matriz.length === 0) {
     throw new ErrorParametros(
-      `Trazo: la matriz debe ser un array bidimensional no vacío. Se recibió: ${typeof matriz}.`
+      `ChuspaNumeric: la matriz debe ser un array bidimensional no vacío. Se recibió: ${typeof matriz}.`
     );
   }
 
@@ -141,13 +141,13 @@ function validarMatrizCuadrada(matriz) {
 
   if (!matriz.every(Array.isArray)) {
     throw new ErrorParametros(
-      `Trazo: la matriz debe ser un array bidimensional (array de arrays).`
+      `ChuspaNumeric: la matriz debe ser un array bidimensional (array de arrays).`
     );
   }
 
   if (matriz.some((fila) => fila.length !== n)) {
     throw new ErrorParametros(
-      `Trazo: la matriz debe ser cuadrada (${n}×${n}). ` +
+      `ChuspaNumeric: la matriz debe ser cuadrada (${n}×${n}). ` +
       `Algunas filas tienen longitud diferente a ${n}.`
     );
   }
@@ -170,20 +170,20 @@ function validarMatrizCuadrada(matriz) {
 function validarVector(vector, dimension) {
   if (!Array.isArray(vector)) {
     throw new ErrorParametros(
-      `Trazo: el vector debe ser un array. Se recibió: ${typeof vector}.`
+      `ChuspaNumeric: el vector debe ser un array. Se recibió: ${typeof vector}.`
     );
   }
 
   if (vector.length !== dimension) {
     throw new ErrorParametros(
-      `Trazo: el vector debe tener longitud ${dimension}. Se recibió longitud ${vector.length}.`
+      `ChuspaNumeric: el vector debe tener longitud ${dimension}. Se recibió longitud ${vector.length}.`
     );
   }
 
   for (let i = 0; i < vector.length; i++) {
     if (typeof vector[i] !== "number" || !isFinite(vector[i])) {
       throw new ErrorParametros(
-        `Trazo: el elemento vector[${i}] debe ser un número finito. Se recibió: ${vector[i]}.`
+        `ChuspaNumeric: el elemento vector[${i}] debe ser un número finito. Se recibió: ${vector[i]}.`
       );
     }
   }
@@ -209,7 +209,7 @@ function validarVector(vector, dimension) {
 function verificarDivergencia(valor, metodo, iteracion) {
   if (typeof valor !== "number" || Number.isNaN(valor) || !isFinite(valor)) {
     throw new ErrorDivergencia(
-      `Trazo.${metodo}: divergencia numérica detectada en la iteración ${iteracion}. ` +
+      `ChuspaNumeric.${metodo}: divergencia numérica detectada en la iteración ${iteracion}. ` +
       `El valor calculado es ${valor}, lo cual indica que el método no converge ` +
       `numéricamente para los parámetros dados.`
     );

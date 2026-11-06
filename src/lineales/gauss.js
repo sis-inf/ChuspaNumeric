@@ -15,7 +15,7 @@ const UMBRAL_PIVOTE_ADVERTENCIA = 1e-10;
  * @param {Object} params
  * @param {number[][]} params.A - Matriz de coeficientes (n x n)
  * @param {number[]}   params.b - Vector de términos independientes (n)
- * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
  * @throws {ErrorDominio} Si se detecta un pivote nulo que impide la operación
  */
 export function gauss({ A, b }) {

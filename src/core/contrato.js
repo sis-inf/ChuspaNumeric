@@ -1,5 +1,5 @@
 /**
- * Crea un objeto de resultado uniforme para los métodos numéricos de Trazo.
+ * Crea un objeto de resultado uniforme para los métodos numéricos de ChuspaNumeric.
  *
  * @param {Object} opciones
  * @param {number|Array|null} opciones.resultado
@@ -50,7 +50,7 @@ function crearResultado({
 function medirTiempo(fn) {
   if (typeof fn !== "function") {
     throw new TypeError(
-      `Trazo.medirTiempo: 'fn' debe ser una función. Se recibió: ${typeof fn}`
+      `ChuspaNumeric.medirTiempo: 'fn' debe ser una función. Se recibió: ${typeof fn}`
     );
   }
  

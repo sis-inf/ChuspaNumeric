@@ -1,6 +1,6 @@
 # Métodos Numéricos para Ecuaciones Diferenciales Ordinarias (EDOs)
 
-Este documento describe los métodos numéricos implementados en **Trazo** para resolver ecuaciones diferenciales ordinarias (EDOs) de primer orden de la forma:
+Este documento describe los métodos numéricos implementados en **ChuspaNumeric** para resolver ecuaciones diferenciales ordinarias (EDOs) de primer orden de la forma:
 
 ```
 dy/dx = f(x, y),   y(x₀) = y₀
@@ -14,7 +14,7 @@ Se cubren los fundamentos teóricos, el error de truncación, los criterios de e
 
 Una ecuación diferencial ordinaria expresa la relación entre una función desconocida `y(x)` y su derivada. En la práctica, la mayoría de EDOs que aparecen en ingeniería, física y biología **no tienen solución analítica cerrada**, por lo que se recurre a métodos numéricos que construyen una aproximación paso a paso desde la condición inicial `y(x₀) = y₀`.
 
-Todos los métodos de Trazo siguen este esquema general:
+Todos los métodos de ChuspaNumeric siguen este esquema general:
 
 ```
 Dado (xₙ, yₙ), calcular yₙ₊₁ ≈ y(xₙ + h)
@@ -63,10 +63,10 @@ h_max = 2 / |λ|
 
 Para problemas sin parámetro `λ` explícito, se recomienda empezar con `h = 0.1` y reducirlo hasta que los resultados sean estables.
 
-### Uso en Trazo
+### Uso en ChuspaNumeric
 
 ```javascript
-import { euler } from 'trazo';
+import { euler } from 'ChuspaNumeric';
 
 const res = euler({ f: (x, y) => -y, x0: 0, y0: 1, h: 0.1, xFinal: 2 });
 // res.resultado: array de pares [x, y]
@@ -110,10 +110,10 @@ h_max ≈ 2 / |λ|
 
 Para obtener errores menores a `1e-4`, se recomienda `h ≤ 0.01` en problemas típicos de ingeniería.
 
-### Uso en Trazo
+### Uso en ChuspaNumeric
 
 ```javascript
-import { eulerMejorado } from 'trazo';
+import { eulerMejorado } from 'ChuspaNumeric';
 
 const res = eulerMejorado({ f: (x, y) => -y, x0: 0, y0: 1, h: 0.1, xFinal: 2 });
 ```
