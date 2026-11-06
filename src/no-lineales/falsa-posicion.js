@@ -16,7 +16,7 @@ import {
  * @param {number} params.b - Extremo derecho del intervalo
  * @param {number} [params.tolerancia=1e-6] - Criterio de parada para la precisión
  * @param {number} [params.maxIter=100] - Número máximo de iteraciones permitidas
- * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
  * @throws {ErrorParametros} Si f no es una función, si a o b no son números finitos,
  *   si tolerancia o maxIter no son válidos o si f(a) * f(b) >= 0
  * @throws {ErrorConvergencia} Si se alcanza maxIter sin lograr la convergencia
