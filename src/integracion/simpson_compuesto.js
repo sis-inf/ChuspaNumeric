@@ -32,7 +32,7 @@ export function simpsonCompuesto(f, a, b, n) {
 
     if (n % 2 !== 0) {
         throw new ErrorParametros(
-            `ChuspaNumeric: 'n' debe ser par. Se recibió: ${n}.`
+            `ChuspaNumeric.simpsonCompuesto: la regla de Simpson 1/3 requiere un numero par de subintervalos. Se recibió: ${n}.`
         );
     }
 
