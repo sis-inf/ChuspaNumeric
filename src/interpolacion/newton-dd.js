@@ -7,7 +7,10 @@ import { validarNumero } from "../utils/validaciones.js";
  *
  * @param {Array}  puntos - Array de pares [xi, yi] con al menos dos puntos.
  * @param {number} x      - Valor donde se evalúa el polinomio interpolante.
- * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric, con dos campos adicionales:
+ *   - `tabla`: tabla de diferencias divididas (un arreglo por nivel; el nivel 0 son los yi).
+ *   - `evaluar(x)`: función que evalúa el polinomio interpolante en cualquier x
+ *     con el esquema anidado de Horner sobre los coeficientes de la tabla.
  * @throws {ErrorParametros} Si puntos no es válido o hay x's repetidos.
  */
 function newtonDD({ puntos, x }) {
@@ -72,7 +75,20 @@ function newtonDD({ puntos, x }) {
     resultado += coeficientes[i] * productorio;
   }
 
-  return crearResultado({
+  // Evaluador del polinomio de Newton con el esquema anidado de Horner:
+  // P(x) = c0 + (x - x0) * (c1 + (x - x1) * (c2 + ...))
+  const evaluar = (valor) => {
+    validarNumero(valor, "x");
+
+    let suma = coeficientes[n - 1];
+    for (let i = n - 2; i >= 0; i--) {
+      suma = suma * (valor - xs[i]) + coeficientes[i];
+    }
+
+    return suma;
+  };
+
+  const salida = crearResultado({
     resultado,
     iteraciones,
     convergio: true,
@@ -83,6 +99,12 @@ function newtonDD({ puntos, x }) {
       tiempo_ms: 0,
     },
   });
+
+  // crearResultado solo copia los campos del contrato: la tabla y el evaluador se agregan aquí.
+  salida.tabla = tabla.map((nivel) => nivel.slice());
+  salida.evaluar = evaluar;
+
+  return salida;
 }
 
 export { newtonDD };
