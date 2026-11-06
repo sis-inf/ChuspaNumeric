@@ -184,7 +184,7 @@ function crearPRNG(semilla) {
  *   no es un entero positivo.
  *
  * @example
- * import { integracionMonteCarlo } from 'ChuspaNumeric/src/integracion/monte_carlo.js';
+ * import { integracionMonteCarlo } from 'chuspanumeric/src/integracion/monte_carlo.js';
  *
  * // Integral 1D: ∫₀¹ x² dx = 1/3 ≈ 0.333...
  * const r1 = integracionMonteCarlo({
