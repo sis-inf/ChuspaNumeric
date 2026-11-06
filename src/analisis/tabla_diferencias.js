@@ -1,7 +1,19 @@
-export function construirTablaAdelante(ys) {
-    if (!Array.isArray(ys) || ys.length < 2) {
-        throw new Error('Se requieren al menos 2 elementos');
+import { ErrorParametros } from '../core/errores.js';
+
+function validarSerie(ys) {
+    if (!Array.isArray(ys)) {
+        throw new ErrorParametros('ys debe ser un arreglo.');
     }
+    if (ys.length < 2) {
+        throw new ErrorParametros('ys debe tener al menos 2 elementos.');
+    }
+    if (!ys.every(y => typeof y === 'number' && Number.isFinite(y))) {
+        throw new ErrorParametros('ys debe contener solo números finitos.');
+    }
+}
+
+export function construirTablaAdelante(ys) {
+    validarSerie(ys);
 
     const tabla = [ys.slice()];
     let actual = ys.slice();
@@ -21,9 +33,7 @@ export function construirTablaAdelante(ys) {
 }
 
 export function construirTablaAtras(ys) {
-    if (!Array.isArray(ys) || ys.length < 2) {
-        throw new Error('Se requieren al menos 2 elementos');
-    }
+    validarSerie(ys);
 
     const tabla = [ys.slice()];
     let actual = ys.slice();

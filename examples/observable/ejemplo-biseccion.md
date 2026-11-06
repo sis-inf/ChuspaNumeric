@@ -1,11 +1,11 @@
-# Ejemplo de bisección usando trazo en Observable
+# Ejemplo de bisección usando ChuspaNumeric en Observable
 
-Este ejemplo muestra cómo utilizar la librería `trazo` dentro de un notebook de Observable importando el paquete publicado mediante un CDN.
+Este ejemplo muestra cómo utilizar la librería `ChuspaNumeric` dentro de un notebook de Observable importando el paquete publicado mediante un CDN.
 
-## Importar trazo desde CDN
+## Importar ChuspaNumeric desde CDN
 
 ```js
-import { biseccion } from "https://cdn.jsdelivr.net/npm/trazo/+esm"
+import { biseccion } from "https://cdn.jsdelivr.net/npm/ChuspaNumeric/+esm"
 ```
 
 ## Definir función

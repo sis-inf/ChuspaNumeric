@@ -1,4 +1,5 @@
 import { crearResultado } from '../core/contrato.js';
+import { ErrorParametros } from '../core/errores.js';
 import { validarFuncion, validarNumero } from '../utils/validaciones.js';
 
 /**
@@ -22,19 +23,19 @@ import { validarFuncion, validarNumero } from '../utils/validaciones.js';
  * });
  */
 export function rungeKutta4({ f, x0, y0, h, xFinal }) {
-  validarFuncion(f);
+  validarFuncion(f, 'f');
 
-  validarNumero(x0);
-  validarNumero(y0);
-  validarNumero(h);
-  validarNumero(xFinal);
+  validarNumero(x0, 'x0');
+  validarNumero(y0, 'y0');
+  validarNumero(h, 'h');
+  validarNumero(xFinal, 'xFinal');
 
   if (h <= 0) {
-    throw new Error('El paso h debe ser mayor que cero.');
+    throw new ErrorParametros('El paso h debe ser mayor que cero.');
   }
 
   if (xFinal <= x0) {
-    throw new Error('xFinal debe ser mayor que x0.');
+    throw new ErrorParametros('xFinal debe ser mayor que x0.');
   }
 
   const iteraciones = [];

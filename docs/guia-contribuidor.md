@@ -9,8 +9,8 @@ Primero crea un fork del repositorio desde GitHub utilizando el botón *Fork*.
 ## 2. Clonar el repositorio
 
 bash
-git clone https://github.com/TU-USUARIO/trazo.git
-cd trazo
+git clone https://github.com/TU-USUARIO/ChuspaNumeric.git
+cd ChuspaNumeric
 
 
 ## 3. Instalar dependencias

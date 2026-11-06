@@ -26,13 +26,13 @@ export function simpsonCompuesto(f, a, b, n) {
 
     if (!Number.isInteger(n) || n < 2) {
         throw new ErrorParametros(
-            `Trazo: 'n' debe ser un entero mayor o igual a 2. Se recibió: ${n}.`
+            `ChuspaNumeric: 'n' debe ser un entero mayor o igual a 2. Se recibió: ${n}.`
         );
     }
 
     if (n % 2 !== 0) {
         throw new ErrorParametros(
-            `Trazo: 'n' debe ser par. Se recibió: ${n}.`
+            `ChuspaNumeric: 'n' debe ser par. Se recibió: ${n}.`
         );
     }
 

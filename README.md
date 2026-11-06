@@ -1,10 +1,10 @@
-# Trazo
+# ChuspaNumeric
 
-> Trazo es una librería de métodos numéricos en JavaScript para resolver sistemas de ecuaciones, interpolar datos, integrar funciones y resolver ecuaciones diferenciales mediante métodos de aproximación.
+> ChuspaNumeric es una librería de métodos numéricos en JavaScript para resolver sistemas de ecuaciones, interpolar datos, integrar funciones y resolver ecuaciones diferenciales mediante métodos de aproximación.
 
 ## ¿Qué es?
 
-Trazo es una librería de métodos numéricos escrita en JavaScript que implementa 20 algoritmos clásicos agrupados en cinco categorías: sistemas de ecuaciones lineales, ecuaciones no lineales, interpolación, integración numérica y ecuaciones diferenciales ordinarias (EDO). Todos los métodos siguen un contrato de retorno uniforme, lo que permite combinarlos y consumirlos de forma predecible sin importar la categoría a la que pertenezcan.
+ChuspaNumeric es una librería de métodos numéricos escrita en JavaScript que implementa 20 algoritmos clásicos agrupados en cinco categorías: sistemas de ecuaciones lineales, ecuaciones no lineales, interpolación, integración numérica y ecuaciones diferenciales ordinarias (EDO). Todos los métodos siguen un contrato de retorno uniforme, lo que permite combinarlos y consumirlos de forma predecible sin importar la categoría a la que pertenezcan.
 
 ## ¿Para quién es?
 
@@ -16,7 +16,7 @@ Este proyecto está dirigido a:
 
 ## ¿Qué problema resuelve?
 
-Implementar métodos numéricos correctamente (control de tolerancia, manejo de errores de convergencia, registro de iteraciones) toma tiempo y es propenso a errores sutiles. Trazo resuelve esto ofreciendo implementaciones ya probadas, con validación de parámetros y un formato de resultado consistente, para que el desarrollador pueda enfocarse en su aplicación en lugar de en los detalles del algoritmo.
+Implementar métodos numéricos correctamente (control de tolerancia, manejo de errores de convergencia, registro de iteraciones) toma tiempo y es propenso a errores sutiles. ChuspaNumeric resuelve esto ofreciendo implementaciones ya probadas, con validación de parámetros y un formato de resultado consistente, para que el desarrollador pueda enfocarse en su aplicación en lugar de en los detalles del algoritmo.
 
 ## Instalación
 
@@ -29,8 +29,8 @@ npm install trazo
 Para clonar el repositorio y trabajar directamente con el código fuente:
 
 ```bash
-git clone https://github.com/sis-inf/trazo.git
-cd trazo
+git clone https://github.com/sis-inf/ChuspaNumeric.git
+cd ChuspaNumeric
 npm install
 ```
 
@@ -93,7 +93,7 @@ console.log('Integral aproximada:', resultado.resultado);
 
 ## Estructura del retorno
 
-Todos los métodos de Trazo devuelven un objeto con la misma forma, generado internamente mediante `crearResultado()`:
+Todos los métodos de ChuspaNumeric devuelven un objeto con la misma forma, generado internamente mediante `crearResultado()`:
 
 ```js
 {

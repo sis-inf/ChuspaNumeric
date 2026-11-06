@@ -12,7 +12,7 @@ import {
  *
  * @param {number[][]} A - Matriz de coeficientes cuadrada (n×n).
  * @param {number[]}   b - Vector de términos independientes (longitud n).
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorDominio} Si aparece un pivote nulo durante la descomposición.
  *
  * @example
@@ -43,7 +43,7 @@ function lu({ A, b }) {
   for (let k = 0; k < n; k++) {
     if (U[k][k] === 0) {
       throw new ErrorDominio(
-        `Trazo.lu: pivote nulo en U[${k}][${k}]. ` +
+        `ChuspaNumeric.lu: pivote nulo en U[${k}][${k}]. ` +
         `La descomposición LU no puede continuar sin pivoteo.`
       );
     }

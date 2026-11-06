@@ -2,17 +2,17 @@ import { ErrorParametros } from '../core/errores.js';
 
 function validarVector(v, nombre) {
   if (!Array.isArray(v)) {
-    throw new ErrorParametros(`Trazo.algebraVectores: '${nombre}' debe ser un vector.`);
+    throw new ErrorParametros(`ChuspaNumeric.algebraVectores: '${nombre}' debe ser un vector.`);
   }
 
   if (v.length === 0) {
-    throw new ErrorParametros(`Trazo.algebraVectores: '${nombre}' no puede estar vacío.`);
+    throw new ErrorParametros(`ChuspaNumeric.algebraVectores: '${nombre}' no puede estar vacío.`);
   }
 
   for (const valor of v) {
     if (typeof valor !== 'number' || !Number.isFinite(valor)) {
       throw new ErrorParametros(
-        `Trazo.algebraVectores: '${nombre}' solo debe contener números finitos.`
+        `ChuspaNumeric.algebraVectores: '${nombre}' solo debe contener números finitos.`
       );
     }
   }
@@ -21,7 +21,7 @@ function validarVector(v, nombre) {
 function validarMismaDimension(v1, v2) {
   if (v1.length !== v2.length) {
     throw new ErrorParametros(
-      `Trazo.algebraVectores: los vectores deben tener la misma dimensión. ` +
+      `ChuspaNumeric.algebraVectores: los vectores deben tener la misma dimensión. ` +
       `Se recibió ${v1.length} y ${v2.length}.`
     );
   }
@@ -69,7 +69,7 @@ export function productoCruz(v1, v2) {
 
   if (v1.length !== 3 || v2.length !== 3) {
     throw new ErrorParametros(
-      'Trazo.algebraVectores: productoCruz solo está definido para vectores de dimensión 3.'
+      'ChuspaNumeric.algebraVectores: productoCruz solo está definido para vectores de dimensión 3.'
     );
   }
 
@@ -99,7 +99,7 @@ export function normalizarVector(v) {
 
   if (magnitud === 0) {
     throw new ErrorParametros(
-      'Trazo.algebraVectores: no se puede normalizar el vector cero.'
+      'ChuspaNumeric.algebraVectores: no se puede normalizar el vector cero.'
     );
   }
 
@@ -112,11 +112,49 @@ export function normalizarVector(v) {
 export function escalarPorVector(escalar, v) {
   if (typeof escalar !== 'number' || !Number.isFinite(escalar)) {
     throw new ErrorParametros(
-      `Trazo.algebraVectores: 'escalar' debe ser un número finito. Se recibió: ${escalar}.`
+      `ChuspaNumeric.algebraVectores: 'escalar' debe ser un número finito. Se recibió: ${escalar}.`
     );
   }
 
   validarVector(v, 'v');
 
   return v.map((valor) => escalar * valor);
+}
+
+/**
+ * Calcula la distancia euclidiana entre dos puntos (la norma de su diferencia).
+ *
+ * @example
+ * distanciaEuclidiana([1, 2], [4, 6]) // 5
+ */
+export function distanciaEuclidiana(v1, v2) {
+  return magnitudVector(restaVectores(v1, v2));
+}
+
+/**
+ * Calcula el ángulo en radianes entre dos vectores de la misma dimensión.
+ *
+ * El coseno se acota a [-1, 1] para evitar valores fuera de dominio por errores
+ * de redondeo. Lanza ErrorParametros si alguno de los vectores tiene magnitud cero.
+ *
+ * @example
+ * anguloEntreVectores([1, 0], [0, 1]) // Math.PI / 2
+ */
+export function anguloEntreVectores(v1, v2) {
+  validarVector(v1, 'v1');
+  validarVector(v2, 'v2');
+  validarMismaDimension(v1, v2);
+
+  const magnitud1 = magnitudVector(v1);
+  const magnitud2 = magnitudVector(v2);
+
+  if (magnitud1 === 0 || magnitud2 === 0) {
+    throw new ErrorParametros(
+      'ChuspaNumeric.algebraVectores: no se puede calcular el ángulo con un vector de magnitud cero.'
+    );
+  }
+
+  const coseno = productoPunto(v1, v2) / (magnitud1 * magnitud2);
+
+  return Math.acos(Math.min(1, Math.max(-1, coseno)));
 }

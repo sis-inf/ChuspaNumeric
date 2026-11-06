@@ -16,4 +16,4 @@ _cli_complete() {
     fi
 }
 
-complete -F _cli_complete trazo
+complete -F _cli_complete chuspanumeric
