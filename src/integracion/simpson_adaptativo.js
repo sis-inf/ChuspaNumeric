@@ -25,7 +25,8 @@ import { validarFuncion, validarIntervalo } from '../utils/validaciones.js';
  * @param {number} params.a - Extremo inferior del intervalo.
  * @param {number} params.b - Extremo superior del intervalo.
  * @param {number} [params.tolerancia=1e-6] - Tolerancia de error aceptada.
- * @param {number} [params.maxProfundidad=20] - Profundidad máxima de recursión.
+ * @param {number} [params.profundidadMaxima=20] - Profundidad máxima de recursión.
+ * @param {number} [params.maxProfundidad] - Alias de profundidadMaxima, se mantiene por compatibilidad.
  * @returns {Object} Objeto con la forma definida en contrato.js.
  * @throws {ErrorParametros} Si los parámetros de tolerancia o profundidad no son válidos.
  */
@@ -34,7 +35,8 @@ export function simpsonAdaptativo({
     a,
     b,
     tolerancia = 1e-6,
-    maxProfundidad = 20
+    profundidadMaxima = 20,
+    maxProfundidad = profundidadMaxima
 }) {
     validarFuncion(f, 'f');
     validarIntervalo(a, b);
