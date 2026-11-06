@@ -93,6 +93,88 @@ console.log('Integral aproximada:', resultado.resultado);
 
 ## Estructura del retorno
 
+## Ejemplos de consumo con ES Modules
+
+ChuspaNumeric es un paquete ES Modules (`"type": "module"` en `package.json`) y requiere Node.js 16 o superior. Mientras el paquete no esté publicado en npm, los ejemplos importan cada método directamente desde su archivo fuente, con ruta relativa desde la raíz del repositorio clonado. En ES Modules la extensión `.js` es obligatoria en cada `import`.
+
+### En Node.js
+
+Guarda cada ejemplo en un archivo `.mjs` en la raíz del repositorio y ejecútalo con `node ejemplo.mjs`.
+
+**Raíces (bisección):**
+
+```js
+import { biseccion } from './src/no-lineales/biseccion.js';
+
+const raiz = biseccion({
+  f: (x) => x * x - 4,
+  a: 0,
+  b: 3,
+  tolerancia: 1e-6,
+  maxIter: 100,
+});
+
+console.log(raiz.resultado); // ≈ 2
+```
+
+**Integración (Simpson 1/3 compuesto):** `n` debe ser un entero par mayor o igual a 2.
+
+```js
+import { simpsonCompuesto } from './src/integracion/simpson_compuesto.js';
+
+const integral = simpsonCompuesto((x) => x * x, 0, 1, 4);
+
+console.log(integral.resultado); // ≈ 0.3333
+```
+
+**Matrices:** estas funciones devuelven la matriz directamente, no el objeto de retorno de los demás métodos.
+
+```js
+import { multiplicarMatrices, transpuesta } from './src/matricial/algebra_matrices.js';
+
+const A = [
+  [1, 2],
+  [3, 4],
+];
+const B = [
+  [5, 6],
+  [7, 8],
+];
+
+console.log(multiplicarMatrices(A, B)); // [[19, 22], [43, 50]]
+console.log(transpuesta(A)); // [[1, 3], [2, 4]]
+```
+
+### En el navegador
+
+Los módulos no se cargan desde `file://`: sirve la raíz del repositorio con cualquier servidor HTTP estático y abre la página desde ahí.
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+  <body>
+    <pre id="salida"></pre>
+    <script type="module">
+      import { biseccion } from './src/no-lineales/biseccion.js';
+
+      const raiz = biseccion({ f: (x) => x * x - 4, a: 0, b: 3 });
+      document.getElementById('salida').textContent = `Raíz aproximada: ${raiz.resultado}`;
+    </script>
+  </body>
+</html>
+```
+
+### Scripts de prueba
+
+| Comando | Qué hace |
+|---|---|
+| `npm test` | Ejecuta la suite completa de Jest. |
+| `npm test -- tests/automatizados/unit/<archivo>.test.js` | Ejecuta las pruebas de un solo archivo. |
+| `npm run lint` | Revisa el código con ESLint. |
+| `npm run format:check` | Comprueba el formato con Prettier. |
+
+> 👉 Usa siempre `npm test`: Jest necesita la opción `--experimental-vm-modules` para ES Modules, y `npx jest` a secas falla.
+
 Todos los métodos de ChuspaNumeric devuelven un objeto con la misma forma, generado internamente mediante `crearResultado()`:
 
 ```js
