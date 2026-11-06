@@ -19,7 +19,7 @@ import { validarFuncion, validarIntervalo } from "../utils/validaciones.js";
  * @param {number} params.a - Extremo inferior del intervalo.
  * @param {number} params.b - Extremo superior del intervalo.
  * @param {number} [params.n=100] - Número de subintervalos.
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {Error} Si los parámetros no son válidos.
  *
  * @example
@@ -33,7 +33,7 @@ function trapecio({ f, a, b, n = 100 }) {
 
   if (!Number.isInteger(n) || n <= 0) {
     throw new Error(
-      `Trazo.trapecio: n debe ser un entero positivo. Se recibió: ${n}`
+      `ChuspaNumeric.trapecio: n debe ser un entero positivo. Se recibió: ${n}`
     );
   }
 
@@ -63,7 +63,7 @@ function trapecio({ f, a, b, n = 100 }) {
     return { resultado, iteraciones };
   });
 
-  // ── 3. RETORNAR usando el contrato de Trazo ─────────────────
+  // ── 3. RETORNAR usando el contrato de ChuspaNumeric ─────────────────
   return crearResultado({
     resultado: valor.resultado,
     iteraciones: valor.iteraciones,

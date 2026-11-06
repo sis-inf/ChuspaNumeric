@@ -1,6 +1,6 @@
 # Conversion de Unidades Fisicas
 
-Documentacion de las utilidades de conversion de unidades fisicas disponibles en trazo.
+Documentacion de las utilidades de conversion de unidades fisicas disponibles en ChuspaNumeric.
 
 ## Categorias y unidades soportadas
 
@@ -61,7 +61,7 @@ Unidad base: julio (J)
 
 ### Conversion de longitud
 
-    import { convertirLongitud } from 'trazo';
+    import { convertirLongitud } from 'ChuspaNumeric';
 
     convertirLongitud(1, 'km', 'm');   // 1000
     convertirLongitud(1, 'ft', 'm');   // 0.3048
@@ -69,7 +69,7 @@ Unidad base: julio (J)
 
 ### Conversion de temperatura
 
-    import { convertirTemperatura } from 'trazo';
+    import { convertirTemperatura } from 'ChuspaNumeric';
 
     convertirTemperatura(100, 'C', 'F'); // 212
     convertirTemperatura(0, 'C', 'K');   // 273.15
@@ -77,7 +77,7 @@ Unidad base: julio (J)
 
 ### Conversion de presion
 
-    import { convertirPresion } from 'trazo';
+    import { convertirPresion } from 'ChuspaNumeric';
 
     convertirPresion(1, 'atm', 'Pa');  // 101325
     convertirPresion(1, 'bar', 'kPa'); // 100
@@ -85,7 +85,7 @@ Unidad base: julio (J)
 
 ### Conversion de energia
 
-    import { convertirEnergia } from 'trazo';
+    import { convertirEnergia } from 'ChuspaNumeric';
 
     convertirEnergia(1, 'kWh', 'J');   // 3600000
     convertirEnergia(1, 'kcal', 'J');  // 4184
@@ -93,7 +93,7 @@ Unidad base: julio (J)
 
 ## Consultar unidades disponibles
 
-    import { unidadesDisponibles } from 'trazo';
+    import { unidadesDisponibles } from 'ChuspaNumeric';
 
     const { longitud, temperatura, presion, energia } = unidadesDisponibles();
     console.log(longitud);
@@ -103,7 +103,7 @@ Unidad base: julio (J)
 
 Si se pasa una unidad no soportada o un valor no numerico, se lanza ErrorParametros:
 
-    import { convertirLongitud, ErrorParametros } from 'trazo';
+    import { convertirLongitud, ErrorParametros } from 'ChuspaNumeric';
 
     try {
       convertirLongitud(1, 'km', 'liga');

@@ -1,8 +1,8 @@
-# Guía de uso de Trazo como dependencia
+# Guía de uso de ChuspaNumeric como dependencia
 
 ## Introducción
 
-Trazo es una librería para métodos numéricos implementada en JavaScript. Proporciona funciones para integración numérica, interpolación, sistemas lineales y métodos no lineales.
+ChuspaNumeric es una librería para métodos numéricos implementada en JavaScript. Proporciona funciones para integración numérica, interpolación, sistemas lineales y métodos no lineales.
 
 Esta guía explica cómo instalar y utilizar la librería en proyectos Node.js y en el navegador.
 
@@ -13,14 +13,14 @@ Esta guía explica cómo instalar y utilizar la librería en proyectos Node.js y
 ### Opción 1: Instalar mediante npm
 
 ```bash
-npm install trazo
+npm install ChuspaNumeric
 ```
 
 ### Opción 2: Clonar el repositorio
 
 ```bash
-git clone https://github.com/sis-inf/trazo.git
-cd trazo
+git clone https://github.com/sis-inf/ChuspaNumeric.git
+cd ChuspaNumeric
 npm install
 ```
 
@@ -31,7 +31,7 @@ npm install
 Si tu proyecto utiliza módulos ES (ESM), puedes importar los métodos directamente:
 
 ```js
-import { newtonRaphson } from "trazo";
+import { newtonRaphson } from "ChuspaNumeric";
 
 const f = x => x * x - 2;
 const df = x => 2 * x;
@@ -62,7 +62,7 @@ Asegúrate de que tu archivo `package.json` incluya:
 Si utilizas CommonJS, puedes importar la librería mediante `require`.
 
 ```js
-const { newtonRaphson } = require("trazo");
+const { newtonRaphson } = require("ChuspaNumeric");
 
 const f = x => x * x - 2;
 const df = x => 2 * x;
@@ -82,19 +82,19 @@ console.log(raiz);
 
 ## Uso en navegador
 
-También es posible utilizar Trazo directamente desde un navegador mediante módulos JavaScript.
+También es posible utilizar ChuspaNumeric directamente desde un navegador mediante módulos JavaScript.
 
 ```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Ejemplo Trazo</title>
+  <title>Ejemplo ChuspaNumeric</title>
 </head>
 <body>
 
 <script type="module">
-  import { newtonRaphson } from "./trazo.js";
+  import { newtonRaphson } from "./ChuspaNumeric.js";
 
   const f = x => x * x - 2;
   const df = x => 2 * x;
@@ -125,7 +125,7 @@ x² - 2 = 0
 ```
 
 ```js
-import { newtonRaphson } from "trazo";
+import { newtonRaphson } from "ChuspaNumeric";
 
 const f = x => x * x - 2;
 const df = x => 2 * x;

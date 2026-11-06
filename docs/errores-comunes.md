@@ -1,8 +1,8 @@
-# Errores Comunes y Soluciones en Trazo
+# Errores Comunes y Soluciones en ChuspaNumeric
 
 ## Introducción
 
-Esta guía recopila errores frecuentes al utilizar los métodos numéricos de Trazo, junto con sus causas y posibles soluciones.
+Esta guía recopila errores frecuentes al utilizar los métodos numéricos de ChuspaNumeric, junto con sus causas y posibles soluciones.
 
 ---
 

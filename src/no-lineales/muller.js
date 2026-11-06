@@ -15,7 +15,7 @@ import { errorAbsoluto } from '../utils/formato.js';
  * @param {number} opciones.x2 - Tercera aproximación inicial.
  * @param {number} [opciones.tolerancia=1e-6] - Criterio de parada por convergencia.
  * @param {number} [opciones.maxIter=100] - Máximo de iteraciones permitidas.
- * @returns {Object} Objeto con la forma uniforme de resultados de Trazo.
+ * @returns {Object} Objeto con la forma uniforme de resultados de ChuspaNumeric.
  * @throws {ErrorParametros} Si las aproximaciones iniciales no son distintas.
  * @throws {ErrorDominio} Si el discriminante es negativo o hay división por cero.
  * @throws {ErrorConvergencia} Si no converge en maxIter iteraciones.
@@ -31,7 +31,7 @@ function muller({ f, x0, x1, x2, tolerancia = 1e-6, maxIter = 100 }) {
 
   if (x0 === x1 || x1 === x2 || x0 === x2) {
     throw new ErrorParametros(
-      `Trazo.muller: Los puntos iniciales x0, x1 y x2 deben ser valores distintos entre sí. Se recibió: x0=${x0}, x1=${x1}, x2=${x2}`
+      `ChuspaNumeric.muller: Los puntos iniciales x0, x1 y x2 deben ser valores distintos entre sí. Se recibió: x0=${x0}, x1=${x1}, x2=${x2}`
     );
   }
 
@@ -74,7 +74,7 @@ function muller({ f, x0, x1, x2, tolerancia = 1e-6, maxIter = 100 }) {
 
       if (denominador === 0) {
         throw new ErrorDominio(
-          `Trazo.muller: División por cero detectada en la iteración ${n} por denominador nulo.`
+          `ChuspaNumeric.muller: División por cero detectada en la iteración ${n} por denominador nulo.`
         );
       }
 
@@ -99,7 +99,7 @@ function muller({ f, x0, x1, x2, tolerancia = 1e-6, maxIter = 100 }) {
     }
 
     throw new ErrorConvergencia(
-      `Trazo.muller: no convergió en ${maxIter} iteraciones con tolerancia ${tolerancia}.`
+      `ChuspaNumeric.muller: no convergió en ${maxIter} iteraciones con tolerancia ${tolerancia}.`
     );
   });
 

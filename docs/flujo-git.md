@@ -1,8 +1,8 @@
-# Flujo de trabajo con Git para Trazo
+# Flujo de trabajo con Git para ChuspaNumeric
 
 ## Introducción
 
-Este documento describe el flujo de trabajo estándar para contribuir al proyecto Trazo usando Git.
+Este documento describe el flujo de trabajo estándar para contribuir al proyecto ChuspaNumeric usando Git.
 
 ## Estructura de ramas
 

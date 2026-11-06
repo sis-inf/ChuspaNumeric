@@ -1,6 +1,6 @@
-## Casos de Uso — Trazo
+## Casos de Uso — ChuspaNumeric
 
-Este documento describe escenarios concretos y realistas en los que un desarrollador, estudiante de ingeniería o profesional utilizaría la librería Trazo para resolver problemas matemáticos aplicados.
+Este documento describe escenarios concretos y realistas en los que un desarrollador, estudiante de ingeniería o profesional utilizaría la librería ChuspaNumeric para resolver problemas matemáticos aplicados.
 
 ### CU.1:Encontrar la temperatura en la que un material cambia de fase
 
@@ -20,7 +20,7 @@ Se elige Bisección porque el ingeniero/estudiante ya conoce un intervalo donde 
 
 **Resultado esperado** 
 
-import { biseccion } from 'trazo';
+import { biseccion } from 'ChuspaNumeric';
 
 const f = (T) => T**3 - 6*T**2 + 11*T - 6;
 const resultado = biseccion(f, 2.5, 3.5, 0.001);
@@ -48,7 +48,7 @@ Se elige este método porque el sistema es pequeño (3×3), bien condicionado y 
 
 **Resultado esperado** 
 
-import { eliminacionGauss } from 'trazo';
+import { eliminacionGauss } from 'ChuspaNumeric';
 
 const A = [
   [ 4, -1,  0],
@@ -85,8 +85,8 @@ Primero se interpola la función de posición para obtener p(t), y luego se apli
 
 **Resultado esperado** 
 
-import { lagrange } from 'trazo';
-import { derivative } from 'trazo/calculus/derivative';
+import { lagrange } from 'ChuspaNumeric';
+import { derivative } from 'ChuspaNumeric/calculus/derivative';
 
 const tiempos    = [0, 2, 5, 8];
 const posiciones = [0, 8, 30, 68];
@@ -118,7 +118,7 @@ Se elige Simpson 1/3 porque la función es suave y continua, y este método ofre
 
 **Resultado esperado** 
 
-import { simpson13 } from 'trazo';
+import { simpson13 } from 'ChuspaNumeric';
 
 const F = (x) => 3*x**2 + 2*x + 1;
 const trabajo = simpson13(F, 0, 4, 100);
@@ -145,7 +145,7 @@ Se elige Gauss-Seidel porque es un método iterativo eficiente para sistemas gra
 
 **Resultado esperado** 
 
-import { gaussSeidel } from 'trazo';
+import { gaussSeidel } from 'ChuspaNumeric';
 
 const A = [
   [ 2, -1,  0],
