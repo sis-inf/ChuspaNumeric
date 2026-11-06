@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -66,3 +67,19 @@ test('los módulos de src no tienen efectos secundarios evidentes a nivel de mó
 
   assert.deepEqual(sospechosos, []);
 });
+
+const submodulos = [
+  { archivo: 'src/no-lineales/biseccion.js', exportacion: 'biseccion' },
+  { archivo: 'src/lineales/gauss.js', exportacion: 'gauss' },
+  { archivo: 'src/integracion/trapecio.js', exportacion: 'trapecio' }
+];
+
+for (const { archivo, exportacion } of submodulos) {
+  test(`${archivo} se importa de forma aislada y exporta ${exportacion} como función`, async () => {
+    const ruta = join(raizProyecto, archivo);
+    const modulo = await import(pathToFileURL(ruta).href);
+
+    assert.ok(exportacion in modulo, `${archivo} no exporta ${exportacion}`);
+    assert.equal(typeof modulo[exportacion], 'function');
+  });
+}
