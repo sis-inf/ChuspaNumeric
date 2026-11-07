@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { biseccion } from "trazo";
+import { biseccion } from "chuspanumeric";
 
-export function useTrazo() {
+export function useChuspaNumeric() {
   const [resultado, setResultado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
