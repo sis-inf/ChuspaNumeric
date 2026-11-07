@@ -1,8 +1,8 @@
 import React from "react";
-import { useTrazo } from "./useTrazo";
+import { useChuspaNumeric } from "./useChuspaNumeric";
 
 export default function EjemploComponente() {
-  const { resultado, loading, error, ejecutarMetodo } = useTrazo();
+  const { resultado, loading, error, ejecutarMetodo } = useChuspaNumeric();
 
   const calcularRaiz = () => {
     const funcion = (x) => x * x - 4;
