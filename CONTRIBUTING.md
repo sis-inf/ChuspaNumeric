@@ -13,7 +13,7 @@ Botón **Fork** en la esquina superior derecha de GitHub.
 Asegúrate que el **owner** sea tu cuenta de GithHub, luego click al botón de color verde: "**Create Fork**".
 Ahora deberías tener un repositorio en tu **cuenta personal** de GitHub llamado **tu_nombre_usuario/nombre_repositorio**. 
 
-*Ejemplo.-* **Atoxny/pulso**
+*Ejemplo.-* **Atoxny/ChuspaNumeric**
 
 ### 2. Clona tu fork
 Desde el apartado **Code** del repositorio en tu cuenta personal realiza la clonación con los siguientes pasos:
@@ -26,27 +26,27 @@ Desde el apartado **Code** del repositorio en tu cuenta personal realiza la clon
 ```bash
 # Clonar el repositorio
 # Recuerda PEGAR la URL que copiaste en lugar del URL de ejemplo :D
-git clone https://github.com/TU-USUARIO/trazo.git
+git clone https://github.com/TU-USUARIO/ChuspaNumeric.git
 
 # Moverte dentro la carpeta donde se clonó el repositorio
-cd trazo
+cd ChuspaNumeric
 ```
 
 ### 3. Agrega el repo original como upstream
-Para estar al tanto de las modificaciones que se realicen en el **repositorio original (sis-inf/trazo)** debes agregar el repositorio original como un upstream de la siguiente manera en la terminal de GitBash, puedes **copiar** el siguiente comando:
+Para estar al tanto de las modificaciones que se realicen en el **repositorio original (sis-inf/ChuspaNumeric)** debes agregar el repositorio original como un upstream de la siguiente manera en la terminal de GitBash, puedes **copiar** el siguiente comando:
 
 ```bash
-git remote add upstream https://github.com/sis-inf/trazo.git
+git remote add upstream https://github.com/sis-inf/ChuspaNumeric.git
 ```
 Revisa si se agregó de manera exitosa el repositorio como upstream.
 
 ```bash
 git remote -v
 # Deberia salirte como resultado, luego de ingresar ese comando, lo siguiente:
-origin https://github.com/TU-USUARIO/trazo.git (fetch)
-origin https://github.com/TU-USUARIO/trazo.git (push)
-upstream https://github.com/sis-inf/trazo.git (fetch)
-upstream https://github.com/sis-inf/trazo.git (push)
+origin https://github.com/TU-USUARIO/ChuspaNumeric.git (fetch)
+origin https://github.com/TU-USUARIO/ChuspaNumeric.git (push)
+upstream https://github.com/sis-inf/ChuspaNumeric.git (fetch)
+upstream https://github.com/sis-inf/ChuspaNumeric.git (push)
 ```
 Asegúrate de que te aparezca en **origin** tu nombre de usuario en el apartado ***TU-USUARIO***, mientras que en **upstream** el nombre de ***sis-inf***. 
 
@@ -129,8 +129,8 @@ git push origin tipo/descripcion-corta
    En caso de que no aparezca: 
      * Dirígete a la pestaña `Pull Requests`-> `New Pull Request`
 3. Verifica el  destino del PR
-   - Base repository: `sis-inf/trazo` → base `dev`
-   - Head repository: `TU-USUARIO/trazo` → compare `tu-rama`
+   - Base repository: `sis-inf/ChuspaNumeric` → base `dev`
+   - Head repository: `TU-USUARIO/ChuspaNumeric` → compare `tu-rama`
 4. Edita la descripción y el título del PR según los cambios que hayas realizado sin olvidarte de agregar al `Closes #` el numero del Issue que realizaste.
 ---
 
