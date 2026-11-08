@@ -46,7 +46,7 @@ Ejemplo correcto en package.json:
 
     {
       "dependencies": {
-        "ChuspaNumeric": "1.0.0"
+        "chuspanumeric": "1.0.0"
       }
     }
 
@@ -54,7 +54,7 @@ Ejemplo incorrecto:
 
     {
       "dependencies": {
-        "ChuspaNumeric": "^1.0.0"
+        "chuspanumeric": "^1.0.0"
       }
     }
 
@@ -66,7 +66,7 @@ Ejemplo incorrecto:
 
 Correr benchmarks:
 
-    npx ChuspaNumeric benchmark --size grande
+    npx chuspanumeric benchmark --size grande
 
 ## Tolerancias y precision
 
