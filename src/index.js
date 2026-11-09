@@ -53,6 +53,7 @@ import {
 import { biseccion } from './no-lineales/biseccion.js';
 import { falsaPosicion } from './no-lineales/falsa-posicion.js';
 import { muller } from './no-lineales/muller.js';
+import { halley } from './no-lineales/halley.js';
 import { newtonRaphson } from './no-lineales/newton-raphson.js';
 import { puntoFijo } from './no-lineales/punto-fijo.js';
 import { secante } from './no-lineales/secante.js';
@@ -96,7 +97,8 @@ const noLineales = {
   newtonRaphson,
   secante,
   puntoFijo,
-  muller
+  muller,
+  halley
 };
 
 const interpolacion = {
@@ -200,6 +202,7 @@ export {
   secante,
   puntoFijo,
   muller,
+  halley,
 
   // interpolacion
   lagrange,
