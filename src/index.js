@@ -16,6 +16,7 @@ import { simpson13 } from './integracion/simpson-13.js';
 import { simpson38 } from './integracion/simpson-38.js';
 import { simpsonCompuesto } from './integracion/simpson_compuesto.js';
 import { trapecio } from './integracion/trapecio.js';
+import { puntoMedio } from './integracion/punto_medio.js';
 import { integracionMonteCarlo } from './integracion/monte_carlo.js';
 
 import { lagrange } from './interpolacion/lagrange.js';
@@ -114,7 +115,8 @@ const integracion = {
   simpson38,
   derivative,
   simpsonCompuesto,
-  integracionMonteCarlo
+  integracionMonteCarlo,
+  puntoMedio
 };
 
 const edo = {
@@ -216,6 +218,7 @@ export {
   derivative,
   simpsonCompuesto,
   integracionMonteCarlo,
+  puntoMedio,
 
   // edo
   euler,
