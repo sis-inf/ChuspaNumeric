@@ -8,7 +8,7 @@ El **número de condición** `κ(A)` de una matriz cuadrada `A` mide cuánto pue
 - `κ(A) >> 1` → matriz **mal condicionada**: pequeños errores en `b` producen errores mucho mayores en `x`.
 - `κ(A) = ∞` → matriz singular: el sistema no tiene solución única.
 
-Esto es relevante para Trazo porque todos los métodos numéricos trabajan con aritmética de punto flotante (IEEE 754, ≈15 dígitos de precisión). Si `κ(A) ≈ 1e10`, se pierden aproximadamente 10 dígitos de precisión en la solución, lo que puede llevar a resultados completamente incorrectos incluso cuando el algoritmo funciona "sin errores".
+Esto es relevante para ChuspaNumeric porque todos los métodos numéricos trabajan con aritmética de punto flotante (IEEE 754, ≈15 dígitos de precisión). Si `κ(A) ≈ 1e10`, se pierden aproximadamente 10 dígitos de precisión en la solución, lo que puede llevar a resultados completamente incorrectos incluso cuando el algoritmo funciona "sin errores".
 
 ---
 
@@ -22,7 +22,7 @@ El número de condición se define como:
 
 donde `||·||` es cualquier norma matricial consistente. El valor exacto de `κ(A)` depende de la norma elegida, pero el **orden de magnitud** es el mismo para normas razonables.
 
-En Trazo, la norma disponible para matrices es la **norma de Frobenius** (`normaFrobenius` en `src/matricial/norma_matriz.js`):
+En ChuspaNumeric, la norma disponible para matrices es la **norma de Frobenius** (`normaFrobenius` en `src/matricial/norma_matriz.js`):
 
 ```
 ||A||_F = sqrt( Σ aᵢⱼ² )
@@ -34,7 +34,7 @@ Por lo tanto, el número de condición estimado con norma de Frobenius es:
 κ_F(A) = ||A||_F · ||A⁻¹||_F
 ```
 
-> **Nota sobre implementación**: Trazo no tiene una función `numeroCondicion` dedicada al momento de escribir este documento. El cálculo se hace combinando `normaFrobenius` (disponible en `src/matricial/norma_matriz.js`) con la inversa de `A`, que puede obtenerse resolviendo `n` sistemas lineales con vectores canónicos como términos independientes. El ejemplo de código más abajo muestra exactamente cómo hacerlo.
+> **Nota sobre implementación**: ChuspaNumeric no tiene una función `numeroCondicion` dedicada al momento de escribir este documento. El cálculo se hace combinando `normaFrobenius` (disponible en `src/matricial/norma_matriz.js`) con la inversa de `A`, que puede obtenerse resolviendo `n` sistemas lineales con vectores canónicos como términos independientes. El ejemplo de código más abajo muestra exactamente cómo hacerlo.
 
 ---
 
@@ -72,8 +72,8 @@ H₃ = | 1     1/2   1/3  |
 ### Código para calcular κ(H)
 
 ```js
-import { normaFrobenius } from 'trazo/src/matricial/norma_matriz.js';
-import { gauss } from 'trazo/src/lineales/gauss.js';
+import { normaFrobenius } from 'ChuspaNumeric/src/matricial/norma_matriz.js';
+import { gauss } from 'ChuspaNumeric/src/lineales/gauss.js';
 
 // Generar la matriz de Hilbert de orden n
 function hilbert(n) {
@@ -127,7 +127,7 @@ El número de condición crece drásticamente con el tamaño: pasar de `n=3` a `
 Para que el concepto sea concreto, vale la pena comparar con matrices que tienen buen condicionamiento:
 
 ```js
-import { normaFrobenius } from 'trazo/src/matricial/norma_matriz.js';
+import { normaFrobenius } from 'ChuspaNumeric/src/matricial/norma_matriz.js';
 
 // La identidad tiene κ = 1 (caso ideal)
 const I3 = [[1,0,0],[0,1,0],[0,0,1]];
@@ -147,9 +147,9 @@ const D = [[2,0,0],[0,3,0],[0,0,4]];
 
 ---
 
-## Relación con Cholesky y sistemas lineales en Trazo
+## Relación con Cholesky y sistemas lineales en ChuspaNumeric
 
-La razón por la que el número de condición es especialmente importante en Trazo es que varios métodos del módulo `lineales/` pueden producir resultados incorrectos con matrices mal condicionadas sin lanzar ningún error:
+La razón por la que el número de condición es especialmente importante en ChuspaNumeric es que varios métodos del módulo `lineales/` pueden producir resultados incorrectos con matrices mal condicionadas sin lanzar ningún error:
 
 - `gauss` y `gaussJordan` — sin pivoteo parcial, matrices casi-singulares pueden pasar el umbral de pivote y producir soluciones con error grande sin advertencia.
 - `jacobi` y `gaussSeidel` — convergen según el radio espectral; un mal condicionamiento severo puede hacer que converjan a una solución incorrecta.
