@@ -19,6 +19,7 @@ import { trapecio } from './integracion/trapecio.js';
 import { integracionMonteCarlo } from './integracion/monte_carlo.js';
 
 import { lagrange } from './interpolacion/lagrange.js';
+import { lagrangeBaricentrica } from './interpolacion/lagrange_barycentrica.js';
 import { linearInterpolation } from './interpolacion/linear.js';
 import { newtonDD } from './interpolacion/newton-dd.js';
 import { polyEval } from './interpolacion/polyEval.js';
@@ -105,7 +106,8 @@ const interpolacion = {
   splines,
   linearInterpolation,
   polyEval,
-  splineCubicoNatural
+  splineCubicoNatural,
+  lagrangeBaricentrica
 };
 
 const integracion = {
@@ -208,6 +210,7 @@ export {
   linearInterpolation,
   polyEval,
   splineCubicoNatural,
+  lagrangeBaricentrica,
 
   // integracion
   trapecio,
