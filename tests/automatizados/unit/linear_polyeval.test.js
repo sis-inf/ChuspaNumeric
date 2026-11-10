@@ -1,5 +1,6 @@
 import { linearInterpolation } from '../../../src/interpolacion/linear.js';
 import { polyEval } from '../../../src/interpolacion/polyEval.js';
+import { ErrorParametros } from '../../../src/core/errores.js';
 
 describe('linearInterpolation', () => {
   test('interpola correctamente entre dos puntos conocidos', () => {
@@ -10,6 +11,32 @@ describe('linearInterpolation', () => {
 
     expect(resultado).toBeCloseTo(8, 10);
   });
+
+  test('devuelve y0 al evaluar en x0', () => {
+    expect(linearInterpolation(2, 4, 6, 12, 2)).toBeCloseTo(4, 10);
+  });
+
+  test('devuelve y1 al evaluar en x1', () => {
+    expect(linearInterpolation(2, 4, 6, 12, 6)).toBeCloseTo(12, 10);
+  });
+
+  test('rechaza x0 igual a x1 con ErrorParametros', () => {
+    expect(() => linearInterpolation(3, 4, 3, 12, 3)).toThrow(ErrorParametros);
+  });
+
+  test.each([0, 1, 2, 3, 4])(
+    'rechaza valores no finitos en el argumento de posición %i',
+    (posicion) => {
+      for (const valor of [NaN, Infinity, -Infinity]) {
+        const argumentos = [2, 4, 6, 12, 4];
+        argumentos[posicion] = valor;
+
+        expect(() => linearInterpolation(...argumentos)).toThrow(
+          ErrorParametros
+        );
+      }
+    }
+  );
 });
 
 describe('polyEval', () => {
