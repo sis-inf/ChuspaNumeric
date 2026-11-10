@@ -5,6 +5,7 @@ import {
   diferenciaCentradaSegundaDerivada
 } from './diferencias/diferencia_centrada.js';
 import { diferenciasAdelanteGrado1 } from './diferencias/diferencia_hacia_adelante.js';
+import { derivadaRichardson } from './diferencias/richardson.js';
 
 import { euler } from './edo/euler.js';
 import { eulerMejorado } from './edo/euler-mejorado.js';
@@ -135,7 +136,8 @@ const analisis = {
 const diferencias = {
   diferenciaCentrada,
   diferenciaCentradaSegundaDerivada,
-  diferenciasAdelanteGrado1
+  diferenciasAdelanteGrado1,
+  derivadaRichardson
 };
 
 const matricial = {
@@ -235,6 +237,7 @@ export {
   diferenciaCentrada,
   diferenciaCentradaSegundaDerivada,
   diferenciasAdelanteGrado1,
+  derivadaRichardson,
 
   // matricial
   determinanteSarrus,
