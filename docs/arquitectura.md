@@ -1,8 +1,8 @@
-# Arquitectura de la librería Trazo
+# Arquitectura de la librería ChuspaNumeric
 
 ## Visión general
 
-**Trazo** es una librería de métodos numéricos en JavaScript (ES6+) diseñada para resolver problemas matemáticos mediante algoritmos de aproximación como integración, interpolación y resolución de sistemas de ecuaciones.
+**ChuspaNumeric** es una librería de métodos numéricos en JavaScript (ES6+) diseñada para resolver problemas matemáticos mediante algoritmos de aproximación como integración, interpolación y resolución de sistemas de ecuaciones.
 
 La arquitectura está organizada de forma modular, separando cada tipo de método en carpetas independientes dentro de `src/`. Esto permite mantener el código limpio, reutilizable y fácil de escalar.
 
@@ -23,7 +23,7 @@ Cada módulo cumple una responsabilidad específica, facilitando el mantenimient
 ## Diagrama de arquitectura
 
 ```
-trazo/
+ChuspaNumeric/
 │
 ├── sistemas/
 │   ├── lineales/

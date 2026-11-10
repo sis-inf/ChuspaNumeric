@@ -21,8 +21,8 @@ npm -v
 1. Clonar repositorio:
 
 ```bash
-git clone [https://github.com/sis-inf/trazo.git](https://github.com/sis-inf/trazo.git)
-cd trazo
+git clone [https://github.com/sis-inf/ChuspaNumeric.git](https://github.com/sis-inf/ChuspaNumeric.git)
+cd ChuspaNumeric
 ```
 
 2. Instalar dependencias:
@@ -44,13 +44,13 @@ npm test
 Instalar paquete:
 
 ```bash
-npm install trazo
+npm install ChuspaNumeric
 ```
 
 Importar en tu proyecto:
 
 ```javascript
-import { funcionEjemplo } from 'trazo';
+import { funcionEjemplo } from 'ChuspaNumeric';
 
 funcionEjemplo();
 ```

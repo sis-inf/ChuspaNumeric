@@ -11,7 +11,7 @@ import { validarFuncion, validarNumero } from '../utils/validaciones.js';
  * @param {number}   opciones.y0     - Valor inicial de y.
  * @param {number}   opciones.h      - Tamaño del paso (debe ser > 0).
  * @param {number}   opciones.xFinal - Valor final de x (debe ser > x0).
- * @returns {Object} Objeto con la forma uniforme de resultados de Trazo.
+ * @returns {Object} Objeto con la forma uniforme de resultados de ChuspaNumeric.
  * @throws {ErrorParametros} Si h <= 0 o xFinal <= x0.
  */
 function eulerMejorado({ f, x0, y0, h, xFinal }) {
@@ -23,46 +23,61 @@ function eulerMejorado({ f, x0, y0, h, xFinal }) {
   validarNumero(xFinal, 'xFinal');
   if (h <= 0) {
     throw new ErrorParametros(
-      `Trazo.eulerMejorado: 'h' debe ser mayor a cero. Se recibió: ${h}.`
+      `ChuspaNumeric.eulerMejorado: 'h' debe ser mayor a cero. Se recibió: ${h}.`,
     );
   }
   if (xFinal <= x0) {
     throw new ErrorParametros(
-      `Trazo.eulerMejorado: 'xFinal' (${xFinal}) debe ser mayor que 'x0' (${x0}).`
+      `ChuspaNumeric.eulerMejorado: 'xFinal' (${xFinal}) debe ser mayor que 'x0' (${x0}).`,
     );
   }
   // ── Cálculo ─────────────────────────────────────────────────
   const iteraciones = [];
-  
+  const erroresEstimados = [];
+  let errorEstimadoMaximo = 0;
+
   // Extraemos tanto el resultado del cálculo como el tiempo medido
   const { valor: puntos, tiempo_ms } = medirTiempo(() => {
     const listaPuntos = [[x0, y0]];
     let y = y0;
-    
+
     // Determinar la cantidad exacta de pasos para evitar imprecisiones de coma flotante
     const pasos = Math.round((xFinal - x0) / h);
     for (let n = 1; n <= pasos; n++) {
       // x actual corresponde al inicio del paso
       const xActual = x0 + (n - 1) * h;
-      
-      const k1 = f(xActual, y);
+
+      const k1 = evaluarDerivada(f, xActual, y);
       const yEstrella = y + h * k1;
-      
+
       // x Siguiente corresponde al final del paso
       const xSiguiente = x0 + n * h;
-      const k2 = f(xSiguiente, yEstrella);
+      const k2 = evaluarDerivada(f, xSiguiente, yEstrella);
       // Corrección de la variable dependiente
       y = y + (h / 2) * (k1 + k2);
+      const errorEstimado =
+        Number.isFinite(y) && Number.isFinite(yEstrella) ? Math.abs(y - yEstrella) : Infinity;
+      erroresEstimados.push(errorEstimado);
+      errorEstimadoMaximo = Math.max(errorEstimadoMaximo, errorEstimado);
       // Registrar la auditoría interna con la estructura exacta exigida por el issue
-      iteraciones.push({ n, x: xSiguiente, y, k1, k2 });
+      iteraciones.push({
+        n,
+        x: xSiguiente,
+        y,
+        k1,
+        k2,
+        predictor: yEstrella,
+        corrector: y,
+        errorEstimado,
+      });
       listaPuntos.push([xSiguiente, y]);
     }
     return listaPuntos;
   });
-  return crearResultado({
+  const resultado = crearResultado({
     resultado: puntos,
     iteraciones,
-    convergio: true,
+    convergio: Number.isFinite(errorEstimadoMaximo),
     mensaje: `Método de Euler mejorado completado en ${iteraciones.length} pasos.`,
     meta: {
       metodo: 'Euler mejorado (Heun)',
@@ -70,5 +85,15 @@ function eulerMejorado({ f, x0, y0, h, xFinal }) {
       tiempo_ms,
     },
   });
+  return { ...resultado, erroresEstimados, errorEstimadoMaximo };
 }
+
+function evaluarDerivada(f, x, y) {
+  const valor = f(x, y);
+  if (typeof valor !== 'number') {
+    throw new ErrorParametros('La derivada f(x, y) debe devolver un número.');
+  }
+  return valor;
+}
+
 export { eulerMejorado };

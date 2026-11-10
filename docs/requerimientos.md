@@ -1,4 +1,4 @@
-# Requerimientos del sistema - Trazo
+# Requerimientos del sistema - ChuspaNumeric
 
 ## Requerimientos Funcionales (RF)
 

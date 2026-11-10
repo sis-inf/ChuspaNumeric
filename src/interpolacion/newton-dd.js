@@ -7,7 +7,7 @@ import { validarNumero } from "../utils/validaciones.js";
  *
  * @param {Array}  puntos - Array de pares [xi, yi] con al menos dos puntos.
  * @param {number} x      - Valor donde se evalúa el polinomio interpolante.
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorParametros} Si puntos no es válido o hay x's repetidos.
  */
 function newtonDD({ puntos, x }) {
@@ -15,14 +15,14 @@ function newtonDD({ puntos, x }) {
 
   if (!Array.isArray(puntos) || puntos.length < 2) {
     throw new ErrorParametros(
-      "Trazo.newtonDD: 'puntos' debe ser un array con al menos dos pares [xi, yi]."
+      "ChuspaNumeric.newtonDD: 'puntos' debe ser un array con al menos dos pares [xi, yi]."
     );
   }
 
   for (let i = 0; i < puntos.length; i++) {
     if (!Array.isArray(puntos[i]) || puntos[i].length < 2) {
       throw new ErrorParametros(
-        `Trazo.newtonDD: puntos[${i}] debe ser un par [xi, yi].`
+        `ChuspaNumeric.newtonDD: puntos[${i}] debe ser un par [xi, yi].`
       );
     }
   }
@@ -33,7 +33,7 @@ function newtonDD({ puntos, x }) {
   const xsUnicos = new Set(xs);
   if (xsUnicos.size !== xs.length) {
     throw new ErrorParametros(
-      "Trazo.newtonDD: existen dos o más puntos con el mismo valor de x. Los x deben ser únicos."
+      "ChuspaNumeric.newtonDD: existen dos o más puntos con el mismo valor de x. Los x deben ser únicos."
     );
   }
 

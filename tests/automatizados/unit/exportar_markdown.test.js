@@ -107,15 +107,15 @@ describe('exportarMarkdown', () => {
 
   test('rechaza un resultado que no sea un objeto válido', () => {
     expect(() => exportarMarkdown(null)).toThrow(
-      'exportarMarkdown: resultado debe ser un objeto válido de Trazo.'
+      'exportarMarkdown: resultado debe ser un objeto válido de ChuspaNumeric.'
     );
 
     expect(() => exportarMarkdown(undefined)).toThrow(
-      'exportarMarkdown: resultado debe ser un objeto válido de Trazo.'
+      'exportarMarkdown: resultado debe ser un objeto válido de ChuspaNumeric.'
     );
 
     expect(() => exportarMarkdown('resultado inválido')).toThrow(
-      'exportarMarkdown: resultado debe ser un objeto válido de Trazo.'
+      'exportarMarkdown: resultado debe ser un objeto válido de ChuspaNumeric.'
     );
   });
 

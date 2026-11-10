@@ -1,8 +1,8 @@
-# Tipos de Retorno de los Métodos de Trazo
+# Tipos de Retorno de los Métodos de ChuspaNumeric
 
 ## Introducción
 
-Los métodos de Trazo pueden retornar distintos tipos de resultados dependiendo de la categoría y del algoritmo utilizado. Esta guía describe la estructura de retorno esperada para cada método.
+Los métodos de ChuspaNumeric pueden retornar distintos tipos de resultados dependiendo de la categoría y del algoritmo utilizado. Esta guía describe la estructura de retorno esperada para cada método.
 
 ---
 

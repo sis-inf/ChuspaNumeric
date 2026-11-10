@@ -12,7 +12,7 @@
  * con el criterio de reutilización de métodos existentes del proyecto.
  */
 
-import { crearResultado } from '../core/contrato.js';
+import { crearResultado, medirTiempo } from '../core/contrato.js';
 import { ErrorParametros, ErrorDominio } from '../core/errores.js';
 import { gauss } from '../lineales/gauss.js';
 
@@ -43,7 +43,7 @@ import { gauss } from '../lineales/gauss.js';
  *   converge cuando la norma euclideana de Δθ cae por debajo de este valor.
  * @param {number}   [params.maxIter=100] - Número máximo de iteraciones.
  *
- * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo:
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric:
  *   - `resultado`: array de parámetros ajustados θ*, o null si no convergió.
  *   - `iteraciones`: historial con { n, parametros, normaResiduo, normaDelta } por paso.
  *   - `convergio`: true si la norma de Δθ cayó por debajo de tolerancia.
@@ -55,7 +55,7 @@ import { gauss } from '../lineales/gauss.js';
  *
  * @example
  * // Ajustar y = a·e^(b·x) a datos de crecimiento exponencial
- * import { regresionNoLineal } from 'trazo/src/analisis/regresion_no_lineal.js';
+ * import { regresionNoLineal } from 'chuspanumeric/src/analisis/regresion_no_lineal.js';
  *
  * const puntos = [[0,2.1],[1,4.9],[2,10.8],[3,22.1],[4,47.3]];
  *
@@ -85,49 +85,27 @@ export function regresionNoLineal({
   maxIter = 100,
 }) {
   // --- Validación de parámetros ---
-  if (!Array.isArray(puntos) || puntos.length === 0) {
-    throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "puntos" debe ser un array no vacío de pares [x, y].'
-    );
-  }
+  validarModeloNoLineal(puntos, modelo, jacobianoModelo, parametrosIniciales);
 
-  if (typeof modelo !== 'function') {
-    throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "modelo" debe ser una función (x, parametros) => y.'
-    );
-  }
-
-  if (typeof jacobianoModelo !== 'function') {
-    throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "jacobianoModelo" debe ser una función (x, parametros) => number[].'
-    );
-  }
-
-  if (!Array.isArray(parametrosIniciales) || parametrosIniciales.length === 0) {
-    throw new ErrorParametros(
-      'Trazo.regresionNoLineal: "parametrosIniciales" debe ser un array no vacío.'
-    );
-  }
-
-  const m = puntos.length;        // número de observaciones
+  const m = puntos.length; // número de observaciones
   const p = parametrosIniciales.length; // número de parámetros
 
   if (m < p) {
     throw new ErrorParametros(
-      `Trazo.regresionNoLineal: se necesitan al menos ${p} puntos para ajustar ${p} parámetros. ` +
-      `Se recibió: ${m}.`
+      `ChuspaNumeric.regresionNoLineal: se necesitan al menos ${p} puntos para ajustar ${p} parámetros. ` +
+        `Se recibió: ${m}.`,
     );
   }
 
   if (typeof tolerancia !== 'number' || tolerancia <= 0) {
     throw new ErrorParametros(
-      `Trazo.regresionNoLineal: "tolerancia" debe ser un número positivo. Se recibió: ${tolerancia}.`
+      `ChuspaNumeric.regresionNoLineal: "tolerancia" debe ser un número positivo. Se recibió: ${tolerancia}.`,
     );
   }
 
   if (!Number.isInteger(maxIter) || maxIter < 1) {
     throw new ErrorParametros(
-      `Trazo.regresionNoLineal: "maxIter" debe ser un entero positivo. Se recibió: ${maxIter}.`
+      `ChuspaNumeric.regresionNoLineal: "maxIter" debe ser un entero positivo. Se recibió: ${maxIter}.`,
     );
   }
 
@@ -137,7 +115,6 @@ export function regresionNoLineal({
   const inicio = performance.now();
 
   for (let iter = 1; iter <= maxIter; iter++) {
-
     // 1. Calcular el vector de residuos r (m × 1)
     //    r_i = y_i - modelo(x_i, theta)
     const r = puntos.map(([xi, yi]) => yi - modelo(xi, theta));
@@ -152,13 +129,11 @@ export function regresionNoLineal({
     // 4. Construir las ecuaciones normales: A = J^T·J (p × p), b_vec = J^T·r (p × 1)
     //    Reutilizamos gauss() del módulo lineales/ para resolver A·Δθ = b_vec
     const A = Array.from({ length: p }, (_, i) =>
-      Array.from({ length: p }, (_, j) =>
-        J.reduce((acc, Ji) => acc + Ji[i] * Ji[j], 0)
-      )
+      Array.from({ length: p }, (_, j) => J.reduce((acc, Ji) => acc + Ji[i] * Ji[j], 0)),
     );
 
     const b_vec = Array.from({ length: p }, (_, i) =>
-      J.reduce((acc, Ji, k) => acc + Ji[i] * r[k], 0)
+      J.reduce((acc, Ji, k) => acc + Ji[i] * r[k], 0),
     );
 
     // 5. Resolver el sistema lineal usando gauss() de src/lineales/gauss.js
@@ -167,10 +142,10 @@ export function regresionNoLineal({
       resGauss = gauss({ A, b: b_vec });
     } catch (e) {
       throw new ErrorDominio(
-        `Trazo.regresionNoLineal: el sistema de ecuaciones normales J^T·J es singular ` +
-        `en la iteración ${iter}. El Jacobiano puede ser rank-deficiente para los ` +
-        `parámetros actuales θ = [${theta.map(v => v.toFixed(6)).join(', ')}]. ` +
-        `Causa: ${e.message}`
+        `ChuspaNumeric.regresionNoLineal: el sistema de ecuaciones normales J^T·J es singular ` +
+          `en la iteración ${iter}. El Jacobiano puede ser rank-deficiente para los ` +
+          `parámetros actuales θ = [${theta.map((v) => v.toFixed(6)).join(', ')}]. ` +
+          `Causa: ${e.message}`,
       );
     }
 
@@ -211,7 +186,8 @@ export function regresionNoLineal({
     resultado: null,
     iteraciones,
     convergio: false,
-    mensaje: `Gauss-Newton no convergió en ${maxIter} iteraciones. Última ||Δθ|| = ` +
+    mensaje:
+      `Gauss-Newton no convergió en ${maxIter} iteraciones. Última ||Δθ|| = ` +
       `${iteraciones.at(-1).normaDelta.toExponential(3)}. ` +
       `Intente con mejores parámetros iniciales o aumente maxIter.`,
     meta: {
@@ -220,4 +196,96 @@ export function regresionNoLineal({
       tiempo_ms,
     },
   });
+}
+
+function validarDatosLogaritmicos(x, y, potencial) {
+  if (!Array.isArray(x) || !Array.isArray(y) || x.length !== y.length || x.length < 2) {
+    throw new ErrorParametros(
+      'Se requieren dos arreglos de igual longitud con al menos dos puntos.',
+    );
+  }
+  for (let indice = 0; indice < x.length; indice++) {
+    if (!Number.isFinite(x[indice]) || !Number.isFinite(y[indice])) {
+      throw new ErrorParametros('Los datos deben contener solamente numeros finitos.');
+    }
+    if (y[indice] <= 0 || (potencial && x[indice] <= 0)) {
+      throw new ErrorParametros('El modelo requiere y > 0 y, para el ajuste potencial, x > 0.');
+    }
+  }
+}
+
+function ajustarModeloLogaritmico(x, y, potencial) {
+  validarDatosLogaritmicos(x, y, potencial);
+  const { valor, tiempo_ms } = medirTiempo(() => {
+    const abscisas = potencial ? x.map((valorX) => Math.log(valorX)) : x;
+    const ordenadas = y.map((valorY) => Math.log(valorY));
+    let mediaX = 0;
+    let mediaY = 0;
+    let varianzaX = 0;
+    let covarianza = 0;
+    for (let indice = 0; indice < x.length; indice++) {
+      const diferenciaX = abscisas[indice] - mediaX;
+      mediaX += diferenciaX / (indice + 1);
+      mediaY += (ordenadas[indice] - mediaY) / (indice + 1);
+      varianzaX += diferenciaX * (abscisas[indice] - mediaX);
+      covarianza += diferenciaX * (ordenadas[indice] - mediaY);
+    }
+    if (!Number.isFinite(varianzaX) || varianzaX <= 0) {
+      throw new ErrorParametros(
+        'Las abscisas deben ser distintas y tener dispersion representable.',
+      );
+    }
+    const b = covarianza / varianzaX;
+    const a = Math.exp(mediaY - b * mediaX);
+    if (!Number.isFinite(a) || a <= 0 || !Number.isFinite(b)) {
+      throw new ErrorParametros(
+        'Los parametros del ajuste exceden el rango numerico representable.',
+      );
+    }
+    return { a, b };
+  });
+  return crearResultado({
+    resultado: valor,
+    convergio: true,
+    mensaje: potencial ? 'Ajuste potencial completado.' : 'Ajuste exponencial completado.',
+    meta: {
+      metodo: potencial ? 'ajuste-potencial' : 'ajuste-exponencial',
+      parametros: { puntos: x.length },
+      tiempo_ms,
+    },
+  });
+}
+
+export function ajusteExponencial(x, y) {
+  return ajustarModeloLogaritmico(x, y, false);
+}
+
+export function ajustePotencial(x, y) {
+  return ajustarModeloLogaritmico(x, y, true);
+}
+
+function validarModeloNoLineal(puntos, modelo, jacobianoModelo, parametrosIniciales) {
+  if (!Array.isArray(puntos) || puntos.length === 0) {
+    throw new ErrorParametros(
+      'ChuspaNumeric.regresionNoLineal: "puntos" debe ser un array no vacío de pares [x, y].',
+    );
+  }
+
+  if (typeof modelo !== 'function') {
+    throw new ErrorParametros(
+      'ChuspaNumeric.regresionNoLineal: "modelo" debe ser una función (x, parametros) => y.',
+    );
+  }
+
+  if (typeof jacobianoModelo !== 'function') {
+    throw new ErrorParametros(
+      'ChuspaNumeric.regresionNoLineal: "jacobianoModelo" debe ser una función (x, parametros) => number[].',
+    );
+  }
+
+  if (!Array.isArray(parametrosIniciales) || parametrosIniciales.length === 0) {
+    throw new ErrorParametros(
+      'ChuspaNumeric.regresionNoLineal: "parametrosIniciales" debe ser un array no vacío.',
+    );
+  }
 }

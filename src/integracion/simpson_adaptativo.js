@@ -25,7 +25,8 @@ import { validarFuncion, validarIntervalo } from '../utils/validaciones.js';
  * @param {number} params.a - Extremo inferior del intervalo.
  * @param {number} params.b - Extremo superior del intervalo.
  * @param {number} [params.tolerancia=1e-6] - Tolerancia de error aceptada.
- * @param {number} [params.maxProfundidad=20] - Profundidad máxima de recursión.
+ * @param {number} [params.profundidadMaxima=20] - Profundidad máxima de recursión.
+ * @param {number} [params.maxProfundidad] - Alias de profundidadMaxima, se mantiene por compatibilidad.
  * @returns {Object} Objeto con la forma definida en contrato.js.
  * @throws {ErrorParametros} Si los parámetros de tolerancia o profundidad no son válidos.
  */
@@ -34,20 +35,21 @@ export function simpsonAdaptativo({
     a,
     b,
     tolerancia = 1e-6,
-    maxProfundidad = 20
+    profundidadMaxima = 20,
+    maxProfundidad = profundidadMaxima
 }) {
     validarFuncion(f, 'f');
     validarIntervalo(a, b);
 
     if (typeof tolerancia !== 'number' || !Number.isFinite(tolerancia) || tolerancia <= 0) {
         throw new ErrorParametros(
-            `Trazo: 'tolerancia' debe ser un número positivo. Se recibió: ${tolerancia}.`
+            `ChuspaNumeric: 'tolerancia' debe ser un número positivo. Se recibió: ${tolerancia}.`
         );
     }
 
     if (!Number.isInteger(maxProfundidad) || maxProfundidad < 0) {
         throw new ErrorParametros(
-            `Trazo: 'maxProfundidad' debe ser un entero mayor o igual a 0. Se recibió: ${maxProfundidad}.`
+            `ChuspaNumeric: 'maxProfundidad' debe ser un entero mayor o igual a 0. Se recibió: ${maxProfundidad}.`
         );
     }
 
@@ -61,7 +63,7 @@ export function simpsonAdaptativo({
 
         if (typeof valor !== 'number' || !Number.isFinite(valor)) {
             throw new ErrorParametros(
-                `Trazo: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
+                `ChuspaNumeric: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
             );
         }
 

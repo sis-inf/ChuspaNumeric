@@ -17,7 +17,7 @@ function ahora() {
 function validarPaso(paso) {
   if (typeof paso !== 'number' || !Number.isFinite(paso) || paso <= 0) {
     throw new ErrorParametros(
-      `Trazo.buscarTodasLasRaices: 'paso' debe ser un número finito mayor a cero. Se recibió: ${paso}.`
+      `ChuspaNumeric.buscarTodasLasRaices: 'paso' debe ser un número finito mayor a cero. Se recibió: ${paso}.`
     );
   }
 }
@@ -25,7 +25,7 @@ function validarPaso(paso) {
 function validarValorFuncion(valor, x) {
   if (typeof valor !== 'number' || !Number.isFinite(valor)) {
     throw new ErrorParametros(
-      `Trazo.buscarTodasLasRaices: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
+      `ChuspaNumeric.buscarTodasLasRaices: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
     );
   }
 }
@@ -278,7 +278,7 @@ async function ejecutarEnParalelo({
  * @param {boolean} [params.paralelo=false] - Activa Worker Threads.
  * @param {number} [params.maxWorkers] - Número máximo de workers.
  * @param {boolean} [params.benchmark=false] - Mide secuencial vs paralelo.
- * @returns {Object|Promise<Object>} Resultado del contrato Trazo. Con `paralelo:true` retorna Promise.
+ * @returns {Object|Promise<Object>} Resultado del contrato ChuspaNumeric. Con `paralelo:true` retorna Promise.
  */
 export function buscarTodasLasRaices({
   f,

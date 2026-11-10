@@ -3,13 +3,13 @@
 ## Introducción
 
 Este documento es una **plantilla viva** para documentar migraciones
-entre versiones major de Trazo (por ejemplo, de 1.x a 2.0). Su
+entre versiones major de ChuspaNumeric (por ejemplo, de 1.x a 2.0). Su
 propósito es definir el proceso y la estructura de una guía de
 migración **antes** de que sea necesaria, para que cuando llegue
 un cambio incompatible real, el equipo solo tenga que rellenar los
 campos en lugar de diseñar el proceso desde cero.
 
-> **Estado actual:** Trazo está en versión `0.x`. Este documento
+> **Estado actual:** ChuspaNumeric está en versión `0.x`. Este documento
 > describe el proceso para cuando se publique la versión `1.0` y
 > eventualmente una versión `2.0` con breaking changes. Hasta entonces,
 > este archivo sirve como referencia de proceso, no como guía activa.
@@ -40,7 +40,7 @@ Cuando llegue una versión 2.0 real, copiar esta sección y completarla:
 
 ---
 
-### Migración de Trazo `[VERSIÓN ANTERIOR]` a `[VERSIÓN NUEVA]`
+### Migración de ChuspaNumeric `[VERSIÓN ANTERIOR]` a `[VERSIÓN NUEVA]`
 
 **Fecha de publicación:** `[FECHA]`
 **Versión anterior:** `[X.Y.Z]`

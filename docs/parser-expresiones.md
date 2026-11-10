@@ -2,7 +2,7 @@
 
 ## ¿Qué problema resuelve?
 
-Los métodos numéricos de Trazo reciben la función matemática como una **función JavaScript nativa**:
+Los métodos numéricos de ChuspaNumeric reciben la función matemática como una **función JavaScript nativa**:
 
 ```js
 biseccion({ f: (x) => x**3 - 2*x - 5, a: 2, b: 3 })
@@ -10,7 +10,7 @@ biseccion({ f: (x) => x**3 - 2*x - 5, a: 2, b: 3 })
 
 Esto funciona bien cuando el código lo escribe un desarrollador, pero no cuando la función viene del **input de un usuario** en una interfaz de texto (CLI o playground): el usuario escribe `"x^3 - 2*x - 5"` como cadena, no como código JavaScript.
 
-El parser de expresiones resuelve este problema: convierte ese string en una función JavaScript evaluable, lista para pasarse a cualquier método de Trazo.
+El parser de expresiones resuelve este problema: convierte ese string en una función JavaScript evaluable, lista para pasarse a cualquier método de ChuspaNumeric.
 
 ---
 
@@ -31,7 +31,7 @@ const f = (x) => eval(expresion.replace(/x/g, x));
 
 ## Precedente en el proyecto: `src/root/`
 
-El directorio `src/root/` contiene las primeras implementaciones de Trazo (`bisection.js`, `newtonRaphson.js`) y muestra exactamente cómo mathjs permite este paradigma. Ambos archivos usan `math.evaluate(expression, { x })` para evaluar la expresión en cada iteración:
+El directorio `src/root/` contiene las primeras implementaciones de ChuspaNumeric (`bisection.js`, `newtonRaphson.js`) y muestra exactamente cómo mathjs permite este paradigma. Ambos archivos usan `math.evaluate(expression, { x })` para evaluar la expresión en cada iteración:
 
 ```js
 // src/root/bisection.js (fragmento)
@@ -44,13 +44,13 @@ function bisection(expression, a, b, tolerance = 0.001, maxIterations = 100) {
 }
 ```
 
-El paradigma de `src/root/` fue **descartado como API principal** de Trazo (ver `docs/arquitectura-decisiones.md`, ADR-004) porque llama a `math.evaluate` en cada iteración del bucle, reparsando el string en cada paso. Para un método que converge en 50 iteraciones, esto significa 50 parseos de la misma expresión.
+El paradigma de `src/root/` fue **descartado como API principal** de ChuspaNumeric (ver `docs/arquitectura-decisiones.md`, ADR-004) porque llama a `math.evaluate` en cada iteración del bucle, reparsando el string en cada paso. Para un método que converge en 50 iteraciones, esto significa 50 parseos de la misma expresión.
 
 ---
 
 ## Diseño recomendado: `parsearExpresion`
 
-La forma correcta de usar mathjs en Trazo es compilar la expresión **una sola vez** con `math.compile()` y devolver una función ya lista, pagando el costo de parseo una sola vez:
+La forma correcta de usar mathjs en ChuspaNumeric es compilar la expresión **una sola vez** con `math.compile()` y devolver una función ya lista, pagando el costo de parseo una sola vez:
 
 ```js
 import { create, all } from 'mathjs';
@@ -59,7 +59,7 @@ const math = create(all);
 
 /**
  * Convierte una expresión matemática en string en una función JavaScript
- * evaluable, lista para pasarse a cualquier método de Trazo.
+ * evaluable, lista para pasarse a cualquier método de ChuspaNumeric.
  *
  * @param {string} expresion - Expresión matemática. Ej: "x^3 - 2*x - 5".
  * @param {string} [variable='x'] - Nombre de la variable en la expresión.

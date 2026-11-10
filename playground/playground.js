@@ -106,12 +106,12 @@
 
   function getLibraryRoots() {
     return [
-      window.Trazo,
-      window.trazo,
-      window.TrazoMath,
-      window.trazoMath,
-      window.TrazoJS,
-      window.trazojs
+      window.ChuspaNumeric,
+      window.chuspanumeric,
+      window.ChuspaNumericMath,
+      window.chuspanumericMath,
+      window.ChuspaNumericJS,
+      window.chuspanumericjs
     ].filter(Boolean);
   }
 
@@ -119,10 +119,10 @@
     const roots = getLibraryRoots();
 
     if (roots.length > 0) {
-      bundleStatus.textContent = "Bundle UMD cargado correctamente desde ../dist/trazo.umd.js.";
+      bundleStatus.textContent = "Bundle UMD cargado correctamente desde ../dist/chuspanumeric.umd.js.";
       bundleStatus.className = "status ok";
     } else {
-      bundleStatus.textContent = "No se detectó el bundle UMD. Verifica que exista dist/trazo.umd.js.";
+      bundleStatus.textContent = "No se detectó el bundle UMD. Verifica que exista dist/chuspanumeric.umd.js.";
       bundleStatus.className = "status error";
     }
   }

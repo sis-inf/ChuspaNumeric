@@ -1,8 +1,8 @@
-# Mapa de Dependencias Internas — Trazo
+# Mapa de Dependencias Internas — ChuspaNumeric
 
 ## Introducción
 
-Este documento muestra qué módulos de Trazo dependen internamente de
+Este documento muestra qué módulos de ChuspaNumeric dependen internamente de
 otros módulos del proyecto. Es útil para entender el **impacto de
 modificar un módulo base**: si cambias `contrato.js`, por ejemplo,
 todos los métodos que lo importan podrían verse afectados.

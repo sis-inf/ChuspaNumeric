@@ -69,3 +69,54 @@ export class ErrorDivergencia extends Error {
     this.name = "ErrorDivergencia";
   }
 }
+
+/**
+ * Clase base de los errores numéricos del proyecto.
+ * Permite capturar con un solo instanceof los errores específicos de los métodos numéricos.
+ *
+ * @example
+ * try {
+ *   resolver(A, b);
+ * } catch (error) {
+ *   if (error instanceof ErrorNumerico) console.error(error.message);
+ * }
+ */
+export class ErrorNumerico extends Error {
+  constructor(mensaje) {
+    super(mensaje);
+    this.name = "ErrorNumerico";
+  }
+}
+
+const MENSAJE_NO_CONVERGENCIA = "ChuspaNumeric: el método no convergió dentro del número máximo de iteraciones permitido.";
+
+/**
+ * Error cuando un método iterativo no converge dentro de las iteraciones permitidas.
+ * Puede lanzarse sin argumentos: usa un mensaje por defecto descriptivo.
+ *
+ * @example throw new ErrorNoConvergencia();
+ * @example throw new ErrorNoConvergencia("Newton-Raphson no convergió en 50 iteraciones.");
+ */
+export class ErrorNoConvergencia extends ErrorNumerico {
+  constructor(mensaje = MENSAJE_NO_CONVERGENCIA) {
+    super(mensaje);
+    this.name = "ErrorNoConvergencia";
+  }
+}
+
+const MENSAJE_MATRIZ_SINGULAR = "ChuspaNumeric: la matriz es singular (su determinante es cero) y no se puede resolver ni invertir.";
+
+/**
+ * Error cuando una matriz es singular y no se puede resolver el sistema
+ * ni calcular su inversa.
+ * Puede lanzarse sin argumentos: usa un mensaje por defecto descriptivo.
+ *
+ * @example throw new ErrorMatrizSingular();
+ * @example throw new ErrorMatrizSingular("La matriz A es singular: pivote nulo en la columna 2.");
+ */
+export class ErrorMatrizSingular extends ErrorNumerico {
+  constructor(mensaje = MENSAJE_MATRIZ_SINGULAR) {
+    super(mensaje);
+    this.name = "ErrorMatrizSingular";
+  }
+}

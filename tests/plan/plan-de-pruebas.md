@@ -2,7 +2,7 @@
 
 ## 1. Objetivo
 
-Validar la exactitud, estabilidad y correcto funcionamiento de la librería matemática Trazo, asegurando resultados confiables en cálculos numéricos.
+Validar la exactitud, estabilidad y correcto funcionamiento de la librería matemática ChuspaNumeric, asegurando resultados confiables en cálculos numéricos.
 
 ## 2. Alcance
 

@@ -1,6 +1,6 @@
 # Convenciones de nombres de funciones y parámetros
 
-Este documento formaliza las reglas de nomenclatura que el proyecto **Trazo** sigue de manera consistente en toda su API pública y código interno. Su objetivo es que cualquier colaborador pueda escribir o leer código del proyecto sin necesidad de adivinar los nombres correctos.
+Este documento formaliza las reglas de nomenclatura que el proyecto **ChuspaNumeric** sigue de manera consistente en toda su API pública y código interno. Su objetivo es que cualquier colaborador pueda escribir o leer código del proyecto sin necesidad de adivinar los nombres correctos.
 
 ---
 
@@ -183,7 +183,7 @@ exportarTabla(iteraciones, opciones)
 
 # 5. Estructura de parámetros: objeto desestructurado
 
-Las funciones públicas de Trazo reciben sus argumentos como un único objeto desestructurado, no como parámetros posicionales separados.
+Las funciones públicas de ChuspaNumeric reciben sus argumentos como un único objeto desestructurado, no como parámetros posicionales separados.
 
 Esto permite:
 

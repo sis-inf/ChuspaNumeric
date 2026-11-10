@@ -20,7 +20,7 @@ import {
  * @param {number[]} [params.x0]                - Vector inicial. Por defecto vector de ceros.
  * @param {number} [params.tolerancia=1e-6]     - Criterio de parada basado en la norma euclidiana del error.
  * @param {number} [params.maxIter=100]         - Número máximo de iteraciones.
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorDominio} Si algún elemento de la diagonal de A es cero.
  */
 function gaussSeidel({
@@ -45,7 +45,7 @@ function gaussSeidel({
   for (let i = 0; i < n; i++) {
     if (A[i][i] === 0) {
       throw new ErrorDominio(
-        `Trazo.gaussSeidel: el elemento diagonal A[${i}][${i}] es cero. ` +
+        `ChuspaNumeric.gaussSeidel: el elemento diagonal A[${i}][${i}] es cero. ` +
         `Considera reordenar las filas para que la diagonal sea no nula.`
       );
     }

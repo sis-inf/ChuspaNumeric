@@ -1,6 +1,6 @@
 # Glosario Ingles-Espanol
 
-Tabla de terminos tecnicos en ingles que aparecen en el codigo, configuracion y documentacion del proyecto Trazo, junto a su traduccion y explicacion en espanol.
+Tabla de terminos tecnicos en ingles que aparecen en el codigo, configuracion y documentacion del proyecto ChuspaNumeric, junto a su traduccion y explicacion en espanol.
 
 ## Terminos generales de JavaScript
 

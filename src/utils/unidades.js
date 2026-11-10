@@ -126,13 +126,13 @@ export function convertirTemperatura(valor, desde, hasta) {
   const escalas = ['C', 'F', 'K'];
   if (!escalas.includes(desde)) {
     throw new ErrorParametros(
-      `Trazo.convertirTemperatura: unidad de origen "${desde}" no soportada. ` +
+      `ChuspaNumeric.convertirTemperatura: unidad de origen "${desde}" no soportada. ` +
       `Escalas disponibles: ${escalas.join(', ')}.`
     );
   }
   if (!escalas.includes(hasta)) {
     throw new ErrorParametros(
-      `Trazo.convertirTemperatura: unidad de destino "${hasta}" no soportada. ` +
+      `ChuspaNumeric.convertirTemperatura: unidad de destino "${hasta}" no soportada. ` +
       `Escalas disponibles: ${escalas.join(', ')}.`
     );
   }
@@ -152,7 +152,7 @@ export function convertirTemperatura(valor, desde, hasta) {
   const CERO_ABSOLUTO_C = -273.15;
   if (celsius < CERO_ABSOLUTO_C - 1e-9) {
     throw new ErrorParametros(
-      `Trazo.convertirTemperatura: el valor ${valor} ${desde} corresponde a ` +
+      `ChuspaNumeric.convertirTemperatura: el valor ${valor} ${desde} corresponde a ` +
       `${celsius.toFixed(4)} °C, que está por debajo del cero absoluto (-273.15 °C).`
     );
   }
@@ -246,7 +246,7 @@ export function unidadesDisponibles() {
 function _validarValor(valor, nombreFuncion) {
   if (typeof valor !== 'number' || !isFinite(valor)) {
     throw new ErrorParametros(
-      `Trazo.${nombreFuncion}: el valor debe ser un número finito. ` +
+      `ChuspaNumeric.${nombreFuncion}: el valor debe ser un número finito. ` +
       `Se recibió: ${valor} (${typeof valor}).`
     );
   }
@@ -262,7 +262,7 @@ function _validarValor(valor, nombreFuncion) {
 function _validarUnidad(unidad, tabla, nombreFuncion, categoria) {
   if (!(unidad in tabla)) {
     throw new ErrorParametros(
-      `Trazo.${nombreFuncion}: unidad "${unidad}" no soportada para ${categoria}. ` +
+      `ChuspaNumeric.${nombreFuncion}: unidad "${unidad}" no soportada para ${categoria}. ` +
       `Unidades disponibles: ${Object.keys(tabla).join(', ')}.`
     );
   }

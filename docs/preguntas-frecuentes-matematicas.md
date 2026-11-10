@@ -2,7 +2,7 @@
 
 ## Introducción
 
-Este documento responde dudas **matemáticas** sobre el uso de los métodos numéricos de Trazo: por qué un método no converge, cómo elegir buenos parámetros de entrada, o qué significan ciertos resultados.
+Este documento responde dudas **matemáticas** sobre el uso de los métodos numéricos de ChuspaNumeric: por qué un método no converge, cómo elegir buenos parámetros de entrada, o qué significan ciertos resultados.
 
 > **Diferencia con `preguntas-frecuentes.md`:** ese otro documento está orientado a **contribución de código** (cómo hacer fork, por qué falla mi Pull Request, errores de Git). Este documento, en cambio, está pensado para quien **usa** la librería para resolver problemas matemáticos reales y tiene dudas sobre el comportamiento de los métodos numéricos en sí.
 
@@ -68,7 +68,7 @@ El número de condición mide cuán sensible es la solución de un sistema `Ax =
 
 **Qué hacer:**
 * Ten especial cuidado con tolerancias muy ajustadas en sistemas mal condicionados.
-* Considera técnicas de pivoteo parcial (ya usadas internamente por Trazo en Gauss) para mejorar la estabilidad numérica.
+* Considera técnicas de pivoteo parcial (ya usadas internamente por ChuspaNumeric en Gauss) para mejorar la estabilidad numérica.
 * Si es posible, reescala las variables del sistema para reducir la disparidad de magnitudes entre filas/columnas.
 
 ---
@@ -97,7 +97,7 @@ Si el método alcanza `maxIteraciones` antes de que el error sea menor que la `t
 
 ## 9. ¿Cómo interpreto la tabla de iteraciones que devuelven los métodos?
 
-Cada objeto de resultado en Trazo incluye un arreglo `iteraciones` con el detalle paso a paso del cálculo (valores de `x`, `error`, etc. según el método). Esto te permite:
+Cada objeto de resultado en ChuspaNumeric incluye un arreglo `iteraciones` con el detalle paso a paso del cálculo (valores de `x`, `error`, etc. según el método). Esto te permite:
 
 * Verificar manualmente cómo evolucionó la aproximación.
 * Detectar en qué iteración el error dejó de disminuir (señal de posible divergencia o estancamiento).

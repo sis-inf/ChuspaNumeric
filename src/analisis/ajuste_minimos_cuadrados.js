@@ -1,11 +1,13 @@
+import { ErrorParametros } from '../core/errores.js';
+
 /**
  * Regresión lineal por mínimos cuadrados.
  * Ajusta una recta y = pendiente*x + intercepto a los datos (xs, ys).
  *
  * @param {number[]} xs - Array de valores independientes (al menos 2).
  * @param {number[]} ys - Array de valores dependientes (misma longitud que xs).
- * @returns {{ pendiente: number, intercepto: number, r2: number, prediccion: Function }}
- * @throws {Error} Si xs tiene menos de 2 puntos o las longitudes no coinciden.
+ * @returns {{ m: number, b: number, pendiente: number, intercepto: number, r2: number, residuos: number[], desviacionError: number, prediccion: Function }}
+ * @throws {ErrorParametros} Si xs o ys no son arrays, si hay menos de 2 puntos o si las longitudes no coinciden.
  *
  * @example
  * const { pendiente, intercepto, r2, prediccion } = regresionLineal([1,2,3], [2,4,6]);
@@ -14,18 +16,18 @@
  */
 function regresionLineal(xs, ys) {
   if (!Array.isArray(xs) || !Array.isArray(ys)) {
-    throw new Error('Trazo.regresionLineal: xs e ys deben ser arrays.');
+    throw new ErrorParametros('ChuspaNumeric.regresionLineal: xs e ys deben ser arrays.');
   }
 
   if (xs.length < 2) {
-    throw new Error(
-      `Trazo.regresionLineal: se necesitan al menos 2 puntos. Se recibió: ${xs.length}.`
+    throw new ErrorParametros(
+      `ChuspaNumeric.regresionLineal: se necesitan al menos 2 puntos. Se recibió: ${xs.length}.`
     );
   }
 
   if (xs.length !== ys.length) {
-    throw new Error(
-      `Trazo.regresionLineal: xs e ys deben tener la misma longitud. ` +
+    throw new ErrorParametros(
+      `ChuspaNumeric.regresionLineal: xs e ys deben tener la misma longitud. ` +
       `xs.length=${xs.length}, ys.length=${ys.length}.`
     );
   }
@@ -48,10 +50,23 @@ function regresionLineal(xs, ys) {
   const ssRes    = ys.reduce((a, y, i) => a + (y - (pendiente * xs[i] + intercepto)) ** 2, 0);
   const r2       = ssTot === 0 ? 1 : 1 - ssRes / ssTot;
 
+  // Residuos (y observada - y ajustada) y desviación estándar del error
+  const residuos = ys.map((y, i) => y - (pendiente * xs[i] + intercepto));
+  const desviacionError = n > 2 ? Math.sqrt(ssRes / (n - 2)) : 0;
+
   // Función de predicción
   const prediccion = (x) => pendiente * x + intercepto;
 
-  return { pendiente, intercepto, r2, prediccion };
+  return {
+    m: pendiente,
+    b: intercepto,
+    pendiente,
+    intercepto,
+    r2,
+    residuos,
+    desviacionError,
+    prediccion,
+  };
 }
 
 /**
@@ -74,25 +89,25 @@ function regresionLineal(xs, ys) {
  */
 function regresionPolinomial(xs, ys, grado) {
   if (!Array.isArray(xs) || !Array.isArray(ys)) {
-    throw new Error('Trazo.regresionPolinomial: xs e ys deben ser arrays.');
+    throw new Error('ChuspaNumeric.regresionPolinomial: xs e ys deben ser arrays.');
   }
 
   if (!Number.isInteger(grado) || grado < 1) {
     throw new Error(
-      `Trazo.regresionPolinomial: 'grado' debe ser un entero >= 1. Se recibió: ${grado}.`
+      `ChuspaNumeric.regresionPolinomial: 'grado' debe ser un entero >= 1. Se recibió: ${grado}.`
     );
   }
 
   if (xs.length < grado + 1) {
     throw new Error(
-      `Trazo.regresionPolinomial: se necesitan al menos ${grado + 1} puntos para grado ${grado}. ` +
+      `ChuspaNumeric.regresionPolinomial: se necesitan al menos ${grado + 1} puntos para grado ${grado}. ` +
       `Se recibió: ${xs.length}.`
     );
   }
 
   if (xs.length !== ys.length) {
     throw new Error(
-      `Trazo.regresionPolinomial: xs e ys deben tener la misma longitud.`
+      `ChuspaNumeric.regresionPolinomial: xs e ys deben tener la misma longitud.`
     );
   }
 

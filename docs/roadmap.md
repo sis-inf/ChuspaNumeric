@@ -1,8 +1,8 @@
-# Roadmap del Proyecto Trazo
+# Roadmap del Proyecto ChuspaNumeric
 
 ## Introducción
 
-Este documento presenta las funcionalidades planificadas para el proyecto Trazo, organizadas por categorías de métodos numéricos.
+Este documento presenta las funcionalidades planificadas para el proyecto ChuspaNumeric, organizadas por categorías de métodos numéricos.
 
 La información incluye el estado actual de desarrollo, el nivel de dificultad estimado y si la tarea es adecuada para nuevos colaboradores.
 

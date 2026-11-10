@@ -56,6 +56,7 @@ function romberg({
         return {
           resultado: tabla[i][i],
           tabla,
+          filas: tabla.length,
           convergio: true
         };
       }
@@ -64,6 +65,7 @@ function romberg({
     return {
       resultado: tabla[nMax - 1][nMax - 1],
       tabla,
+      filas: tabla.length,
       convergio: false
     };
   });
@@ -72,7 +74,9 @@ function romberg({
     resultado: valor.resultado,
     iteraciones: valor.tabla,
     convergio: valor.convergio,
-    mensaje: "Integración mediante Romberg completada.",
+    mensaje: valor.convergio
+      ? `Integración mediante Romberg completada: convergió en ${valor.filas} filas (tolerancia ${tolerancia}).`
+      : `Integración mediante Romberg completada: no alcanzó la tolerancia ${tolerancia} tras ${valor.filas} filas (nMax = ${nMax}).`,
     meta: {
       metodo: "romberg",
       parametros: {

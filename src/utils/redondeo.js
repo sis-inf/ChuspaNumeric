@@ -1,8 +1,13 @@
+import { ErrorParametros } from '../core/errores.js';
+
 /**
  * Redondea un número a n decimales.
  * Ejemplo: 3.14159 -> 3.142
  */
 function redondearDecimales(x, n) {
+  if (!Number.isInteger(n) || n < 0) {
+    throw new ErrorParametros('n debe ser un entero mayor o igual a 0');
+  }
   const factor = Math.pow(10, n);
   return Math.round(x * factor) / factor;
 }
@@ -12,6 +17,9 @@ function redondearDecimales(x, n) {
  * Ejemplo: 3.14159 -> 3.141
  */
 function truncarDecimales(x, n) {
+  if (!Number.isInteger(n) || n < 0) {
+    throw new ErrorParametros('n debe ser un entero mayor o igual a 0');
+  }
   const factor = Math.pow(10, n);
   return Math.trunc(x * factor) / factor;
 }
@@ -31,7 +39,7 @@ function esIgualConTolerancia(a, b, tol) {
   return Math.abs(a - b) <= tol;
 }
 
-module.exports = {
+export {
   redondearDecimales,
   truncarDecimales,
   cifrasSignificativas,

@@ -53,4 +53,36 @@ describe('Métodos EDO - Runge-Kutta 4', () => {
         expect(() => rungeKutta4({ f, x0: 0, y0: '1', h: 0.1, xFinal: 1 }))
             .toThrow();
     });
+
+    test('un paso menor produce un error final menor o igual', () => {
+        const f = (x, y) => -y;
+        const solucionExacta = Math.exp(-1);
+
+        const resultadoPasoGrande = rungeKutta4({
+            f,
+            x0: 0,
+            y0: 1,
+            h: 0.2,
+            xFinal: 1
+        });
+
+        const resultadoPasoPequeno = rungeKutta4({
+            f,
+            x0: 0,
+            y0: 1,
+            h: 0.1,
+            xFinal: 1
+        });
+
+        const valorPasoGrande = resultadoPasoGrande.resultado[5][1];
+        const valorPasoPequeno = resultadoPasoPequeno.resultado[10][1];
+
+        const errorPasoGrande = Math.abs(valorPasoGrande - solucionExacta);
+        const errorPasoPequeno = Math.abs(valorPasoPequeno - solucionExacta);
+
+        expect(resultadoPasoGrande.resultado[5][0]).toBeCloseTo(1, 10);
+        expect(resultadoPasoPequeno.resultado[10][0]).toBeCloseTo(1, 10);
+
+        expect(errorPasoPequeno).toBeLessThanOrEqual(errorPasoGrande);
+    });
 });

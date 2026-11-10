@@ -4,6 +4,7 @@ import {
 } from '../../../src/diferencias/diferencia_centrada.js';
 
 import { diferenciasAdelanteGrado1 } from '../../../src/diferencias/diferencia_hacia_adelante.js';
+import { diferenciasAtrasGrado1 } from '../../../src/diferencias/diferencia_hacia_atras.js';
 
 
 describe('Pruebas Funcionales - Método de Diferencias Finitas', () => {
@@ -93,6 +94,29 @@ describe('Pruebas Funcionales - Método de Diferencias Finitas', () => {
 
         expect(errorPequeno).toBeLessThan(errorGrande);
         expect(resultadoPequeno).toBeCloseTo(valorReal, 4);
+    });
+
+
+    describe.each([
+        { esquema: 'hacia adelante', derivar: diferenciasAdelanteGrado1 },
+        { esquema: 'hacia atrás', derivar: diferenciasAtrasGrado1 }
+    ])('Precisión del esquema $esquema', ({ derivar }) => {
+
+        test.each([
+            { nombre: 'sin(x)', funcion: Math.sin, derivadaExacta: Math.cos },
+            { nombre: 'exp(x)', funcion: Math.exp, derivadaExacta: Math.exp }
+        ])('$nombre: el error relativo disminuye al reducir h de 0.1 a 0.001', ({ funcion, derivadaExacta }) => {
+            const x = 1;
+            const valorReal = derivadaExacta(x);
+
+            const [errorH1, errorH2, errorH3] = [0.1, 0.01, 0.001].map((h) => {
+                return Math.abs((derivar(funcion, x, h) - valorReal) / valorReal);
+            });
+
+            expect(errorH2).toBeLessThan(errorH1);
+            expect(errorH3).toBeLessThan(errorH2);
+            expect(errorH3).toBeLessThan(1e-3);
+        });
     });
 
 });

@@ -16,12 +16,12 @@
 
   function getLibraryRoots() {
     return [
-      window.Trazo,
-      window.trazo,
-      window.TrazoMath,
-      window.trazoMath,
-      window.TrazoJS,
-      window.trazojs
+      window.ChuspaNumeric,
+      window.chuspanumeric,
+      window.ChuspaNumericMath,
+      window.chuspanumericMath,
+      window.ChuspaNumericJS,
+      window.chuspanumericjs
     ].filter(Boolean);
   }
 

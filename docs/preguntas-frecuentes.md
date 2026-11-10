@@ -1,12 +1,12 @@
-# Preguntas Frecuentes (FAQ) - Trazo
+# Preguntas Frecuentes (FAQ) - ChuspaNumeric
 
-## ¿Qué es Trazo?
+## ¿Qué es ChuspaNumeric?
 
-Trazo es una librería de métodos numéricos en JavaScript diseñada para resolver problemas matemáticos mediante métodos de aproximación. Está pensada para estudiantes, ingenieros y profesionales que necesitan realizar cálculos numéricos sin tener que implementar los algoritmos desde cero.
+ChuspaNumeric es una librería de métodos numéricos en JavaScript diseñada para resolver problemas matemáticos mediante métodos de aproximación. Está pensada para estudiantes, ingenieros y profesionales que necesitan realizar cálculos numéricos sin tener que implementar los algoritmos desde cero.
 
 ## ¿Qué métodos numéricos están disponibles?
 
-Trazo actualmente incluye los siguientes métodos:
+ChuspaNumeric actualmente incluye los siguientes métodos:
 
 - **Sistemas de ecuaciones lineales:** Eliminación de Gauss, Gauss-Jordan, Descomposición LU, Jacobi, Gauss-Seidel
 - **Sistemas de ecuaciones no lineales:** Bisección, Secante, Newton-Raphson, Falsa Posición, Punto Fijo
@@ -15,17 +15,17 @@ Trazo actualmente incluye los siguientes métodos:
 
 > **Nota:** La librería está en desarrollo activo y se irán agregando más métodos.
 
-## ¿Cómo instalo e integro Trazo en mi proyecto?
+## ¿Cómo instalo e integro ChuspaNumeric en mi proyecto?
 
 ```bash
-git clone https://github.com/sis-inf/trazo.git
-cd trazo
+git clone https://github.com/sis-inf/ChuspaNumeric.git
+cd ChuspaNumeric
 npm install
 ```
 
 ## Preguntas Frecuentes sobre JavaScript y Node.js
 
-## ¿Cuál es la diferencia entre `import` y `require` en trazo?
+## ¿Cuál es la diferencia entre `import` y `require` en ChuspaNumeric?
 
 `import` pertenece al sistema de módulos ES (ESM) y `require` al sistema CommonJS.
 
@@ -80,9 +80,9 @@ test.only("mi prueba", () => {
 
 ---
 
-## ¿Puedo usar trazo en el navegador?
+## ¿Puedo usar ChuspaNumeric en el navegador?
 
-Trazo está diseñado principalmente para ejecutarse en Node.js. Si deseas utilizarlo en un navegador, revisa primero la documentación del proyecto y verifica que las dependencias sean compatibles.
+ChuspaNumeric está diseñado principalmente para ejecutarse en Node.js. Si deseas utilizarlo en un navegador, revisa primero la documentación del proyecto y verifica que las dependencias sean compatibles.
 
 ---
 
