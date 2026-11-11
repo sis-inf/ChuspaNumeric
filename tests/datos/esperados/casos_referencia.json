@@ -86,5 +86,163 @@
     "metodo": "det3x3",
     "A": [[6, 1, 1], [4, -2, 5], [2, 8, 7]],
     "tolerancia": 1e-9, "esperado": -306
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "biseccion",
+    "f": "x * x * x - 6 * x * x + 11 * x - 6",
+    "a": 2.5,
+    "b": 3.5,
+    "toleranciaMetodo": 1e-10,
+    "maxIter": 200,
+    "tolerancia": 1e-9,
+    "esperado": 3
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "newtonRaphson",
+    "f": "x * x * x - 6 * x * x + 11 * x - 6",
+    "df": "3 * x * x - 12 * x + 11",
+    "x0": 3.4,
+    "toleranciaMetodo": 1e-10,
+    "maxIter": 100,
+    "tolerancia": 1e-9,
+    "esperado": 3
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "secante",
+    "f": "x * x * x - 8",
+    "x0": 1,
+    "x1": 3,
+    "toleranciaMetodo": 1e-10,
+    "maxIter": 100,
+    "tolerancia": 1e-9,
+    "esperado": 2
+  },
+  {
+    "categoria": "trigonometrica",
+    "metodo": "biseccion",
+    "f": "sin(x)",
+    "a": 3,
+    "b": 4,
+    "toleranciaMetodo": 1e-10,
+    "maxIter": 200,
+    "tolerancia": 1e-9,
+    "esperado": 3.141592653589793
+  },
+  {
+    "categoria": "trigonometrica",
+    "metodo": "newtonRaphson",
+    "f": "cos(x)",
+    "df": "-sin(x)",
+    "x0": 1.5,
+    "toleranciaMetodo": 1e-10,
+    "maxIter": 100,
+    "tolerancia": 1e-9,
+    "esperado": 1.5707963267948966
+  },
+  {
+    "categoria": "exponencial",
+    "metodo": "biseccion",
+    "f": "exp(x) - 2",
+    "a": 0,
+    "b": 1,
+    "toleranciaMetodo": 1e-10,
+    "maxIter": 200,
+    "tolerancia": 1e-9,
+    "esperado": 0.6931471805599453
+  },
+  {
+    "categoria": "exponencial",
+    "metodo": "newtonRaphson",
+    "f": "exp(x) - 3",
+    "df": "exp(x)",
+    "x0": 1,
+    "toleranciaMetodo": 1e-10,
+    "maxIter": 100,
+    "tolerancia": 1e-9,
+    "esperado": 1.0986122886681098
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "trapecio",
+    "f": "3 * x + 1",
+    "a": 0,
+    "b": 2,
+    "n": 4,
+    "tolerancia": 1e-9,
+    "esperado": 8
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "simpson13",
+    "f": "x * x * x",
+    "a": 0,
+    "b": 1,
+    "tolerancia": 1e-9,
+    "esperado": 0.25
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "simpson38",
+    "f": "x * x * x",
+    "a": 0,
+    "b": 2,
+    "tolerancia": 1e-9,
+    "esperado": 4
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "simpsonCompuesto",
+    "f": "x * x * x - 2 * x + 1",
+    "a": 0,
+    "b": 2,
+    "n": 10,
+    "tolerancia": 1e-9,
+    "esperado": 2
+  },
+  {
+    "categoria": "trigonometrica",
+    "metodo": "simpsonCompuesto",
+    "f": "sin(x)",
+    "a": 0,
+    "b": 3.141592653589793,
+    "n": 200,
+    "tolerancia": 1e-7,
+    "esperado": 2
+  },
+  {
+    "categoria": "trigonometrica",
+    "metodo": "simpsonCompuesto",
+    "f": "cos(x)",
+    "a": 0,
+    "b": 1.5707963267948966,
+    "n": 100,
+    "tolerancia": 1e-8,
+    "esperado": 1
+  },
+  {
+    "categoria": "exponencial",
+    "metodo": "simpsonCompuesto",
+    "f": "exp(x)",
+    "a": 0,
+    "b": 1,
+    "n": 100,
+    "tolerancia": 1e-8,
+    "esperado": 1.718281828459045
+  },
+  {
+    "categoria": "polinomio",
+    "metodo": "lagrange",
+    "puntos": [
+      [0, 1],
+      [1, 0],
+      [2, 5],
+      [3, 22]
+    ],
+    "x": 1.5,
+    "tolerancia": 1e-9,
+    "esperado": 1.375
   }
 ]
