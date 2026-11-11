@@ -8,6 +8,8 @@
  * @param {string}  [opciones.mensaje=""]
  * @param {Object}  [opciones.meta={}]
  * @param {string[]} [opciones.warnings=[]] - Advertencias no bloqueantes sobre situaciones límite.
+ * @param {number} [opciones.tiempoMs] - Tiempo de cálculo transcurrido en milisegundos. Solo se incluye si se recibe.
+ * @param {number} [opciones.toleranciaFinal] - Tolerancia final alcanzada por el método. Solo se incluye si se recibe.
  * @returns {Object}
  */
 function crearResultado({
@@ -17,6 +19,8 @@ function crearResultado({
   mensaje = "",
   meta = {},
   warnings = [],
+  tiempoMs,
+  toleranciaFinal,
 }) {
   const resultadoBase = {
     resultado,
@@ -32,6 +36,14 @@ function crearResultado({
 
   if (warnings.length > 0) {
     resultadoBase.warnings = warnings;
+  }
+
+  if (tiempoMs !== undefined) {
+    resultadoBase.tiempoMs = tiempoMs;
+  }
+
+  if (toleranciaFinal !== undefined) {
+    resultadoBase.toleranciaFinal = toleranciaFinal;
   }
 
   return resultadoBase;
