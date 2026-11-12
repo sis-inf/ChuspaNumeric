@@ -16,7 +16,7 @@ import { media, desviacionEstandar } from '../utils/estadistica.js';
  * @param {Function} f - Función a integrar. Recibe un número y devuelve un número.
  * @param {number} a - Límite inferior de integración
  * @param {number} b - Límite superior de integración
- * @param {number} [n=10000] - Número de muestras aleatorias
+ * @param {number} [n=10000] - Número de muestras aleatorias (minimo 2)
  * @returns {Object} Resultado con la estimación de la integral y error estándar
  * @returns {number} resultado.valor - Estimación de la integral
  * @returns {number} resultado.errorEstandar - Error estándar estimado de la aproximación
@@ -42,8 +42,8 @@ function integracionMonteCarlo1D(f, a, b, n = 10000) {
   if (a >= b) {
     throw new Error('El límite inferior debe ser menor que el superior');
   }
-  if (!Number.isInteger(n) || n <= 0) {
-    throw new Error('El número de muestras debe ser un entero positivo');
+  if (!Number.isInteger(n) || n < 2) {
+    throw new Error('El número de muestras debe ser un entero mayor o igual a 2');
   }
 
   const muestras = [];
