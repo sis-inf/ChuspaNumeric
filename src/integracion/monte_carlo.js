@@ -31,7 +31,7 @@ import { media, desviacionEstandar } from '../utils/estadistica.js';
  * console.log(resultado.valor); // ≈ 0.333
  * console.log(resultado.errorEstandar); // Error estándar estimado
  */
-export function integracionMonteCarlo(f, a, b, n = 10000) {
+function integracionMonteCarlo1D(f, a, b, n = 10000) {
   // Validaciones
   if (typeof f !== 'function') {
     throw new Error('El primer argumento debe ser una función');
@@ -206,13 +206,15 @@ function crearPRNG(semilla) {
  * });
  * console.log(r3.resultado); // ≈ 1.5
  */
-export function integracionMonteCarlo({
-  f,
-  limitesInferiores,
-  limitesSuperiores,
-  nMuestras = 10000,
-  semilla = null,
-}) {
+/**
+ * Valida los parámetros de integración multidimensional.
+ * @param {Function} f - Función a integrar.
+ * @param {number[]} limitesInferiores - Límites inferiores.
+ * @param {number[]} limitesSuperiores - Límites superiores.
+ * @param {number} nMuestras - Cantidad de muestras.
+ * @returns {number} Número de dimensiones.
+ */
+function validarParametrosMonteCarlo(f, limitesInferiores, limitesSuperiores, nMuestras) {
   // --- Validación ---
   if (typeof f !== 'function') {
     throw new ErrorParametros(
@@ -265,6 +267,20 @@ export function integracionMonteCarlo({
       `ChuspaNumeric.integracionMonteCarlo: "nMuestras" debe ser un entero positivo. Se recibió: ${nMuestras}.`
     );
   }
+
+  return d;
+}
+
+function integracionMonteCarloMultidimensional({
+  f,
+  limitesInferiores,
+  limitesSuperiores,
+  nMuestras = 10000,
+  semilla = null,
+}) {
+  const d = validarParametrosMonteCarlo(
+    f, limitesInferiores, limitesSuperiores, nMuestras
+  );
 
   // --- Configurar PRNG ---
   const aleatorio = semilla !== null
@@ -326,4 +342,32 @@ export function integracionMonteCarlo({
       tiempo_ms: 0,
     },
   });
+}
+
+/**
+ * Integra mediante Monte Carlo conservando ambas interfaces públicas.
+ *
+ * @overload
+ * @param {Function} f - Función unidimensional f(x).
+ * @param {number} a - Límite inferior.
+ * @param {number} b - Límite superior.
+ * @param {number} [n=10000] - Número de muestras.
+ * @returns {{valor: number, errorEstandar: number,
+ *   n: number, intervaloA: number, intervaloB: number}}
+ *
+ * @overload
+ * @param {Object} params - Parámetros multidimensionales.
+ * @param {Function} params.f - Función que recibe coordenadas.
+ * @param {number[]} params.limitesInferiores
+ * @param {number[]} params.limitesSuperiores
+ * @param {number} [params.nMuestras=10000]
+ * @param {number|null} [params.semilla=null]
+ * @returns {Object} Resultado conforme al contrato de ChuspaNumeric.
+ */
+export function integracionMonteCarlo(f, a, b, n) {
+  if (typeof f === 'function' || arguments.length > 1) {
+    return integracionMonteCarlo1D(f, a, b, n);
+  }
+
+  return integracionMonteCarloMultidimensional(f);
 }
