@@ -12,7 +12,7 @@ La información incluye el estado actual de desarrollo, el nivel de dificultad e
 |--------------|---------|------------|------------------|
 | Método de Newton-Raphson | Completado | Media | No |
 | Método de Bisección | Completado | Baja | Sí |
-| Método de Secante | Planificado | Media | Sí |
+| Método de Secante | Completado | Media | Sí |
 
 ## Integración
 
@@ -20,7 +20,7 @@ La información incluye el estado actual de desarrollo, el nivel de dificultad e
 |--------------|---------|------------|------------------|
 | Regla del Trapecio | Completado | Baja | Sí |
 | Simpson 1/3 | Completado | Media | No |
-| Simpson 3/8 | Planificado | Media | Sí |
+| Simpson 3/8 | Completado | Media | Sí |
 
 ## Interpolación
 
@@ -28,7 +28,7 @@ La información incluye el estado actual de desarrollo, el nivel de dificultad e
 |--------------|---------|------------|------------------|
 | Interpolación Lineal | Completado | Baja | Sí |
 | Polinomio de Lagrange | Completado | Media | No |
-| Diferencias Divididas de Newton | Planificado | Media | Sí |
+| Diferencias Divididas de Newton | Completado | Media | Sí |
 
 ## Sistemas Lineales
 
@@ -36,15 +36,15 @@ La información incluye el estado actual de desarrollo, el nivel de dificultad e
 |--------------|---------|------------|------------------|
 | Eliminación de Gauss | Completado | Media | No |
 | Gauss-Jordan | Completado | Media | No |
-| LU | Planificado | Alta | No |
+| LU | Completado | Alta | No |
 
 ## EDOs
 
 | Funcionalidad | Estado | Dificultad | Good First Issue |
 |--------------|---------|------------|------------------|
 | Euler | Completado | Baja | Sí |
-| Euler Mejorado | Planificado | Media | Sí |
-| Runge-Kutta 4 | Planificado | Alta | No |
+| Euler Mejorado | Completado | Media | Sí |
+| Runge-Kutta 4 | Completado | Alta | No |
 
 ## Análisis
 

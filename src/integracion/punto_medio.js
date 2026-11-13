@@ -57,16 +57,17 @@ function puntoMedio({ f, a, b, n = 100 }) {
     const h = (b - a) / n;
     const iteraciones = [];
     let resultado = 0;
-
     for (let i = 1; i <= n; i++) {
       const xi = a + (i - 0.5) * h;
       const fxi = f(xi);
-      const area = h * fxi;
 
+      if (typeof fxi !== 'number' || !Number.isFinite(fxi)) {
+        throw new ErrorParametros(`ChuspaNumeric.puntoMedio: evaluación inválida en x=${xi}. Se recibió: ${String(fxi)}.`);
+      }
+      const area = h * fxi;
       iteraciones.push({ i, xi, fxi, area });
       resultado += area;
     }
-
     return { resultado, iteraciones };
   });
 

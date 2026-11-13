@@ -1,6 +1,6 @@
 import { crearResultado } from '../core/contrato.js';
 import { ErrorDominio } from '../core/errores.js';
-import { validarMatrizCuadrada } from '../utils/validaciones.js';
+import { validarMatrizCuadrada, validarVector } from '../utils/validaciones.js';
 
 /**
  * Umbral absoluto para detectar pivotes nulos o numéricamente inservibles.
@@ -39,9 +39,7 @@ export function gaussPivoteoParcial({ A, b }) {
     validarMatrizCuadrada(A);
     const n = A.length;
 
-    if (!Array.isArray(b) || b.length !== n) {
-        throw new Error('El vector b debe tener la misma dimensión que la matriz de coeficientes');
-    }
+    validarVector(b, n);
 
     const M = A.map((fila, i) => [...fila, b[i]]);
     const iteraciones = [];
