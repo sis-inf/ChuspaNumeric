@@ -36,6 +36,7 @@ import { gaussJordan } from './lineales/gauss-jordan.js';
 import { gaussSeidel } from './lineales/gauss-seidel.js';
 import { jacobi } from './lineales/jacobi.js';
 import { lu } from './lineales/lu.js';
+import { sor } from './lineales/sor.js';
 
 import { determinanteSarrus } from './matricial/determinante_sarrus.js';
 import {
@@ -87,6 +88,7 @@ const lineales = {
   gaussJordan,
   jacobi,
   gaussSeidel,
+  sor,
   lu,
   det2x2,
   det3x3,
@@ -195,6 +197,7 @@ export {
   gaussJordan,
   jacobi,
   gaussSeidel,
+  sor,
   lu,
   det2x2,
   det3x3,
