@@ -1,6 +1,45 @@
+/**
+ * @file Comparación lado a lado de dos métodos de búsqueda de raíces del playground.
+ *
+ * Se carga como script clásico (playground.js lo agrega con un elemento script),
+ * por eso no usa export de ESM. Las funciones puras se publican así:
+ *   - En el navegador: window.ChuspaNumericComparacion
+ *   - En entornos CommonJS (bundlers que definen module): module.exports
+ * La interfaz (panel, tabla y gráfica) solo se inicializa si existe document.
+ */
+/* global window, document, module */
 (function () {
   'use strict';
 
+  /**
+   * Método de ChuspaNumeric que se puede comparar.
+   *
+   * @typedef {Object} MetodoComparable
+   * @property {string} id - Identificador interno, por ejemplo 'biseccion'.
+   * @property {string} label - Nombre que se muestra en la interfaz.
+   * @property {string[]} exports - Nombres con los que se busca la función en la librería.
+   */
+
+  /**
+   * Punto de la serie de error que se grafica.
+   *
+   * @typedef {Object} PuntoError
+   * @property {number} iteracion - Número de iteración, empezando en 1.
+   * @property {number} error - Error absoluto en esa iteración.
+   */
+
+  /**
+   * Parámetros comunes con los que se ejecutan ambos métodos.
+   *
+   * @typedef {Object} ParametrosComparacion
+   * @property {(x: number) => number} f - Función cuya raíz se busca.
+   * @property {number} a - Extremo izquierdo del intervalo.
+   * @property {number} b - Extremo derecho del intervalo.
+   * @property {number} tolerancia - Tolerancia de parada.
+   * @property {number} maxIteraciones - Máximo de iteraciones.
+   */
+
+  /** @type {MetodoComparable[]} */
   const metodosCompatibles = [
     {
       id: 'biseccion',
@@ -14,6 +53,11 @@
     }
   ];
 
+  /**
+   * Devuelve los objetos globales donde puede estar cargada la librería.
+   *
+   * @returns {Object[]} Objetos de window que existen (ChuspaNumeric y variantes).
+   */
   function getLibraryRoots() {
     return [
       window.ChuspaNumeric,
@@ -25,6 +69,12 @@
     ].filter(Boolean);
   }
 
+  /**
+   * Busca en la librería cargada una función con alguno de los nombres dados.
+   *
+   * @param {string[]} names - Nombres posibles de la función (sin distinguir mayúsculas).
+   * @returns {Function|null} La primera función encontrada, o null.
+   */
   function findExport(names) {
     const roots = getLibraryRoots();
     const lowerNames = names.map((name) => name.toLowerCase());
@@ -37,6 +87,15 @@
     return null;
   }
 
+  /**
+   * Búsqueda recursiva de una función por nombre dentro de un objeto.
+   *
+   * @param {Object} obj - Objeto donde buscar.
+   * @param {string[]} lowerNames - Nombres buscados, en minúsculas.
+   * @param {Set<Object>} visited - Objetos ya visitados (evita ciclos).
+   * @param {number} depth - Profundidad actual; se corta pasando 4.
+   * @returns {Function|null} La función encontrada, o null.
+   */
   function findInObject(obj, lowerNames, visited, depth) {
     if (!obj || visited.has(obj) || depth > 4) return null;
     visited.add(obj);
@@ -59,10 +118,22 @@
     return null;
   }
 
+  /**
+   * Convierte la notación de potencia ^ en el operador ** de JavaScript.
+   *
+   * @param {string} expression - Expresión escrita por el usuario.
+   * @returns {string} Expresión normalizada.
+   */
   function normalizeExpression(expression) {
     return String(expression).replace(/\^/g, '**');
   }
 
+  /**
+   * Compila una expresión en x a una función, con sin, cos, exp, log, sqrt, pi, e, etc.
+   *
+   * @param {string} expression - Expresión en x, por ejemplo 'x^3 - x - 2'.
+   * @returns {(x: number) => number} Función que evalúa la expresión.
+   */
   function compileExpression(expression) {
     const normalized = normalizeExpression(expression);
 
@@ -85,6 +156,15 @@
     );
   }
 
+  /**
+   * Ejecuta un método de la librería probando las dos firmas habituales
+   * (objeto de parámetros o argumentos posicionales).
+   *
+   * @param {MetodoComparable} metodo - Método a ejecutar.
+   * @param {ParametrosComparacion} params - Parámetros de entrada.
+   * @returns {*} Lo que devuelve el método de la librería.
+   * @throws {Error} Si el método no está cargado o ninguna firma funciona.
+   */
   function ejecutarMetodo(metodo, params) {
     const fn = findExport(metodo.exports);
 
@@ -117,6 +197,12 @@
     throw ultimoError || new Error(`No se pudo ejecutar ${metodo.label}`);
   }
 
+  /**
+   * Obtiene la tabla de iteraciones de un resultado, sea cual sea su forma.
+   *
+   * @param {*} resultado - Resultado devuelto por un método.
+   * @returns {Object[]} Lista de iteraciones, o [] si no hay.
+   */
   function extraerIteraciones(resultado) {
     if (Array.isArray(resultado)) return resultado;
 
@@ -143,6 +229,13 @@
     return [];
   }
 
+  /**
+   * Devuelve el primer valor numérico finito del objeto entre las claves dadas.
+   *
+   * @param {Object} obj - Objeto donde buscar.
+   * @param {string[]} claves - Claves a probar, en orden.
+   * @returns {number|null} El valor encontrado, o null.
+   */
   function obtenerNumeroDesdeObjeto(obj, claves) {
     if (!obj || typeof obj !== 'object') return null;
 
@@ -157,6 +250,12 @@
     return null;
   }
 
+  /**
+   * Obtiene la aproximación de la raíz en una iteración.
+   *
+   * @param {Object} iteracion - Fila de la tabla de iteraciones.
+   * @returns {number|null} La aproximación, o null si no se encuentra.
+   */
   function extraerAproximacion(iteracion) {
     return obtenerNumeroDesdeObjeto(iteracion, [
       'x',
@@ -172,6 +271,12 @@
     ]);
   }
 
+  /**
+   * Obtiene el error reportado en una iteración.
+   *
+   * @param {Object} iteracion - Fila de la tabla de iteraciones.
+   * @returns {number|null} El error, o null si la iteración no lo trae.
+   */
   function extraerError(iteracion) {
     return obtenerNumeroDesdeObjeto(iteracion, [
       'error',
@@ -184,6 +289,12 @@
     ]);
   }
 
+  /**
+   * Obtiene el valor final (la raíz) de un resultado, sea cual sea su forma.
+   *
+   * @param {*} resultado - Resultado devuelto por un método.
+   * @returns {number|null} La raíz, o null si no se encuentra.
+   */
   function extraerResultadoNumerico(resultado) {
     if (typeof resultado === 'number' && Number.isFinite(resultado)) {
       return resultado;
@@ -210,6 +321,13 @@
     return null;
   }
 
+  /**
+   * Arma la serie de error por iteración. Si una iteración no trae el error,
+   * lo calcula como |aproximación - valor final|.
+   *
+   * @param {*} resultado - Resultado devuelto por un método.
+   * @returns {PuntoError[]} Serie de puntos (iteración, error absoluto).
+   */
   function construirSerieError(resultado) {
     const iteraciones = extraerIteraciones(resultado);
     const valorFinal = extraerResultadoNumerico(resultado);
@@ -237,6 +355,14 @@
     return serie;
   }
 
+  /**
+   * Dibuja en el contenedor la tabla de iteraciones de un resultado.
+   *
+   * @param {HTMLElement} contenedor - Elemento donde se dibuja la tabla.
+   * @param {string} titulo - Título que se muestra arriba de la tabla.
+   * @param {*} resultado - Resultado devuelto por un método.
+   * @returns {void}
+   */
   function renderizarTabla(contenedor, titulo, resultado) {
     const iteraciones = extraerIteraciones(resultado);
 
@@ -293,6 +419,16 @@
     contenedor.appendChild(wrapper);
   }
 
+  /**
+   * Dibuja en el canvas las dos series de error superpuestas.
+   *
+   * @param {HTMLCanvasElement} canvas - Canvas donde se dibuja.
+   * @param {PuntoError[]} serieA - Serie del método A (azul).
+   * @param {PuntoError[]} serieB - Serie del método B (rojo).
+   * @param {string} etiquetaA - Nombre del método A.
+   * @param {string} etiquetaB - Nombre del método B.
+   * @returns {void}
+   */
   function dibujarGrafica(canvas, serieA, serieB, etiquetaA, etiquetaB) {
     const ctx = canvas.getContext('2d');
     const width = canvas.clientWidth || 760;
@@ -315,11 +451,19 @@
     const maxIteracion = Math.max(...puntos.map((punto) => punto.iteracion), 1);
     const maxError = Math.max(...puntos.map((punto) => punto.error), 1);
 
+    /**
+     * @param {number} iteracion - Número de iteración.
+     * @returns {number} Coordenada x en el canvas.
+     */
     function escalarX(iteracion) {
       if (maxIteracion === 1) return padding;
       return padding + ((iteracion - 1) / (maxIteracion - 1)) * (width - padding * 2);
     }
 
+    /**
+     * @param {number} error - Valor de error.
+     * @returns {number} Coordenada y en el canvas.
+     */
     function escalarY(error) {
       return height - padding - (error / maxError) * (height - padding * 2);
     }
@@ -347,6 +491,16 @@
     ctx.fillText(etiquetaB, padding + 180, height - 18);
   }
 
+  /**
+   * Dibuja una serie como línea con puntos.
+   *
+   * @param {CanvasRenderingContext2D} ctx - Contexto 2D del canvas.
+   * @param {PuntoError[]} serie - Puntos a dibujar.
+   * @param {(iteracion: number) => number} escalarX - Convierte iteración a coordenada x.
+   * @param {(error: number) => number} escalarY - Convierte error a coordenada y.
+   * @param {string} color - Color de la línea y los puntos.
+   * @returns {void}
+   */
   function dibujarLinea(ctx, serie, escalarX, escalarY, color) {
     if (!serie.length) return;
 
@@ -378,6 +532,11 @@
     });
   }
 
+  /**
+   * Agrega al documento los estilos del panel de comparación.
+   *
+   * @returns {void}
+   */
   function inyectarEstilos() {
     const style = document.createElement('style');
     style.textContent = `
@@ -436,6 +595,13 @@
     document.head.appendChild(style);
   }
 
+  /**
+   * Agrega un método como opción de un select.
+   *
+   * @param {HTMLSelectElement} select - Select donde se agrega la opción.
+   * @param {MetodoComparable} metodo - Método a agregar.
+   * @returns {void}
+   */
   function crearOpcionMetodo(select, metodo) {
     const option = document.createElement('option');
     option.value = metodo.id;
@@ -443,10 +609,21 @@
     select.appendChild(option);
   }
 
+  /**
+   * Busca un método compatible por su id.
+   *
+   * @param {string} id - Id del método, por ejemplo 'falsaPosicion'.
+   * @returns {MetodoComparable|undefined} El método, o undefined si no existe.
+   */
   function obtenerMetodo(id) {
     return metodosCompatibles.find((metodo) => metodo.id === id);
   }
 
+  /**
+   * Crea el panel de comparación en la página y conecta el botón.
+   *
+   * @returns {void}
+   */
   function inicializarComparacion() {
     inyectarEstilos();
 
@@ -530,6 +707,12 @@
       .addEventListener('click', ejecutarComparacion);
   }
 
+  /**
+   * Lee el formulario, ejecuta los dos métodos y muestra tablas y gráfica.
+   * Si algo falla, muestra el mensaje de error en el estado.
+   *
+   * @returns {void}
+   */
   function ejecutarComparacion() {
     const status = document.getElementById('comparison-status');
     const canvas = document.getElementById('comparison-chart');
@@ -575,9 +758,35 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inicializarComparacion);
-  } else {
-    inicializarComparacion();
+  /**
+   * Funciones que no dependen del DOM, publicadas para usarlas desde otros scripts.
+   */
+  const api = {
+    metodosCompatibles,
+    normalizeExpression,
+    compileExpression,
+    ejecutarMetodo,
+    extraerIteraciones,
+    extraerAproximacion,
+    extraerError,
+    extraerResultadoNumerico,
+    construirSerieError,
+    obtenerMetodo
+  };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = api;
+  }
+
+  if (typeof window !== 'undefined') {
+    window.ChuspaNumericComparacion = api;
+  }
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inicializarComparacion);
+    } else {
+      inicializarComparacion();
+    }
   }
 })();
