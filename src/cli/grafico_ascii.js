@@ -1,6 +1,15 @@
 import { ErrorDominio, ErrorParametros } from '../core/errores.js';
 import { validarFuncion, validarIntervalo } from '../utils/validaciones.js';
 
+/**
+ * Obtiene las iteraciones de un resultado numérico.
+ *
+ * Acepta directamente un arreglo o un objeto que contenga
+ * una propiedad iteraciones con un arreglo.
+ *
+ * @param {Object|Array} datos - Resultado del método numérico.
+ * @returns {Array} Lista de iteraciones o un arreglo vacío.
+ */
 function obtenerIteraciones(datos) {
   if (Array.isArray(datos)) {
     return datos;
@@ -13,6 +22,16 @@ function obtenerIteraciones(datos) {
   return [];
 }
 
+/**
+ * Obtiene el primer valor de error numérico y finito disponible
+ * en una iteración.
+ *
+ * Busca entre diferentes nombres de propiedades utilizados
+ * por los métodos numéricos.
+ *
+ * @param {Object} iteracion - Datos de una iteración.
+ * @returns {?number} Valor absoluto del error o null si no existe.
+ */
 function obtenerError(iteracion) {
   const posiblesCampos = [
     'error',
@@ -34,6 +53,15 @@ function obtenerError(iteracion) {
   return null;
 }
 
+/**
+ * Formatea un número para mostrarlo de manera legible en el gráfico.
+ *
+ * Utiliza notación científica para valores muy pequeños o grandes,
+ * y precisión de cuatro dígitos para los demás valores.
+ *
+ * @param {number} valor - Número que se desea formatear.
+ * @returns {string} Representación textual del número.
+ */
 function formatearNumero(valor) {
   if (valor === 0) {
     return '0';
@@ -56,8 +84,9 @@ function formatearNumero(valor) {
  * iterativos que devuelven un arreglo `iteraciones` con un campo de error.
  *
  * @param {Object|Array} datos - Resultado del método o arreglo de iteraciones.
- * @param {Object} opciones - Opciones de visualización.
- * @param {number} [opciones.ancho] - Ancho máximo disponible.
+ * @param {Object} [opciones={}] - Opciones de visualización.
+ * @param {number} [opciones.ancho] - Resolución horizontal máxima en columnas.
+ * Si no se especifica, utiliza las columnas de la terminal o 80 por defecto.
  * @returns {string} Gráfico ASCII listo para imprimir en terminal.
  */
 export function generarGraficoAscii(datos, opciones = {}) {
@@ -167,29 +196,43 @@ function evaluarPuntos(f, xMin, xMax, ancho) {
 }
 
 /**
- * Calcula el rango vertical a partir de los valores calculados.
- * Si todos los valores son iguales, amplía el rango para poder dibujarlo.
+ * Calcula y valida los límites verticales a partir de los puntos evaluados.
  *
- * @param {{ col: number, y: number }[]} puntos - Puntos calculados.
- * @returns {{ yMin: number, yMax: number }} Rango vertical.
+ * @param {{ col: number, y: number }[]} puntos - Puntos finitos de la gráfica.
+ * @returns {{ yMin: number, yMax: number }} Límites verticales validados.
+ * @throws {ErrorParametros} Si los límites verticales son iguales o no finitos.
  */
 function rangoVertical(puntos) {
-  let yMin = Math.min(...puntos.map((p) => p.y));
-  let yMax = Math.max(...puntos.map((p) => p.y));
+  const yMin = Math.min(...puntos.map((p) => p.y));
+  const yMax = Math.max(...puntos.map((p) => p.y));
 
-  if (yMin === yMax) {
-    const holgura = Math.abs(yMax) || 1;
-    yMin -= holgura;
-    yMax += holgura;
+  if (!Number.isFinite(yMin) || !Number.isFinite(yMax) || yMin === yMax) {
+    throw new ErrorParametros(
+      `ChuspaNumeric: el rango vertical debe tener límites finitos y diferentes. Se recibió: [${yMin}, ${yMax}].`
+    );
   }
 
   return { yMin, yMax };
 }
 
+/**
+ * Calcula la fila de la cuadrícula correspondiente a un valor y.
+ *
+ * @param {number} y - Coordenada vertical del punto.
+ * @param {Object} escala - Límites y dimensiones del gráfico.
+ * @returns {number} Índice de la fila en la cuadrícula.
+ */
 function filaDe(y, escala) {
   return Math.round(((escala.yMax - y) / (escala.yMax - escala.yMin)) * (escala.alto - 1));
 }
 
+/**
+ * Calcula la columna de la cuadrícula correspondiente a un valor x.
+ *
+ * @param {number} x - Coordenada horizontal del punto.
+ * @param {Object} escala - Límites y dimensiones del gráfico.
+ * @returns {number} Índice de la columna en la cuadrícula.
+ */
 function colDe(x, escala) {
   return Math.round(((x - escala.xMin) / (escala.xMax - escala.xMin)) * (escala.ancho - 1));
 }
@@ -255,10 +298,10 @@ function componerGrafico(cuadricula, escala) {
  * los puntos de la curva con '*'. Los puntos donde f no da un número finito (o lanza
  * un error) se omiten.
  *
- * @param {Function} f - Función (x) => y a graficar.
- * @param {number[]} intervalo - [xMin, xMax] con xMin < xMax.
- * @param {number} [ancho=60] - Columnas de la zona de dibujo (entero >= 10).
- * @param {number} [alto=20] - Filas de la zona de dibujo (entero >= 5).
+ * @param {Function} f - Función matemática que recibe x y devuelve y.
+ * @param {number[]} intervalo - Límites horizontales [xMin, xMax], con xMin < xMax.
+ * @param {number} [ancho=60] - Resolución horizontal: número de columnas de la gráfica (entero >= 10).
+ * @param {number} [alto=20] - Resolución vertical: número de filas de la gráfica (entero >= 5).
  * @returns {string} Gráfico en texto plano listo para imprimir en la terminal.
  * @throws {ErrorParametros} Si f no es una función, el intervalo es inválido o ancho/alto no son válidos.
  * @throws {ErrorDominio} Si f no produce ningún valor finito en el intervalo.
