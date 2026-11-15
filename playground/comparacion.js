@@ -7,7 +7,7 @@
  *   - En entornos CommonJS (bundlers que definen module): module.exports
  * La interfaz (panel, tabla y gráfica) solo se inicializa si existe document.
  */
-/* global window, document, module */
+/* global window, document, module, require */
 (function () {
   'use strict';
 
@@ -54,29 +54,44 @@
   ];
 
   /**
-   * Devuelve los objetos globales donde puede estar cargada la librería.
+   * Devuelve los objetos donde puede estar cargada la librería.
    *
-   * @returns {Object[]} Objetos de window que existen (ChuspaNumeric y variantes).
+   * Usa globalThis (en el navegador es window) para no fallar fuera del
+   * navegador. En CommonJS también intenta cargar el paquete con require.
+   *
+   * @returns {Object[]} Objetos que existen (ChuspaNumeric y variantes).
    */
   function getLibraryRoots() {
-    return [
-      window.ChuspaNumeric,
-      window.chuspanumeric,
-      window.ChuspaNumericMath,
-      window.chuspanumericMath,
-      window.ChuspaNumericJS,
-      window.chuspanumericjs
-    ].filter(Boolean);
+    const global = typeof globalThis !== 'undefined' ? globalThis : {};
+    const roots = [
+      global.ChuspaNumeric,
+      global.chuspanumeric,
+      global.ChuspaNumericMath,
+      global.chuspanumericMath,
+      global.ChuspaNumericJS,
+      global.chuspanumericjs
+    ];
+
+    if (typeof module !== 'undefined' && module.exports && typeof require === 'function') {
+      try {
+        roots.push(require('chuspanumeric'));
+      } catch {
+        // El paquete no está instalado o compilado: solo se usan los globales.
+      }
+    }
+
+    return roots.filter(Boolean);
   }
 
   /**
    * Busca en la librería cargada una función con alguno de los nombres dados.
    *
    * @param {string[]} names - Nombres posibles de la función (sin distinguir mayúsculas).
+   * @param {Object} [libreria] - Librería donde buscar primero (por ejemplo, la de require).
    * @returns {Function|null} La primera función encontrada, o null.
    */
-  function findExport(names) {
-    const roots = getLibraryRoots();
+  function findExport(names, libreria) {
+    const roots = [libreria, ...getLibraryRoots()].filter(Boolean);
     const lowerNames = names.map((name) => name.toLowerCase());
 
     for (const root of roots) {
@@ -162,11 +177,13 @@
    *
    * @param {MetodoComparable} metodo - Método a ejecutar.
    * @param {ParametrosComparacion} params - Parámetros de entrada.
+   * @param {Object} [libreria] - Librería a usar fuera del navegador; si se omite,
+   *   se busca en los globales (y con require en CommonJS).
    * @returns {*} Lo que devuelve el método de la librería.
    * @throws {Error} Si el método no está cargado o ninguna firma funciona.
    */
-  function ejecutarMetodo(metodo, params) {
-    const fn = findExport(metodo.exports);
+  function ejecutarMetodo(metodo, params, libreria) {
+    const fn = findExport(metodo.exports, libreria);
 
     if (!fn) {
       throw new Error(`No se encontró el método exportado: ${metodo.label}`);
