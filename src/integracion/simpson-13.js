@@ -24,7 +24,7 @@ function simpson13({ f, a, b, n = 100 }) {
 
   if (!Number.isInteger(n) || n <= 0 || n % 2 !== 0) {
     throw new ErrorParametros(
-      `Trazo: n debe ser un entero positivo y par. Se recibió: ${n}.`
+      `ChuspaNumeric: n debe ser un entero positivo y par. Se recibió: ${n}.`
     );
   }
 
