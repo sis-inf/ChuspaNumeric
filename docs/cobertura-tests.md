@@ -1,5 +1,21 @@
 # Cobertura de Tests
 
+## Nombre e instalación del paquete
+
+El nombre actual de la biblioteca es `chuspanumeric`.
+
+Para instalar el paquete desde npm:
+
+```bash
+npm install chuspanumeric
+```
+
+Ejemplo de importación:
+
+```js
+import { biseccion } from 'chuspanumeric';
+```
+
 ## Estado actual
 
 El error de configuración ESM en `jest.config.js` fue corregido en #1119. Este documento registra el estado real de la ejecución de cobertura posterior a esa corrección.
