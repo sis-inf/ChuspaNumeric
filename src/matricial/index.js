@@ -1,9 +1,14 @@
 /**
  * Índice de operaciones matriciales.
  *
- * Cada operación valida sus parámetros (tipos, números finitos y dimensiones),
- * lanza ErrorParametros ante entradas no válidas y retorna el resultado
- * estructurado del contrato de ChuspaNumeric (crearResultado).
+ * Las operaciones de álgebra de matrices (suma, resta, multiplicación,
+ * transpuesta y producto por escalar) validan sus parámetros (tipos, números
+ * finitos y dimensiones), lanzan ErrorParametros ante entradas no válidas y
+ * retornan el resultado estructurado del contrato de ChuspaNumeric
+ * (crearResultado).
+ *
+ * El resto de funciones ya implementan ese contrato en su propio archivo y se
+ * reexportan directamente.
  */
 import { crearResultado, medirTiempo } from '../core/contrato.js';
 import { ErrorParametros } from '../core/errores.js';
@@ -14,14 +19,11 @@ import {
   transpuesta as transpuestaBase,
   multiplicarEscalar as multiplicarEscalarBase,
 } from './algebra_matrices.js';
-import {
-  normaEuclideana as normaEuclideanaBase,
-  normaInfinita as normaInfinitaBase,
-  normaFrobenius as normaFrobeniusBase,
-} from './norma_matriz.js';
-import { determinanteSarrus as determinanteSarrusBase } from './determinante_sarrus.js';
-import { calcularRango as calcularRangoBase } from './rango.js';
-import { calcularNumeroCondicion as calcularNumeroCondicionBase } from './numero_condicion.js';
+
+export { normaEuclideana, normaInfinita, normaFrobenius } from './norma_matriz.js';
+export { determinanteSarrus } from './determinante_sarrus.js';
+export { calcularRango } from './rango.js';
+export { calcularNumeroCondicion } from './numero_condicion.js';
 
 function validarMatriz(M, funcion, nombre) {
   if (!Array.isArray(M) || M.length === 0) {
@@ -51,21 +53,6 @@ function validarMatriz(M, funcion, nombre) {
   }
 }
 
-function validarVector(v, funcion, nombre) {
-  if (!Array.isArray(v) || v.length === 0) {
-    throw new ErrorParametros(
-      `ChuspaNumeric.${funcion}: '${nombre}' debe ser un vector (arreglo) no vacío.`,
-    );
-  }
-  for (let i = 0; i < v.length; i++) {
-    if (typeof v[i] !== 'number' || !Number.isFinite(v[i])) {
-      throw new ErrorParametros(
-        `ChuspaNumeric.${funcion}: ${nombre}[${i}] debe ser un número finito. Se recibió: ${v[i]}.`,
-      );
-    }
-  }
-}
-
 function validarEscalar(x, funcion, nombre) {
   if (typeof x !== 'number' || !Number.isFinite(x)) {
     throw new ErrorParametros(
@@ -78,14 +65,6 @@ function validarMismasDimensiones(A, B, funcion) {
   if (A.length !== B.length || A[0].length !== B[0].length) {
     throw new ErrorParametros(
       `ChuspaNumeric.${funcion}: dimensiones incompatibles. A es ${A.length}x${A[0].length} y B es ${B.length}x${B[0].length}; deben ser iguales.`,
-    );
-  }
-}
-
-function validarCuadrada(M, funcion, nombre) {
-  if (M.length !== M[0].length) {
-    throw new ErrorParametros(
-      `ChuspaNumeric.${funcion}: '${nombre}' debe ser cuadrada. Es ${M.length}x${M[0].length}.`,
     );
   }
 }
@@ -159,83 +138,5 @@ export function multiplicarEscalar(escalar, A) {
     { filas: A.length, columnas: A[0].length, escalar },
     () => multiplicarEscalarBase(escalar, A),
     'Multiplicación por escalar completada.',
-  );
-}
-
-export function normaEuclideana(v) {
-  validarVector(v, 'normaEuclideana', 'v');
-  return envolver(
-    'norma-euclideana',
-    { longitud: v.length },
-    () => normaEuclideanaBase(v),
-    'Norma euclideana calculada.',
-  );
-}
-
-export function normaInfinita(v) {
-  validarVector(v, 'normaInfinita', 'v');
-  return envolver(
-    'norma-infinita',
-    { longitud: v.length },
-    () => normaInfinitaBase(v),
-    'Norma infinita calculada.',
-  );
-}
-
-export function normaFrobenius(A) {
-  validarMatriz(A, 'normaFrobenius', 'A');
-  return envolver(
-    'norma-frobenius',
-    { filas: A.length, columnas: A[0].length },
-    () => normaFrobeniusBase(A),
-    'Norma de Frobenius calculada.',
-  );
-}
-
-export function determinanteSarrus(A) {
-  validarMatriz(A, 'determinanteSarrus', 'A');
-  if (A.length !== 3 || A[0].length !== 3) {
-    throw new ErrorParametros(
-      `ChuspaNumeric.determinanteSarrus: la matriz debe ser 3x3. Es ${A.length}x${A[0].length}.`,
-    );
-  }
-  return envolver(
-    'sarrus',
-    { filas: 3, columnas: 3 },
-    () => determinanteSarrusBase(A),
-    'Determinante calculado con la regla de Sarrus.',
-  );
-}
-
-export function calcularRango(params) {
-  if (params === null || typeof params !== 'object') {
-    throw new ErrorParametros(
-      'ChuspaNumeric.calcularRango: se esperaba un objeto con la propiedad A.',
-    );
-  }
-  validarMatriz(params.A, 'calcularRango', 'A');
-  return envolver(
-    'rango',
-    { filas: params.A.length, columnas: params.A[0].length },
-    () => calcularRangoBase({ A: params.A }),
-    'Rango calculado.',
-  );
-}
-
-export function calcularNumeroCondicion(A, inversaA) {
-  validarMatriz(A, 'calcularNumeroCondicion', 'A');
-  validarMatriz(inversaA, 'calcularNumeroCondicion', 'inversaA');
-  validarCuadrada(A, 'calcularNumeroCondicion', 'A');
-  validarCuadrada(inversaA, 'calcularNumeroCondicion', 'inversaA');
-  if (A.length !== inversaA.length) {
-    throw new ErrorParametros(
-      `ChuspaNumeric.calcularNumeroCondicion: las matrices deben tener las mismas dimensiones. A es ${A.length}x${A.length} e inversaA es ${inversaA.length}x${inversaA.length}.`,
-    );
-  }
-  return envolver(
-    'numero-condicion',
-    { orden: A.length },
-    () => calcularNumeroCondicionBase(A, inversaA),
-    'Número de condición calculado.',
   );
 }
