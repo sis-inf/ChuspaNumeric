@@ -220,6 +220,7 @@ export function convertirEnergia(valor, desde, hasta) {
  * de llamarla, o para construir menús de selección en una interfaz de usuario.
  *
  * @returns {{ longitud: string[], temperatura: string[], presion: string[], energia: string[] }}
+ *   Objeto con la lista de unidades soportadas de cada categoría.
  *
  * @example
  * const { longitud } = unidadesDisponibles();
