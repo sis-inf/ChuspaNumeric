@@ -106,9 +106,13 @@ function ejecutarWorker(lote, ejecutarTarea) {
  *
  * @param {Array} tareas - Lista de tareas independientes.
  * @param {Function} ejecutarTarea - Función que procesa una tarea.
- * @param {Object} opciones - Opciones de ejecución.
+ * @param {Object} [opciones={}] - Opciones de ejecución.
  * @param {number} [opciones.maxWorkers] - Número máximo de workers.
  * @returns {Promise<Array>} Resultados en el mismo orden de las tareas.
+ * @throws {Error} Si tareas no es un array, si ejecutarTarea no es una función o si
+ *   maxWorkers no es un entero mayor o igual a 1.
+ * @throws {Error} Si una tarea falla (se relanza el error original) o si un worker
+ *   termina con un código distinto de 0.
  */
 export async function ejecutarParalelo(tareas, ejecutarTarea, opciones = {}) {
   if (!Array.isArray(tareas)) {
