@@ -23,7 +23,7 @@ Implementar métodos numéricos correctamente (control de tolerancia, manejo de 
 Una vez publicado en npm:
 
 ```bash
-npm install trazo
+npm install chuspanumeric
 ```
 
 Para clonar el repositorio y trabajar directamente con el código fuente:
@@ -41,7 +41,7 @@ npm install
 ### Resolver una raíz con bisección
 
 ```js
-import { biseccion } from 'trazo';
+import { biseccion } from 'chuspanumeric';
 
 const resultado = biseccion({
   f: (x) => x * x - 4,
@@ -58,7 +58,7 @@ console.log('Raíz aproximada:', resultado.resultado);
 ### Resolver un sistema lineal con Gauss
 
 ```js
-import { gauss } from 'trazo';
+import { gauss } from 'chuspanumeric';
 
 const A = [
   [2, 1, -1],
