@@ -1,11 +1,36 @@
 import { writeFileSync } from 'node:fs';
 
 /**
+ * Metadatos opcionales que acompañan al resultado exportado.
+ *
+ * @typedef {Object} MetadatosJSON
+ * @property {string} [metodo] - Nombre del método numérico ejecutado.
+ * @property {Object} [parametros] - Parámetros de entrada usados.
+ * @property {Array} [iteraciones] - Registro paso a paso del proceso.
+ */
+
+/**
+ * Estructura JSON generada por la exportación.
+ *
+ * @typedef {Object} ResultadoJSON
+ * @property {string} timestamp - Fecha y hora de generación en formato ISO 8601.
+ * @property {string|null} metodo - Nombre del método, o `null` si no se indicó.
+ * @property {Object} parametros - Parámetros usados (`{}` si no se indicaron).
+ * @property {*} resultado - Resultado del método numérico.
+ * @property {Array|null} iteraciones - Iteraciones registradas, o `null` si no hay.
+ */
+
+/**
  * Genera una estructura JSON exportable a partir de un resultado.
  *
  * @param {*} resultado - Resultado del método numérico.
- * @param {Object} metadatos - Información adicional del método.
- * @returns {Object} Objeto listo para serializar como JSON.
+ * @param {MetadatosJSON} [metadatos={}] - Información adicional del método.
+ * @returns {ResultadoJSON} Objeto listo para serializar como JSON.
+ *
+ * @example
+ * exportarJSON(2, { metodo: 'biseccion', parametros: { a: 0, b: 3 } });
+ * // { timestamp: '...', metodo: 'biseccion', parametros: { a: 0, b: 3 },
+ * //   resultado: 2, iteraciones: null }
  */
 export function exportarJSON(resultado, metadatos = {}) {
   return {
@@ -27,9 +52,13 @@ export function exportarJSON(resultado, metadatos = {}) {
  * `deno run --allow-write archivo.js`.
  *
  * @param {*} resultado - Resultado del método numérico.
- * @param {Object} metadatos - Información adicional del método.
+ * @param {MetadatosJSON} [metadatos={}] - Información adicional del método.
  * @param {string} ruta - Ruta del archivo destino.
- * @returns {Object} Objeto JSON generado.
+ * @returns {ResultadoJSON} Objeto JSON generado.
+ * @throws {Error} Si `ruta` no es una cadena no vacía.
+ *
+ * @example
+ * exportarJSONArchivo(2, { metodo: 'biseccion' }, './resultado.json');
  */
 export function exportarJSONArchivo(resultado, metadatos = {}, ruta) {
   if (typeof ruta !== 'string' || ruta.length === 0) {
