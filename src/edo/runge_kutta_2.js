@@ -16,7 +16,7 @@ function validarEntradas(f, y0, t0, tFinal, h) {
 
   if (tFinal <= t0) {
     throw new ErrorParametros(
-      `Trazo: 'tFinal' (${tFinal}) debe ser mayor que 't0' (${t0}).`
+      `ChuspaNumeric: 'tFinal' (${tFinal}) debe ser mayor que 't0' (${t0}).`
     );
   }
   if (h <= 0) {
