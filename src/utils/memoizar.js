@@ -2,6 +2,21 @@ import { ErrorParametros } from '../core/errores.js';
 import { validarFuncion } from './validaciones.js';
 
 /**
+ * Estadísticas del caché de una función memoizada.
+ *
+ * @typedef {Object} EstadisticasMemoizacion
+ * @property {number} entradas - Cantidad de valores de x almacenados en el caché.
+ * @property {number} evaluacionesReales - Veces que se llamó realmente a la función original.
+ */
+
+/**
+ * Función memoizada devuelta por memoizarFuncion. Se llama igual que la original
+ * y además expone limpiarCache() y estadisticas().
+ *
+ * @typedef {((x: *) => *) & { limpiarCache: () => void, estadisticas: () => EstadisticasMemoizacion }} FuncionMemoizada
+ */
+
+/**
  * Envuelve una función en un caché simple basado en Map para evitar
  * reevaluaciones cuando se recibe exactamente el mismo valor de x.
  *
@@ -31,10 +46,10 @@ import { validarFuncion } from './validaciones.js';
  * fMemo(2); // llamadas sigue siendo 1 porque usa caché
  * fMemo(3); // llamadas = 2
  *
- * @param {Function} f - Función original a memoizar.
- * @returns {Function} Función memoizada con métodos auxiliares:
- *   - limpiarCache(): limpia las entradas almacenadas.
- *   - estadisticas(): retorna entradas y evaluaciones reales.
+ * @param {(x: *) => *} f - Función original a memoizar. Recibe un valor x y devuelve su resultado.
+ * @returns {FuncionMemoizada} Función memoizada con métodos auxiliares:
+ *   - limpiarCache(): limpia las entradas almacenadas y no devuelve nada.
+ *   - estadisticas(): retorna un objeto {entradas, evaluacionesReales} (EstadisticasMemoizacion).
  * @throws {ErrorParametros} Si f no es una función válida.
  */
 export function memoizarFuncion(f) {
