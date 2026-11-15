@@ -1,5 +1,26 @@
 import { writeFileSync } from 'node:fs';
 
+/**
+ * Opciones de exportación a CSV.
+ *
+ * @typedef {Object} OpcionesCSV
+ * @property {string} [separador=','] - Separador de columnas.
+ * @property {boolean} [encabezado=true] - Indica si se incluye la fila de encabezado.
+ * @property {number} [precision=6] - Decimales para valores numéricos.
+ */
+
+/**
+ * Formatea un valor individual como celda CSV. Los valores `null` y
+ * `undefined` se convierten en cadena vacía; los números se redondean a
+ * `precision` decimales; y el texto que contiene el separador, comillas o
+ * saltos de línea se encierra entre comillas dobles (escapando las internas).
+ *
+ * @private
+ * @param {*} valor - Valor a formatear.
+ * @param {string} separador - Separador de columnas en uso.
+ * @param {number} precision - Decimales para valores numéricos.
+ * @returns {string} Texto listo para insertarse como celda CSV.
+ */
 function formatearValorCSV(valor, separador, precision) {
   if (valor === null || valor === undefined) {
     return '';
@@ -25,12 +46,16 @@ function formatearValorCSV(valor, separador, precision) {
 /**
  * Convierte una tabla de objetos a formato CSV.
  *
+ * Las columnas se toman de las claves de la primera fila. Si `tabla` no es un
+ * arreglo o está vacío, devuelve una cadena vacía.
+ *
  * @param {Object[]} tabla - Filas a exportar.
- * @param {Object} opciones - Opciones de exportación.
- * @param {string} opciones.separador - Separador de columnas.
- * @param {boolean} opciones.encabezado - Indica si se incluye encabezado.
- * @param {number} opciones.precision - Decimales para valores numéricos.
- * @returns {string} Contenido CSV generado.
+ * @param {OpcionesCSV} [opciones={}] - Opciones de exportación.
+ * @returns {string} Contenido CSV generado (filas separadas por `\n`).
+ *
+ * @example
+ * exportarCSV([{ x: 1, y: 2.5 }, { x: 2, y: 3.5 }]);
+ * // 'x,y\n1,2.5\n2,3.5'
  */
 export function exportarCSV(tabla, opciones = {}) {
   const { separador = ',', encabezado = true, precision = 6 } = opciones;
@@ -68,8 +93,12 @@ export function exportarCSV(tabla, opciones = {}) {
  *
  * @param {Object[]} tabla - Filas a exportar.
  * @param {string} ruta - Ruta del archivo destino.
- * @param {Object} opciones - Opciones de exportación.
+ * @param {OpcionesCSV} [opciones={}] - Opciones de exportación.
  * @returns {string} Contenido CSV generado.
+ * @throws {Error} Si `ruta` no es una cadena no vacía.
+ *
+ * @example
+ * exportarCSVArchivo([{ x: 1, y: 2 }], './salida.csv', { separador: ';' });
  */
 export function exportarCSVArchivo(tabla, ruta, opciones = {}) {
   if (typeof ruta !== 'string' || ruta.length === 0) {
