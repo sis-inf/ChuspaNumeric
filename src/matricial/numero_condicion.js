@@ -2,6 +2,16 @@ import { ErrorParametros } from '../core/errores.js';
 import { crearResultado, medirTiempo } from '../core/contrato.js';
 import { normaFrobenius } from './norma_matriz.js';
 
+/**
+ * Obtiene el valor numérico de una norma, ya sea un número o un resultado estructurado.
+ *
+ * @param {number|{resultado: number}} norma Valor devuelto por normaFrobenius
+ * @returns {number} Valor numérico de la norma
+ */
+function valorNorma(norma) {
+    return typeof norma === 'number' ? norma : norma.resultado;
+}
+
 function describir(valor) {
     if (Array.isArray(valor)) {
         return `un arreglo de longitud ${valor.length}`;
@@ -69,7 +79,7 @@ export function calcularNumeroCondicion(A, inversaA) {
     }
 
     const { valor, tiempo_ms } = medirTiempo(
-        () => normaFrobenius(A) * normaFrobenius(inversaA)
+        () => valorNorma(normaFrobenius(A)) * valorNorma(normaFrobenius(inversaA))
     );
 
     return crearResultado({

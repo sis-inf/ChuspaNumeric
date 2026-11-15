@@ -1,4 +1,5 @@
 import { calcularNumeroCondicion } from '../../../src/matricial/numero_condicion.js';
+import { ErrorParametros } from '../../../src/core/errores.js';
 
 
 describe('calcularNumeroCondicion', () => {
@@ -23,7 +24,7 @@ describe('calcularNumeroCondicion', () => {
             [0, 0, 1]
         ];
 
-        expect(calcularNumeroCondicion(identidad, identidad))
+        expect(calcularNumeroCondicion(identidad, identidad).resultado)
             .toBeCloseTo(3, 10);
     });
 
@@ -55,10 +56,26 @@ describe('calcularNumeroCondicion', () => {
             [0, 1]
         ];
 
-        expect(calcularNumeroCondicion(matriz, inversa))
+        expect(calcularNumeroCondicion(matriz, inversa).resultado)
             .toBeCloseTo(2.5, 10);
     });
 
+
+    test('devuelve el resultado estructurado con sus metadatos', () => {
+        const identidad = [
+            [1, 0],
+            [0, 1]
+        ];
+
+        const salida = calcularNumeroCondicion(identidad, identidad);
+
+        expect(salida.resultado).toBeCloseTo(2, 10);
+        expect(salida.convergio).toBe(true);
+        expect(salida.iteraciones).toEqual([]);
+        expect(salida.meta.metodo).toBe('numero-condicion');
+        expect(salida.meta.parametros).toEqual({ filas: 2, columnas: 2 });
+        expect(typeof salida.meta.tiempo_ms).toBe('number');
+    });
 
     test('arroja Error si A no es una matriz', () => {
         const inversa = [
@@ -67,7 +84,7 @@ describe('calcularNumeroCondicion', () => {
         ];
 
         expect(() => calcularNumeroCondicion('no es matriz', inversa))
-            .toThrow('Las entradas deben ser matrices');
+            .toThrow(ErrorParametros);
     });
 
 
@@ -78,7 +95,7 @@ describe('calcularNumeroCondicion', () => {
         ];
 
         expect(() => calcularNumeroCondicion(matriz, null))
-            .toThrow('Las entradas deben ser matrices');
+            .toThrow(ErrorParametros);
     });
 
 });
