@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Generadores de matrices de prueba con propiedades matematicas garantizadas.
  * Utiles para tests, ejemplos y validacion de metodos numericos.
@@ -8,9 +9,9 @@ import { crearGeneradorAleatorio } from "./prng.js";
 
 /**
  * Crea una matriz identidad de tamano n*n.
- * @param {number} n - Dimension de la matriz (entero positivo)
- * @returns {number[][]} Matriz identidad I_n
- * @throws {ErrorDominio} Si n no es un entero positivo
+ * @param {number} n - Dimension de la matriz (entero positivo).
+ * @returns {number[][]} Matriz identidad I_n.
+ * @throws {ErrorDominio} Si n no es un entero positivo.
  */
 export function matrizIdentidad(n) {
   if (!Number.isInteger(n) || n <= 0) {
@@ -28,9 +29,9 @@ export function matrizIdentidad(n) {
  * Clasico ejemplo de matriz mal condicionada.
  * H[i][j] = 1 / (i + j + 1)
  *
- * @param {number} n - Dimension de la matriz (entero positivo)
- * @returns {number[][]} Matriz de Hilbert
- * @throws {ErrorDominio} Si n no es un entero positivo
+ * @param {number} n - Dimension de la matriz (entero positivo).
+ * @returns {number[][]} Matriz de Hilbert.
+ * @throws {ErrorDominio} Si n no es un entero positivo.
  */
 export function matrizHilbert(n) {
   if (!Number.isInteger(n) || n <= 0) {
@@ -47,10 +48,10 @@ export function matrizHilbert(n) {
  * Crea una matriz aleatoria diagonalmente dominante de tamano n*n.
  * Util para garantizar convergencia de Jacobi y Gauss-Seidel.
  *
- * @param {number} n - Dimension de la matriz (entero positivo)
- * @param {number|null} [semilla=null] - Semilla para reproducibilidad
- * @returns {number[][]} Matriz diagonalmente dominante
- * @throws {ErrorDominio} Si n no es un entero positivo
+ * @param {number} n - Dimension de la matriz (entero positivo).
+ * @param {number|null} [semilla=null] - Semilla para reproducibilidad.
+ * @returns {number[][]} Matriz diagonalmente dominante.
+ * @throws {ErrorDominio} Si n no es un entero positivo.
  */
 export function matrizDiagonalDominante(n, semilla = null) {
   if (!Number.isInteger(n) || n <= 0) {
@@ -82,10 +83,10 @@ export function matrizDiagonalDominante(n, semilla = null) {
  * Util para Cholesky (requiere A = A^T y x^T A x > 0).
  * Construida como A = B^T * B + n * I, garantizando definida positiva.
  *
- * @param {number} n - Dimension de la matriz (entero positivo)
- * @param {number|null} [semilla=null] - Semilla para reproducibilidad
- * @returns {number[][]} Matriz simetrica definida positiva
- * @throws {ErrorDominio} Si n no es un entero positivo
+ * @param {number} n - Dimension de la matriz (entero positivo).
+ * @param {number|null} [semilla=null] - Semilla para reproducibilidad.
+ * @returns {number[][]} Matriz simetrica definida positiva.
+ * @throws {ErrorDominio} Si n no es un entero positivo.
  */
 export function matrizSimetricaDefinidaPositiva(n, semilla = null) {
   if (!Number.isInteger(n) || n <= 0) {
@@ -119,8 +120,9 @@ export function matrizSimetricaDefinidaPositiva(n, semilla = null) {
 
 /**
  * Verifica si una matriz es diagonalmente dominante.
- * @param {number[][]} A
- * @returns {boolean}
+ * @param {number[][]} A - Matriz que se desea verificar.
+ * @returns {boolean} true si la matriz es diagonalmente dominante;
+ * false en caso contrario.
  */
 export function esDiagonalDominante(A) {
   return A.every((fila, i) => {
@@ -135,8 +137,9 @@ export function esDiagonalDominante(A) {
 
 /**
  * Verifica si una matriz es simetrica.
- * @param {number[][]} A
- * @returns {boolean}
+ * @param {number[][]} A - Matriz que se desea verificar.
+ * @returns {boolean} true si la matriz es simetrica;
+ * false en caso contrario.
  */
 export function esSimetrica(A) {
   const n = A.length;
