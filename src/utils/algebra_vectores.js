@@ -29,6 +29,11 @@ function validarMismaDimension(v1, v2) {
 
 /**
  * Suma dos vectores de la misma dimensión.
+ *
+ * @param {number[]} v1 - Primer vector (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo vector, de la misma dimensión que v1.
+ * @returns {number[]} Vector suma, elemento a elemento.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
  */
 export function sumaVectores(v1, v2) {
   validarVector(v1, 'v1');
@@ -40,6 +45,11 @@ export function sumaVectores(v1, v2) {
 
 /**
  * Resta dos vectores de la misma dimensión.
+ *
+ * @param {number[]} v1 - Vector minuendo (no vacío, con números finitos).
+ * @param {number[]} v2 - Vector sustraendo, de la misma dimensión que v1.
+ * @returns {number[]} Vector diferencia, elemento a elemento.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
  */
 export function restaVectores(v1, v2) {
   validarVector(v1, 'v1');
@@ -51,6 +61,11 @@ export function restaVectores(v1, v2) {
 
 /**
  * Calcula el producto punto entre dos vectores de la misma dimensión.
+ *
+ * @param {number[]} v1 - Primer vector (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo vector, de la misma dimensión que v1.
+ * @returns {number} Producto punto de v1 y v2.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
  */
 export function productoPunto(v1, v2) {
   validarVector(v1, 'v1');
@@ -62,6 +77,11 @@ export function productoPunto(v1, v2) {
 
 /**
  * Calcula el producto cruz entre dos vectores de dimensión 3.
+ *
+ * @param {number[]} v1 - Primer vector de dimensión 3.
+ * @param {number[]} v2 - Segundo vector de dimensión 3.
+ * @returns {number[]} Vector de dimensión 3 con el producto cruz de v1 y v2.
+ * @throws {ErrorParametros} Si algún vector no es válido o no tiene dimensión 3.
  */
 export function productoCruz(v1, v2) {
   validarVector(v1, 'v1');
@@ -82,6 +102,10 @@ export function productoCruz(v1, v2) {
 
 /**
  * Calcula la magnitud o norma euclidiana de un vector.
+ *
+ * @param {number[]} v - Vector (no vacío, con números finitos).
+ * @returns {number} Magnitud (norma euclidiana) de v.
+ * @throws {ErrorParametros} Si v no es un vector válido.
  */
 export function magnitudVector(v) {
   validarVector(v, 'v');
@@ -91,6 +115,10 @@ export function magnitudVector(v) {
 
 /**
  * Normaliza un vector dividiéndolo entre su magnitud.
+ *
+ * @param {number[]} v - Vector (no vacío, con números finitos).
+ * @returns {number[]} Vector unitario en la dirección de v.
+ * @throws {ErrorParametros} Si v no es un vector válido o es el vector cero.
  */
 export function normalizarVector(v) {
   validarVector(v, 'v');
@@ -108,6 +136,11 @@ export function normalizarVector(v) {
 
 /**
  * Multiplica un vector por un escalar.
+ *
+ * @param {number} escalar - Número finito por el que se multiplica.
+ * @param {number[]} v - Vector (no vacío, con números finitos).
+ * @returns {number[]} Vector con cada elemento de v multiplicado por escalar.
+ * @throws {ErrorParametros} Si escalar no es un número finito o v no es un vector válido.
  */
 export function escalarPorVector(escalar, v) {
   if (typeof escalar !== 'number' || !Number.isFinite(escalar)) {
@@ -124,6 +157,11 @@ export function escalarPorVector(escalar, v) {
 /**
  * Calcula la distancia euclidiana entre dos puntos (la norma de su diferencia).
  *
+ * @param {number[]} v1 - Primer punto (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo punto, de la misma dimensión que v1.
+ * @returns {number} Distancia euclidiana entre v1 y v2.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
+ *
  * @example
  * distanciaEuclidiana([1, 2], [4, 6]) // 5
  */
@@ -136,6 +174,11 @@ export function distanciaEuclidiana(v1, v2) {
  *
  * El coseno se acota a [-1, 1] para evitar valores fuera de dominio por errores
  * de redondeo. Lanza ErrorParametros si alguno de los vectores tiene magnitud cero.
+ *
+ * @param {number[]} v1 - Primer vector (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo vector, de la misma dimensión que v1.
+ * @returns {number} Ángulo entre v1 y v2, en radianes.
+ * @throws {ErrorParametros} Si algún vector no es válido, las dimensiones no coinciden o alguno tiene magnitud cero.
  *
  * @example
  * anguloEntreVectores([1, 0], [0, 1]) // Math.PI / 2

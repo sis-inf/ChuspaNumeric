@@ -68,8 +68,8 @@ export function desdeArreglo(matriz) {
 
 /**
  * Convierte una matriz tipada en un arreglo de arreglos.
- * @param {{filas: number, columnas: number, datos: Float64Array}} m
- * @returns {number[][]}
+ * @param {{filas: number, columnas: number, datos: Float64Array}} m Matriz tipada a convertir.
+ * @returns {number[][]} Arreglo de filas con los valores de la matriz.
  */
 export function aArreglo(m) {
   const resultado = [];
@@ -85,6 +85,10 @@ export function aArreglo(m) {
 
 /**
  * Lee el elemento (i, j) de la matriz.
+ * @param {{filas: number, columnas: number, datos: Float64Array}} m Matriz tipada.
+ * @param {number} i Índice de fila (entero, desde 0).
+ * @param {number} j Índice de columna (entero, desde 0).
+ * @returns {number} Valor almacenado en la posición (i, j).
  * @throws {ErrorParametros} Si el índice está fuera de rango.
  */
 export function obtener(m, i, j) {
@@ -94,6 +98,11 @@ export function obtener(m, i, j) {
 
 /**
  * Escribe `valor` en el elemento (i, j) de la matriz.
+ * @param {{filas: number, columnas: number, datos: Float64Array}} m Matriz tipada (se modifica en su lugar).
+ * @param {number} i Índice de fila (entero, desde 0).
+ * @param {number} j Índice de columna (entero, desde 0).
+ * @param {number} valor Valor que se escribe en la posición (i, j).
+ * @returns {void}
  * @throws {ErrorParametros} Si el índice está fuera de rango.
  */
 export function asignar(m, i, j, valor) {

@@ -78,6 +78,7 @@ function _formatearResultado(resultado) {
  * @param {Object}  [opciones={}]         - Opciones de configuración.
  * @param {string}  [opciones.titulo]     - Título del reporte. Por defecto usa meta.metodo.
  * @returns {string} Documento Markdown completo.
+ * @throws {Error} Si resultado no es un objeto válido.
  *
  * @example
  * import { biseccion } from 'chuspanumeric';

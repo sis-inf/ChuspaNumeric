@@ -1,4 +1,5 @@
 import { ErrorParametros } from '../core/errores.js';
+import { crearResultado, medirTiempo } from '../core/contrato.js';
 
 /**
  * Valida que A sea una matriz no vacía de m filas por n columnas: todas las
@@ -40,11 +41,38 @@ function validarMatrizRectangular(A) {
  *
  * @param {Object} params
  * @param {number[][]} params.A - Matriz de m filas por n columnas (puede ser rectangular).
- * @returns {number} Rango de la matriz.
+ * @returns {object} Resultado estructurado: resultado (rango de la matriz),
+ *   iteraciones, convergio y meta con metodo, parametros y tiempo_ms.
+ * @throws {ErrorParametros} Si los parámetros no son un objeto o A no es una
+ *   matriz rectangular válida con valores finitos.
  */
-export function calcularRango({ A }) {
+export function calcularRango(parametros) {
+    if (parametros === null || typeof parametros !== 'object') {
+        throw new ErrorParametros(
+            `ChuspaNumeric.calcularRango: se esperaba un objeto con la propiedad 'A'. Se recibió: ${parametros === null ? 'null' : typeof parametros}.`
+        );
+    }
+    const { A } = parametros;
     validarMatrizRectangular(A);
 
+    const { valor, tiempo_ms } = medirTiempo(() =>
+        rangoPorEliminacionGaussiana(A)
+    );
+
+    return crearResultado({
+        resultado: valor,
+        iteraciones: [],
+        convergio: true,
+        mensaje: 'Rango calculado por eliminación gaussiana',
+        meta: {
+            metodo: 'eliminacion-gaussiana',
+            parametros: { filas: A.length, columnas: A[0].length },
+            tiempo_ms
+        }
+    });
+}
+
+function rangoPorEliminacionGaussiana(A) {
     const m = A.length;
     const n = A[0].length;
     const EPSILON = 1e-12;

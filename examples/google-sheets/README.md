@@ -179,5 +179,5 @@ Las cuentas gratuitas de Google tienen un límite de 6 minutos de tiempo de ejec
 ## Recursos adicionales
 
 - [Documentación de funciones personalizadas de Apps Script](https://developers.google.com/apps-script/guides/sheets/functions)
-- [Repositorio de ChuspaNumeric](https://github.com/sis-inf/chuspanumeric)
+- [Repositorio de ChuspaNumeric](https://github.com/sis-inf/ChuspaNumeric)
 - [Ejemplo de bisección en Observable](../observable/ejemplo-biseccion.md)

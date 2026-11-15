@@ -53,6 +53,12 @@ const LCG_C = 1013904223;
 const LCG_M = 2 ** 32;
 
 /**
+ * Función generadora devuelta por crearGeneradorAleatorio.
+ *
+ * @typedef {() => number} GeneradorAleatorio
+ */
+
+/**
  * Crea un generador de números pseudoaleatorios con semilla.
  *
  * Devuelve una función que, al llamarse, produce el siguiente número de la
@@ -63,7 +69,7 @@ const LCG_M = 2 ** 32;
  *   - Si es un número, el generador es **determinista y reproducible**.
  *   - Si es `null` o se omite, se usa `Date.now()` como semilla (no
  *     reproducible entre ejecuciones).
- * @returns {() => number} Función sin argumentos que devuelve el siguiente
+ * @returns {GeneradorAleatorio} Función sin argumentos que devuelve el siguiente
  *   número pseudoaleatorio en `[0, 1)`.
  * @throws {ErrorParametros} Si se pasa una semilla que no es un número
  *   finito (excepto `null`).
@@ -95,6 +101,11 @@ export function crearGeneradorAleatorio(semilla = null) {
 
   let estado = semilla !== null ? semilla >>> 0 : Date.now() >>> 0;
 
+  /**
+   * Devuelve el siguiente número pseudoaleatorio de la secuencia.
+   *
+   * @returns {number} Número pseudoaleatorio en el intervalo `[0, 1)`.
+   */
   return function siguiente() {
     estado = (LCG_A * estado + LCG_C) % LCG_M;
     return estado / LCG_M;

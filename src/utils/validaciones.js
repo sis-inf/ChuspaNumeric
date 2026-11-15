@@ -10,6 +10,7 @@ import { ErrorDivergencia } from "../core/errores.js";
  *
  * @param {*}      valor  - Valor a verificar.
  * @param {string} nombre - Nombre del parámetro (para el mensaje de error).
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es un número finito.
  *
  * @example
@@ -31,6 +32,7 @@ function validarNumero(valor, nombre) {
  *
  * @param {*}      fn     - Valor a verificar.
  * @param {string} nombre - Nombre del parámetro (para el mensaje de error).
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es una función.
  *
  * @example
@@ -49,6 +51,7 @@ function validarFuncion(fn, nombre) {
  * Verifica que una tolerancia sea un número finito mayor a cero.
  *
  * @param {*} tol - Valor de tolerancia a verificar.
+ * @returns {void}
  * @throws {ErrorParametros} Si tol no es un número finito o no es mayor a cero.
  *
  * @example
@@ -68,6 +71,7 @@ function validarTolerancia(tol) {
  * Verifica que maxIter sea un entero mayor a cero.
  *
  * @param {*} maxIter - Valor del número máximo de iteraciones a verificar.
+ * @returns {void}
  * @throws {ErrorParametros} Si maxIter no es un entero mayor a cero.
  *
  * @example
@@ -93,6 +97,7 @@ function validarIteraciones(maxIter) {
  *
  * @param {*} a - Límite inferior del intervalo.
  * @param {*} b - Límite superior del intervalo.
+ * @returns {void}
  * @throws {ErrorParametros} Si a o b no son números finitos, o si a >= b.
  *
  * @example
@@ -123,6 +128,7 @@ function validarIntervalo(a, b) {
  * Verifica que una matriz sea un array bidimensional cuadrado de n × n.
  *
  * @param {*} matriz - Valor a verificar.
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es un array bidimensional cuadrado.
  *
  * @example
@@ -158,6 +164,7 @@ function validarMatrizCuadrada(matriz) {
  *
  * @param {*}      vector    - Valor a verificar.
  * @param {number} dimension - Longitud esperada del vector.
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es un array, no tiene la dimensión correcta,
  *                            o contiene elementos no numéricos o no finitos.
  *
@@ -199,6 +206,7 @@ function validarVector(vector, dimension) {
  * @param {number} valor - Valor a verificar (ej. resultado de una iteración).
  * @param {string} metodo - Nombre del método para el mensaje de error.
  * @param {number} iteracion - Número de iteración donde se detectó el valor.
+ * @returns {void}
  * @throws {ErrorDivergencia} Si el valor es NaN o no finito.
  *
  * @example
