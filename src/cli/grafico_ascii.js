@@ -304,6 +304,7 @@ function componerGrafico(cuadricula, escala) {
  * @param {number} [alto=20] - Resolución vertical: número de filas de la gráfica (entero >= 5).
  * @returns {string} Gráfico en texto plano listo para imprimir en la terminal.
  * @throws {ErrorParametros} Si f no es una función, el intervalo es inválido o ancho/alto no son válidos.
+ * @throws {ErrorParametros} Si los valores calculados producen un rango vertical con límites iguales o no finitos.
  * @throws {ErrorDominio} Si f no produce ningún valor finito en el intervalo.
  *
  * @example
