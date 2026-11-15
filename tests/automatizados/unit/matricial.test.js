@@ -31,11 +31,20 @@ describe('Funciones matriciales', () => {
         const resultadoSarrus = determinanteSarrus(matriz);
         const resultadoDet3x3 = det3x3(matriz);
 
-        expect(resultadoSarrus)
+        expect(resultadoSarrus.resultado)
             .toBe(resultadoDet3x3);
 
-        expect(resultadoSarrus)
+        expect(resultadoSarrus.resultado)
             .toBe(22);
+
+        expect(resultadoSarrus.convergio)
+            .toBe(true);
+
+        expect(resultadoSarrus.iteraciones)
+            .toEqual([]);
+
+        expect(resultadoSarrus.meta.metodo)
+            .toBe('sarrus');
     });
 
 
