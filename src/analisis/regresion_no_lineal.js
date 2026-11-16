@@ -50,7 +50,10 @@ import { gauss } from '../lineales/gauss.js';
  *   - `mensaje`: descripción del resultado.
  *   - `meta.metodo`: 'gauss-newton'.
  *
- * @throws {ErrorParametros} Si los datos de entrada son inválidos.
+ * @throws {ErrorParametros} Si los datos de entrada son inválidos: puntos que no son
+ *   pares [x, y] de números finitos, parámetros iniciales no finitos, menos puntos que
+ *   parámetros, tolerancia o maxIter fuera de rango, o un jacobianoModelo que no devuelve
+ *   una derivada por parámetro.
  * @throws {ErrorDominio} Si el sistema J^T·J es singular (Jacobiano rank-deficiente).
  *
  * @example
@@ -97,9 +100,9 @@ export function regresionNoLineal({
     );
   }
 
-  if (typeof tolerancia !== 'number' || tolerancia <= 0) {
+  if (!Number.isFinite(tolerancia) || tolerancia <= 0) {
     throw new ErrorParametros(
-      `ChuspaNumeric.regresionNoLineal: "tolerancia" debe ser un número positivo. Se recibió: ${tolerancia}.`,
+      `ChuspaNumeric.regresionNoLineal: "tolerancia" debe ser un número finito y positivo. Se recibió: ${tolerancia}.`,
     );
   }
 
@@ -122,6 +125,13 @@ export function regresionNoLineal({
     // 2. Construir el Jacobiano J (m × p)
     //    J_ij = ∂modelo(x_i, theta) / ∂theta_j
     const J = puntos.map(([xi]) => jacobianoModelo(xi, theta));
+
+    if (J.some((fila) => !Array.isArray(fila) || fila.length !== p)) {
+      throw new ErrorParametros(
+        `ChuspaNumeric.regresionNoLineal: "jacobianoModelo" debe devolver un array de ${p} derivadas parciales, ` +
+          `una por cada parámetro de "parametrosIniciales".`,
+      );
+    }
 
     // 3. Calcular la norma del residuo actual (para el historial)
     const normaResiduo = Math.sqrt(r.reduce((acc, ri) => acc + ri * ri, 0));
@@ -271,6 +281,22 @@ function validarModeloNoLineal(puntos, modelo, jacobianoModelo, parametrosInicia
     );
   }
 
+  for (let indice = 0; indice < puntos.length; indice++) {
+    const punto = puntos[indice];
+    if (!Array.isArray(punto) || punto.length !== 2) {
+      throw new ErrorParametros(
+        `ChuspaNumeric.regresionNoLineal: cada elemento de "puntos" debe ser un par [x, y]. ` +
+          `El elemento ${indice} no lo es.`,
+      );
+    }
+    if (!Number.isFinite(punto[0]) || !Number.isFinite(punto[1])) {
+      throw new ErrorParametros(
+        `ChuspaNumeric.regresionNoLineal: "puntos" debe contener solamente números finitos. ` +
+          `El par ${indice} es [${punto[0]}, ${punto[1]}].`,
+      );
+    }
+  }
+
   if (typeof modelo !== 'function') {
     throw new ErrorParametros(
       'ChuspaNumeric.regresionNoLineal: "modelo" debe ser una función (x, parametros) => y.',
@@ -287,5 +313,14 @@ function validarModeloNoLineal(puntos, modelo, jacobianoModelo, parametrosInicia
     throw new ErrorParametros(
       'ChuspaNumeric.regresionNoLineal: "parametrosIniciales" debe ser un array no vacío.',
     );
+  }
+
+  for (let indice = 0; indice < parametrosIniciales.length; indice++) {
+    if (!Number.isFinite(parametrosIniciales[indice])) {
+      throw new ErrorParametros(
+        `ChuspaNumeric.regresionNoLineal: "parametrosIniciales" debe contener solamente números finitos. ` +
+          `El elemento ${indice} es ${parametrosIniciales[indice]}.`,
+      );
+    }
   }
 }
