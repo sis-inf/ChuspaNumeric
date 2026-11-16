@@ -83,4 +83,35 @@ describe('simpsonAdaptativo', () => {
       expect(() => simpsonAdaptativo({ ...base, f: () => NaN })).toThrow(ErrorParametros);
     });
   });
+
+  test('refina el paso y disminuye el error relativo con una tolerancia más estricta', () => {
+    const base = { f: Math.sin, a: 0, b: Math.PI };
+    const aproximada = simpsonAdaptativo({ ...base, tolerancia: 1e-3 });
+    const precisa = simpsonAdaptativo({ ...base, tolerancia: 1e-10 });
+    const errorRelativo = (res) => Math.abs(res.resultado - 2) / 2;
+    const menorPaso = (res) => Math.min(...res.iteraciones.map(({ a, b }) => b - a));
+
+    expect(aproximada.convergio).toBe(true);
+    expect(precisa.convergio).toBe(true);
+    expect(errorRelativo(aproximada)).toBeLessThan(1e-3);
+    expect(errorRelativo(precisa)).toBeLessThan(1e-10);
+    expect(errorRelativo(precisa)).toBeLessThan(errorRelativo(aproximada));
+    expect(menorPaso(precisa)).toBeLessThan(menorPaso(aproximada));
+  });
+
+  test('devuelve una aproximación con advertencia al agotar la profundidad', () => {
+    const tolerancia = 1e-10;
+    const base = { f: Math.exp, a: 0, b: 1, tolerancia };
+    const exacto = Math.expm1(1);
+    const limitada = simpsonAdaptativo({ ...base, profundidadMaxima: 0 });
+    const precisa = simpsonAdaptativo({ ...base, profundidadMaxima: 12 });
+
+    expect(limitada.convergio).toBe(false);
+    expect(limitada.warnings).toEqual([expect.stringContaining('maxProfundidad=0')]);
+    expect(limitada.iteraciones).toHaveLength(1);
+    expect(Number.isFinite(limitada.resultado)).toBe(true);
+    expect(Math.abs(limitada.resultado - exacto)).toBeGreaterThan(tolerancia);
+    expect(precisa.convergio).toBe(true);
+    expect(Math.abs(precisa.resultado - exacto)).toBeLessThan(tolerancia);
+  });
 });
