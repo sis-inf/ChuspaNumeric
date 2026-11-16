@@ -50,8 +50,13 @@ import { gauss } from '../lineales/gauss.js';
  *   - `mensaje`: descripción del resultado.
  *   - `meta.metodo`: 'gauss-newton'.
  *
- * @throws {ErrorParametros} Si los datos de entrada son inválidos.
- * @throws {ErrorDominio} Si el sistema J^T·J es singular (Jacobiano rank-deficiente).
+ * @throws {ErrorParametros} Si los datos de entrada son inválidos: puntos que no son
+ *   pares [x, y] de números finitos, parámetros iniciales no finitos, menos puntos que
+ *   parámetros, tolerancia o maxIter fuera de rango, un jacobianoModelo que no devuelve
+ *   una derivada por parámetro, o un modelo o jacobianoModelo que devuelve valores no
+ *   finitos en alguna iteración.
+ * @throws {ErrorDominio} Si el sistema J^T·J es singular (Jacobiano rank-deficiente) o
+ *   el paso Δθ resultante no es finito.
  *
  * @example
  * // Ajustar y = a·e^(b·x) a datos de crecimiento exponencial
@@ -76,15 +81,19 @@ import { gauss } from '../lineales/gauss.js';
  * console.log(resultado.resultado); // [~2.0, ~0.776]
  * console.log(resultado.convergio); // true
  */
-export function regresionNoLineal({
-  puntos,
-  modelo,
-  jacobianoModelo,
-  parametrosIniciales,
-  tolerancia = 1e-6,
-  maxIter = 100,
-}) {
+export function regresionNoLineal(params) {
   // --- Validación de parámetros ---
+  validarObjetoParametros(params);
+
+  const {
+    puntos,
+    modelo,
+    jacobianoModelo,
+    parametrosIniciales,
+    tolerancia = 1e-6,
+    maxIter = 100,
+  } = params;
+
   validarModeloNoLineal(puntos, modelo, jacobianoModelo, parametrosIniciales);
 
   const m = puntos.length; // número de observaciones
@@ -97,9 +106,9 @@ export function regresionNoLineal({
     );
   }
 
-  if (typeof tolerancia !== 'number' || tolerancia <= 0) {
+  if (!Number.isFinite(tolerancia) || tolerancia <= 0) {
     throw new ErrorParametros(
-      `ChuspaNumeric.regresionNoLineal: "tolerancia" debe ser un número positivo. Se recibió: ${tolerancia}.`,
+      `ChuspaNumeric.regresionNoLineal: "tolerancia" debe ser un número finito y positivo. Se recibió: ${tolerancia}.`,
     );
   }
 
@@ -117,11 +126,15 @@ export function regresionNoLineal({
   for (let iter = 1; iter <= maxIter; iter++) {
     // 1. Calcular el vector de residuos r (m × 1)
     //    r_i = y_i - modelo(x_i, theta)
-    const r = puntos.map(([xi, yi]) => yi - modelo(xi, theta));
+    const predicciones = puntos.map(([xi]) => modelo(xi, theta));
+    validarPredicciones(predicciones, puntos, iter);
+
+    const r = puntos.map(([, yi], i) => yi - predicciones[i]);
 
     // 2. Construir el Jacobiano J (m × p)
     //    J_ij = ∂modelo(x_i, theta) / ∂theta_j
     const J = puntos.map(([xi]) => jacobianoModelo(xi, theta));
+    validarJacobiano(J, p, puntos, iter);
 
     // 3. Calcular la norma del residuo actual (para el historial)
     const normaResiduo = Math.sqrt(r.reduce((acc, ri) => acc + ri * ri, 0));
@@ -150,6 +163,7 @@ export function regresionNoLineal({
     }
 
     const delta = resGauss.resultado;
+    validarPaso(delta, iter, theta);
 
     // 6. Actualizar los parámetros: θ_{k+1} = θ_k + Δθ
     const normaDelta = Math.sqrt(delta.reduce((acc, d) => acc + d * d, 0));
@@ -271,6 +285,22 @@ function validarModeloNoLineal(puntos, modelo, jacobianoModelo, parametrosInicia
     );
   }
 
+  for (let indice = 0; indice < puntos.length; indice++) {
+    const punto = puntos[indice];
+    if (!Array.isArray(punto) || punto.length !== 2) {
+      throw new ErrorParametros(
+        `ChuspaNumeric.regresionNoLineal: cada elemento de "puntos" debe ser un par [x, y]. ` +
+          `El elemento ${indice} no lo es.`,
+      );
+    }
+    if (!Number.isFinite(punto[0]) || !Number.isFinite(punto[1])) {
+      throw new ErrorParametros(
+        `ChuspaNumeric.regresionNoLineal: "puntos" debe contener solamente números finitos. ` +
+          `El par ${indice} es [${punto[0]}, ${punto[1]}].`,
+      );
+    }
+  }
+
   if (typeof modelo !== 'function') {
     throw new ErrorParametros(
       'ChuspaNumeric.regresionNoLineal: "modelo" debe ser una función (x, parametros) => y.',
@@ -286,6 +316,61 @@ function validarModeloNoLineal(puntos, modelo, jacobianoModelo, parametrosInicia
   if (!Array.isArray(parametrosIniciales) || parametrosIniciales.length === 0) {
     throw new ErrorParametros(
       'ChuspaNumeric.regresionNoLineal: "parametrosIniciales" debe ser un array no vacío.',
+    );
+  }
+
+  for (let indice = 0; indice < parametrosIniciales.length; indice++) {
+    if (!Number.isFinite(parametrosIniciales[indice])) {
+      throw new ErrorParametros(
+        `ChuspaNumeric.regresionNoLineal: "parametrosIniciales" debe contener solamente números finitos. ` +
+          `El elemento ${indice} es ${parametrosIniciales[indice]}.`,
+      );
+    }
+  }
+}
+
+function validarObjetoParametros(params) {
+  if (params === null || typeof params !== 'object') {
+    throw new ErrorParametros(
+      `ChuspaNumeric.regresionNoLineal: se esperaba un objeto con "puntos", "modelo", "jacobianoModelo" ` +
+        `y "parametrosIniciales". Se recibió: ${params === null ? 'null' : typeof params}.`,
+    );
+  }
+}
+
+function validarPredicciones(predicciones, puntos, iter) {
+  const indiceNoFinito = predicciones.findIndex((prediccion) => !Number.isFinite(prediccion));
+  if (indiceNoFinito !== -1) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.regresionNoLineal: "modelo" debe devolver un número finito. ` +
+        `En la iteración ${iter}, para x = ${puntos[indiceNoFinito][0]} devolvió: ${predicciones[indiceNoFinito]}.`,
+    );
+  }
+}
+
+function validarJacobiano(J, p, puntos, iter) {
+  if (J.some((fila) => !Array.isArray(fila) || fila.length !== p)) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.regresionNoLineal: "jacobianoModelo" debe devolver un array de ${p} derivadas parciales, ` +
+        `una por cada parámetro de "parametrosIniciales".`,
+    );
+  }
+
+  const filaNoFinita = J.findIndex((fila) => fila.some((derivada) => !Number.isFinite(derivada)));
+  if (filaNoFinita !== -1) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.regresionNoLineal: "jacobianoModelo" debe devolver solamente números finitos. ` +
+        `En la iteración ${iter}, para x = ${puntos[filaNoFinita][0]} devolvió: [${J[filaNoFinita].join(', ')}].`,
+    );
+  }
+}
+
+function validarPaso(delta, iter, theta) {
+  if (!Array.isArray(delta) || delta.some((d) => !Number.isFinite(d))) {
+    throw new ErrorDominio(
+      `ChuspaNumeric.regresionNoLineal: el paso Δθ de la iteración ${iter} no es finito. ` +
+        `Las ecuaciones normales J^T·J desbordan el rango numérico o no tienen solución ` +
+        `para los parámetros actuales θ = [${theta.map((v) => v.toFixed(6)).join(', ')}].`,
     );
   }
 }
