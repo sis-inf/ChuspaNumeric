@@ -21,6 +21,8 @@ import {
  * @param {number} [opciones.maxIter=100]
  * @param {number|null} [opciones.timeoutMs=null] - Tiempo máximo de ejecución en milisegundos.
  * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
+ * @throws {ErrorParametros} Si `f` o `df` no son funciones, o si `x0`, `tolerancia`, `maxIter` o `timeoutMs` no son válidos.
+ * @throws {ErrorDominio} Si la derivada es cero en alguna iteración.
  * @throws {ErrorTimeout} Si se excede el tiempo máximo de ejecución configurado.
  * @throws {ErrorDivergencia} Si los valores se vuelven NaN o Infinity durante la iteración.
  */
