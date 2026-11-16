@@ -124,3 +124,81 @@ describe('gaussPivoteoParcial - validación del vector b', () => {
     expect(() => gaussPivoteoParcial({ A, b })).toThrow(ErrorParametros);
   });
 });
+
+describe('gaussPivoteoParcial - precision y estabilidad numerica', () => {
+  test.each([1e-6, 1e-8, 1e-10])(
+    'resuelve un sistema con tolerancia absoluta %s',
+    (tolerancia) => {
+      const A = [
+        [4, 1],
+        [2, 3]
+      ];
+      const b = [6, 8];
+      const esperado = [1, 2];
+
+      const res = gaussPivoteoParcial({ A, b });
+
+      expect(res.convergio).toBe(true);
+
+      esperado.forEach((valor, i) => {
+        expect(Math.abs(res.resultado[i] - valor)).toBeLessThan(tolerancia);
+      });
+    }
+  );
+
+  test('mantiene un error relativo pequeno en la solucion', () => {
+    const A = [
+      [3, 1],
+      [1, 2]
+    ];
+    const b = [5, 5];
+    const esperado = [1, 2];
+
+    const res = gaussPivoteoParcial({ A, b });
+
+    expect(res.convergio).toBe(true);
+
+    esperado.forEach((valor, i) => {
+      const errorRelativo = Math.abs((res.resultado[i] - valor) / valor);
+      expect(errorRelativo).toBeLessThan(1e-10);
+    });
+  });
+
+  test('resuelve un sistema que requiere intercambiar filas', () => {
+    const A = [
+      [1e-10, 1],
+      [1, 1]
+    ];
+    const b = [1 + 1e-10, 2];
+
+    const res = gaussPivoteoParcial({ A, b });
+
+    expect(res.convergio).toBe(true);
+    expect(res.resultado[0]).toBeCloseTo(1, 8);
+    expect(res.resultado[1]).toBeCloseTo(1, 8);
+    expect(res.iteraciones.some((it) => it.paso === 'pivoteo')).toBe(true);
+  });
+
+  test.each([1e-13, 1e-14, 1e-15])(
+    'detecta un pivote numericamente nulo de magnitud %s',
+    (pivote) => {
+      const A = [
+        [1, 0],
+        [0, pivote]
+      ];
+      const b = [1, pivote];
+
+      expect(() => gaussPivoteoParcial({ A, b })).toThrow(ErrorDominio);
+    }
+  );
+
+  test('rechaza un sistema singular incompatible', () => {
+    const A = [
+      [1, 2],
+      [2, 4]
+    ];
+    const b = [3, 7];
+
+    expect(() => gaussPivoteoParcial({ A, b })).toThrow(ErrorDominio);
+  });
+});
