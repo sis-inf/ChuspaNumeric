@@ -1,4 +1,10 @@
-import { validarNumero, validarFuncion } from '../../../src/utils/validaciones.js';
+import {
+    validarNumero,
+    validarFuncion,
+    validarTolerancia,
+    validarIteraciones,
+    verificarDivergencia,
+} from '../../../src/utils/validaciones.js';
 
 describe('validarNumero', () => {
     test('acepta un número válido', () => {
@@ -18,7 +24,7 @@ describe('validarNumero', () => {
 describe('validarFuncion', () => {
     test('acepta una función', () => {
         expect(() => validarFuncion(() => {})).not.toThrow();
-        expect(() => validarFuncion(function() {})).not.toThrow();
+        expect(() => validarFuncion(() => {})).not.toThrow();
         expect(() => validarFuncion(x => x * 2)).not.toThrow();
     });
 
@@ -27,5 +33,79 @@ describe('validarFuncion', () => {
         expect(() => validarFuncion('function')).toThrow();
         expect(() => validarFuncion(null)).toThrow();
         expect(() => validarFuncion({})).toThrow();
+    });
+});
+
+describe('validarTolerancia', () => {
+    test('acepta diferentes tolerancias positivas y estrictas', () => {
+        expect(() => validarTolerancia(1e-3)).not.toThrow();
+        expect(() => validarTolerancia(1e-6)).not.toThrow();
+        expect(() => validarTolerancia(1e-12)).not.toThrow();
+    });
+
+    test('rechaza tolerancias invalidas o fuera de dominio', () => {
+        expect(() => validarTolerancia(0)).toThrow();
+        expect(() => validarTolerancia(-1e-6)).toThrow();
+        expect(() => validarTolerancia(NaN)).toThrow();
+        expect(() => validarTolerancia(Infinity)).toThrow();
+    });
+});
+
+describe('validarNumero con tamanos de paso', () => {
+    test('acepta pasos finitos de diferentes magnitudes', () => {
+        expect(() => validarNumero(0.1, 'h')).not.toThrow();
+        expect(() => validarNumero(0.01, 'h')).not.toThrow();
+        expect(() => validarNumero(1e-8, 'h')).not.toThrow();
+    });
+
+    test('rechaza pasos no finitos', () => {
+        expect(() => validarNumero(NaN, 'h')).toThrow();
+        expect(() => validarNumero(Infinity, 'h')).toThrow();
+        expect(() => validarNumero(-Infinity, 'h')).toThrow();
+    });
+});
+
+describe('validarIteraciones', () => {
+    test('acepta cantidades enteras positivas', () => {
+        expect(() => validarIteraciones(1)).not.toThrow();
+        expect(() => validarIteraciones(10)).not.toThrow();
+        expect(() => validarIteraciones(100)).not.toThrow();
+    });
+
+    test('rechaza limites de iteracion invalidos', () => {
+        expect(() => validarIteraciones(0)).toThrow();
+        expect(() => validarIteraciones(-5)).toThrow();
+        expect(() => validarIteraciones(1.5)).toThrow();
+        expect(() => validarIteraciones(Infinity)).toThrow();
+    });
+});
+
+describe('verificarDivergencia', () => {
+    test('acepta valores finitos en distintas iteraciones', () => {
+        expect(() =>
+            verificarDivergencia(1.5, 'metodoNumerico', 1)
+        ).not.toThrow();
+
+        expect(() =>
+            verificarDivergencia(1.05, 'metodoNumerico', 2)
+        ).not.toThrow();
+
+        expect(() =>
+            verificarDivergencia(1.005, 'metodoNumerico', 3)
+        ).not.toThrow();
+    });
+
+    test('detecta divergencia numerica con NaN e infinitos', () => {
+        expect(() =>
+            verificarDivergencia(NaN, 'metodoNumerico', 4)
+        ).toThrow(/divergencia numérica detectada/);
+
+        expect(() =>
+            verificarDivergencia(Infinity, 'metodoNumerico', 5)
+        ).toThrow(/divergencia numérica detectada/);
+
+        expect(() =>
+            verificarDivergencia(-Infinity, 'metodoNumerico', 6)
+        ).toThrow(/divergencia numérica detectada/);
     });
 });
