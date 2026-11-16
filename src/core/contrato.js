@@ -27,7 +27,7 @@
  * Objeto de resultado uniforme que devuelve crearResultado.
  *
  * @typedef {Object} Resultado
- * @property {number|Array|null} resultado - Valor calculado por el método.
+ * @property {number|Array|Object|null} resultado - Valor calculado por el método: un número, un array, un objeto con varios valores (por ejemplo { x, L, U }) o null si no hay resultado.
  * @property {Array} iteraciones - Detalle de cada iteración.
  * @property {boolean} convergio - Indica si el método convergió.
  * @property {string} mensaje - Mensaje descriptivo del resultado.
@@ -41,7 +41,7 @@
  * Crea un objeto de resultado uniforme para los métodos numéricos de ChuspaNumeric.
  *
  * @param {Object} opciones - Datos del resultado.
- * @param {number|Array|null} opciones.resultado - Valor calculado por el método.
+ * @param {number|Array|Object|null} opciones.resultado - Valor calculado por el método: un número, un array, un objeto con varios valores (por ejemplo { x, L, U }) o null si no hay resultado.
  * @param {Array}   [opciones.iteraciones=[]] - Detalle de cada iteración.
  * @param {boolean} [opciones.convergio=false] - Indica si el método convergió.
  * @param {string}  [opciones.mensaje=""] - Mensaje descriptivo del resultado.
