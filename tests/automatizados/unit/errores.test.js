@@ -137,3 +137,78 @@ describe('errores - distinguir tipos con instanceof', () => {
     expect(capturar(new ErrorDominio('x'))).toBe('otro');
   });
 });
+
+describe('errores - precision y convergencia numerica', () => {
+  test.each([
+    [1e-3, 1e-2],
+    [1e-6, 1e-5],
+    [1e-9, 1e-8],
+  ])(
+    'ErrorNoConvergencia conserva el detalle cuando el error relativo supera la tolerancia %s',
+    (tolerancia, errorRelativo) => {
+      expect(errorRelativo).toBeGreaterThan(tolerancia);
+
+      const mensaje = `No convergio: error relativo ${errorRelativo}, tolerancia ${tolerancia}`;
+      const error = new ErrorNoConvergencia(mensaje);
+
+      expect(error).toBeInstanceOf(ErrorNoConvergencia);
+      expect(error).toBeInstanceOf(ErrorNumerico);
+      expect(error.message).toBe(mensaje);
+    }
+  );
+
+  test.each([
+    [0.1, 0.01],
+    [0.01, 0.0001],
+    [0.001, 0.000001],
+  ])(
+    'ErrorConvergencia conserva el paso h=%s y el error asociado',
+    (paso, errorAbsoluto) => {
+      const mensaje = `Paso h=${paso}; error absoluto=${errorAbsoluto}`;
+      const error = new ErrorConvergencia(mensaje);
+
+      expect(error).toBeInstanceOf(ErrorConvergencia);
+      expect(error.message).toBe(mensaje);
+      expect(error.toString()).toBe(`ErrorConvergencia: ${mensaje}`);
+    }
+  );
+
+  test('ErrorNoConvergencia representa un error que no disminuye al reducir h', () => {
+    const pasos = [0.1, 0.01, 0.001];
+    const erroresRelativos = [0.05, 0.05, 0.05];
+    const tolerancia = 1e-6;
+
+    expect(erroresRelativos.every((error) => error > tolerancia)).toBe(true);
+
+    const mensaje = `Sin convergencia para pasos ${pasos.join(', ')}`;
+    const error = new ErrorNoConvergencia(mensaje);
+
+    expect(error).toBeInstanceOf(ErrorNoConvergencia);
+    expect(error.message).toBe(mensaje);
+  });
+
+  test('ErrorDivergencia conserva el contexto de errores relativos crecientes', () => {
+    const pasos = [0.1, 0.01, 0.001];
+    const erroresRelativos = [0.1, 0.5, 2];
+
+    expect(erroresRelativos[1]).toBeGreaterThan(erroresRelativos[0]);
+    expect(erroresRelativos[2]).toBeGreaterThan(erroresRelativos[1]);
+
+    const mensaje = `Divergencia con pasos ${pasos.join(', ')}`;
+    const error = new ErrorDivergencia(mensaje);
+
+    expect(error).toBeInstanceOf(ErrorDivergencia);
+    expect(error.message).toBe(mensaje);
+  });
+
+  test('distingue errores de no convergencia y divergencia', () => {
+    const noConvergencia = new ErrorNoConvergencia('Tolerancia no alcanzada');
+    const divergencia = new ErrorDivergencia('Error creciente');
+
+    expect(noConvergencia).toBeInstanceOf(ErrorNumerico);
+    expect(noConvergencia).not.toBeInstanceOf(ErrorDivergencia);
+
+    expect(divergencia).toBeInstanceOf(ErrorDivergencia);
+    expect(divergencia).not.toBeInstanceOf(ErrorNoConvergencia);
+  });
+});
