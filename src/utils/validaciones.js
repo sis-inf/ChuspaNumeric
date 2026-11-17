@@ -10,6 +10,7 @@ import { ErrorDivergencia } from "../core/errores.js";
  *
  * @param {*}      valor  - Valor a verificar.
  * @param {string} nombre - Nombre del parámetro (para el mensaje de error).
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es un número finito.
  *
  * @example
@@ -21,7 +22,7 @@ import { ErrorDivergencia } from "../core/errores.js";
 function validarNumero(valor, nombre) {
   if (typeof valor !== "number" || !isFinite(valor)) {
     throw new ErrorParametros(
-      `Trazo: '${nombre}' debe ser un número finito. Se recibió: ${valor} (${typeof valor}).`
+      `ChuspaNumeric: '${nombre}' debe ser un número finito. Se recibió: ${valor} (${typeof valor}).`
     );
   }
 }
@@ -31,6 +32,7 @@ function validarNumero(valor, nombre) {
  *
  * @param {*}      fn     - Valor a verificar.
  * @param {string} nombre - Nombre del parámetro (para el mensaje de error).
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es una función.
  *
  * @example
@@ -40,7 +42,7 @@ function validarNumero(valor, nombre) {
 function validarFuncion(fn, nombre) {
   if (typeof fn !== "function") {
     throw new ErrorParametros(
-      `Trazo: '${nombre}' debe ser una función. Se recibió: ${typeof fn}.`
+      `ChuspaNumeric: '${nombre}' debe ser una función. Se recibió: ${typeof fn}.`
     );
   }
 }
@@ -49,6 +51,7 @@ function validarFuncion(fn, nombre) {
  * Verifica que una tolerancia sea un número finito mayor a cero.
  *
  * @param {*} tol - Valor de tolerancia a verificar.
+ * @returns {void}
  * @throws {ErrorParametros} Si tol no es un número finito o no es mayor a cero.
  *
  * @example
@@ -59,7 +62,7 @@ function validarFuncion(fn, nombre) {
 function validarTolerancia(tol) {
   if (typeof tol !== "number" || !isFinite(tol) || tol <= 0) {
     throw new ErrorParametros(
-      `Trazo: 'tolerancia' debe ser un número finito mayor a cero. Se recibió: ${tol}.`
+      `ChuspaNumeric: 'tolerancia' debe ser un número finito mayor a cero. Se recibió: ${tol}.`
     );
   }
 }
@@ -68,6 +71,7 @@ function validarTolerancia(tol) {
  * Verifica que maxIter sea un entero mayor a cero.
  *
  * @param {*} maxIter - Valor del número máximo de iteraciones a verificar.
+ * @returns {void}
  * @throws {ErrorParametros} Si maxIter no es un entero mayor a cero.
  *
  * @example
@@ -83,7 +87,7 @@ function validarIteraciones(maxIter) {
     maxIter <= 0
   ) {
     throw new ErrorParametros(
-      `Trazo: 'maxIter' debe ser un entero mayor a cero. Se recibió: ${maxIter}.`
+      `ChuspaNumeric: 'maxIter' debe ser un entero mayor a cero. Se recibió: ${maxIter}.`
     );
   }
 }
@@ -93,6 +97,7 @@ function validarIteraciones(maxIter) {
  *
  * @param {*} a - Límite inferior del intervalo.
  * @param {*} b - Límite superior del intervalo.
+ * @returns {void}
  * @throws {ErrorParametros} Si a o b no son números finitos, o si a >= b.
  *
  * @example
@@ -104,17 +109,17 @@ function validarIteraciones(maxIter) {
 function validarIntervalo(a, b) {
   if (typeof a !== "number" || !isFinite(a)) {
     throw new ErrorParametros(
-      `Trazo: el límite inferior 'a' debe ser un número finito. Se recibió: ${a}.`
+      `ChuspaNumeric: el límite inferior 'a' debe ser un número finito. Se recibió: ${a}.`
     );
   }
   if (typeof b !== "number" || !isFinite(b)) {
     throw new ErrorParametros(
-      `Trazo: el límite superior 'b' debe ser un número finito. Se recibió: ${b}.`
+      `ChuspaNumeric: el límite superior 'b' debe ser un número finito. Se recibió: ${b}.`
     );
   }
   if (a >= b) {
     throw new ErrorParametros(
-      `Trazo: el límite inferior 'a' (${a}) debe ser estrictamente menor que 'b' (${b}).`
+      `ChuspaNumeric: el límite inferior 'a' (${a}) debe ser estrictamente menor que 'b' (${b}).`
     );
   }
 }
@@ -123,6 +128,7 @@ function validarIntervalo(a, b) {
  * Verifica que una matriz sea un array bidimensional cuadrado de n × n.
  *
  * @param {*} matriz - Valor a verificar.
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es un array bidimensional cuadrado.
  *
  * @example
@@ -133,7 +139,7 @@ function validarIntervalo(a, b) {
 function validarMatrizCuadrada(matriz) {
   if (!Array.isArray(matriz) || matriz.length === 0) {
     throw new ErrorParametros(
-      `Trazo: la matriz debe ser un array bidimensional no vacío. Se recibió: ${typeof matriz}.`
+      `ChuspaNumeric: la matriz debe ser un array bidimensional no vacío. Se recibió: ${typeof matriz}.`
     );
   }
 
@@ -141,13 +147,13 @@ function validarMatrizCuadrada(matriz) {
 
   if (!matriz.every(Array.isArray)) {
     throw new ErrorParametros(
-      `Trazo: la matriz debe ser un array bidimensional (array de arrays).`
+      `ChuspaNumeric: la matriz debe ser un array bidimensional (array de arrays).`
     );
   }
 
   if (matriz.some((fila) => fila.length !== n)) {
     throw new ErrorParametros(
-      `Trazo: la matriz debe ser cuadrada (${n}×${n}). ` +
+      `ChuspaNumeric: la matriz debe ser cuadrada (${n}×${n}). ` +
       `Algunas filas tienen longitud diferente a ${n}.`
     );
   }
@@ -158,6 +164,7 @@ function validarMatrizCuadrada(matriz) {
  *
  * @param {*}      vector    - Valor a verificar.
  * @param {number} dimension - Longitud esperada del vector.
+ * @returns {void}
  * @throws {ErrorParametros} Si el valor no es un array, no tiene la dimensión correcta,
  *                            o contiene elementos no numéricos o no finitos.
  *
@@ -170,20 +177,20 @@ function validarMatrizCuadrada(matriz) {
 function validarVector(vector, dimension) {
   if (!Array.isArray(vector)) {
     throw new ErrorParametros(
-      `Trazo: el vector debe ser un array. Se recibió: ${typeof vector}.`
+      `ChuspaNumeric: el vector debe ser un array. Se recibió: ${typeof vector}.`
     );
   }
 
   if (vector.length !== dimension) {
     throw new ErrorParametros(
-      `Trazo: el vector debe tener longitud ${dimension}. Se recibió longitud ${vector.length}.`
+      `ChuspaNumeric: el vector debe tener longitud ${dimension}. Se recibió longitud ${vector.length}.`
     );
   }
 
   for (let i = 0; i < vector.length; i++) {
     if (typeof vector[i] !== "number" || !isFinite(vector[i])) {
       throw new ErrorParametros(
-        `Trazo: el elemento vector[${i}] debe ser un número finito. Se recibió: ${vector[i]}.`
+        `ChuspaNumeric: el elemento vector[${i}] debe ser un número finito. Se recibió: ${vector[i]}.`
       );
     }
   }
@@ -199,6 +206,7 @@ function validarVector(vector, dimension) {
  * @param {number} valor - Valor a verificar (ej. resultado de una iteración).
  * @param {string} metodo - Nombre del método para el mensaje de error.
  * @param {number} iteracion - Número de iteración donde se detectó el valor.
+ * @returns {void}
  * @throws {ErrorDivergencia} Si el valor es NaN o no finito.
  *
  * @example
@@ -209,7 +217,7 @@ function validarVector(vector, dimension) {
 function verificarDivergencia(valor, metodo, iteracion) {
   if (typeof valor !== "number" || Number.isNaN(valor) || !isFinite(valor)) {
     throw new ErrorDivergencia(
-      `Trazo.${metodo}: divergencia numérica detectada en la iteración ${iteracion}. ` +
+      `ChuspaNumeric.${metodo}: divergencia numérica detectada en la iteración ${iteracion}. ` +
       `El valor calculado es ${valor}, lo cual indica que el método no converge ` +
       `numéricamente para los parámetros dados.`
     );

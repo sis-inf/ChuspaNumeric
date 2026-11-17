@@ -7,7 +7,7 @@ import { ErrorParametros } from '../core/errores.js';
  * @param {Object} params
  * @param {Array<Array<number>>} params.puntos - Array de pares [[xi, yi], ...]
  * @param {number} params.x - El punto a evaluar
- * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
  * @throws {ErrorParametros} Si los puntos son insuficientes, no están ordenados o x está fuera de rango
  */
 export function splines({ puntos, x }) {

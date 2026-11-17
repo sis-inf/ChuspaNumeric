@@ -1,7 +1,73 @@
 import { crearResultado, medirTiempo } from '../core/contrato.js';
 import { ErrorDominio, ErrorConvergencia, ErrorParametros } from '../core/errores.js';
-import { validarFuncion, validarNumero, validarTolerancia, validarIteraciones } from '../utils/validaciones.js';
+import {
+  validarFuncion,
+  validarTolerancia,
+  validarIteraciones,
+  verificarDivergencia,
+} from '../utils/validaciones.js';
 import { errorAbsoluto } from '../utils/formato.js';
+
+function validarFinito(valor, nombre) {
+  if (!Number.isFinite(valor)) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.muller: '${nombre}' debe ser un número finito. Tipo recibido: ${typeof valor}.`,
+    );
+  }
+}
+
+function validarPuntosIniciales(x0, x1, x2) {
+  validarFinito(x0, 'x0');
+  validarFinito(x1, 'x1');
+  validarFinito(x2, 'x2');
+
+  if (x0 === x1 || x1 === x2 || x0 === x2) {
+    throw new ErrorParametros(
+      'ChuspaNumeric.muller: Los puntos iniciales x0, x1 y x2 deben ser valores distintos entre sí.',
+    );
+  }
+
+  if (![x1 - x0, x2 - x1, x2 - x0].every(Number.isFinite)) {
+    throw new ErrorParametros(
+      'ChuspaNumeric.muller: Las distancias entre los puntos iniciales deben ser finitas.',
+    );
+  }
+}
+
+function siguientePunto(a, b, c, fa, fb, fc, iteracion) {
+  const h1 = b - a;
+  const h2 = c - b;
+  const hTotal = c - a;
+  if (h1 === 0 || h2 === 0 || hTotal === 0) {
+    throw new ErrorDominio(
+      `ChuspaNumeric.muller: Se repitió un punto de interpolación en la iteración ${iteracion}.`,
+    );
+  }
+
+  const d1 = (fb - fa) / h1;
+  const d2 = (fc - fb) / h2;
+  const A = (d2 - d1) / hTotal;
+  const B = A * h2 + d2;
+  const discriminante = B * B - 4 * A * fc;
+  verificarDivergencia(discriminante, 'muller', iteracion);
+  if (discriminante < 0) {
+    throw new ErrorDominio(
+      `ChuspaNumeric.muller: La parábola tiene discriminante negativo en la iteración ${iteracion}.`,
+    );
+  }
+
+  const raiz = Math.sqrt(discriminante);
+  const denominador = Math.abs(B + raiz) >= Math.abs(B - raiz) ? B + raiz : B - raiz;
+  if (denominador === 0) {
+    throw new ErrorDominio(
+      `ChuspaNumeric.muller: División por cero en la iteración ${iteracion} por denominador nulo.`,
+    );
+  }
+
+  const xNuevo = c - (2 * fc) / denominador;
+  verificarDivergencia(xNuevo, 'muller', iteracion);
+  return xNuevo;
+}
 
 /**
  * Encuentra una raíz real de f usando el método de Müller.
@@ -15,100 +81,74 @@ import { errorAbsoluto } from '../utils/formato.js';
  * @param {number} opciones.x2 - Tercera aproximación inicial.
  * @param {number} [opciones.tolerancia=1e-6] - Criterio de parada por convergencia.
  * @param {number} [opciones.maxIter=100] - Máximo de iteraciones permitidas.
- * @returns {Object} Objeto con la forma uniforme de resultados de Trazo.
- * @throws {ErrorParametros} Si las aproximaciones iniciales no son distintas.
+ * @returns {Object} Objeto con la forma uniforme de resultados de ChuspaNumeric.
+ * @throws {ErrorParametros} Si las opciones o los valores de f no son válidos.
  * @throws {ErrorDominio} Si el discriminante es negativo o hay división por cero.
+ * @throws {ErrorDivergencia} Si el cálculo produce un valor no finito.
  * @throws {ErrorConvergencia} Si no converge en maxIter iteraciones.
  */
-function muller({ f, x0, x1, x2, tolerancia = 1e-6, maxIter = 100 }) {
-  // Validaciones de Entrada 
-  validarFuncion(f, 'f');
-  validarNumero(x0, 'x0');
-  validarNumero(x1, 'x1');
-  validarNumero(x2, 'x2');
-  validarTolerancia(tolerancia);
-  validarIteraciones(maxIter);
-
-  if (x0 === x1 || x1 === x2 || x0 === x2) {
-    throw new ErrorParametros(
-      `Trazo.muller: Los puntos iniciales x0, x1 y x2 deben ser valores distintos entre sí. Se recibió: x0=${x0}, x1=${x1}, x2=${x2}`
-    );
+function muller(opciones) {
+  if (!opciones || typeof opciones !== 'object' || Array.isArray(opciones)) {
+    throw new ErrorParametros('ChuspaNumeric.muller: Se requiere un objeto de opciones.');
   }
 
-  const iteraciones = [];
-  let convergio = false;
-  let mensaje = '';
+  const { f, x0, x1, x2, tolerancia = 1e-6, maxIter = 100 } = opciones;
+  validarFuncion(f, 'f');
+  validarPuntosIniciales(x0, x1, x2);
+  validarFinito(tolerancia, 'tolerancia');
+  validarTolerancia(tolerancia);
+  validarFinito(maxIter, 'maxIter');
+  if (!Number.isSafeInteger(maxIter)) {
+    throw new ErrorParametros(
+      'ChuspaNumeric.muller: maxIter debe ser un entero positivo seguro.',
+    );
+  }
+  validarIteraciones(maxIter);
 
-  // Medición de tiempo usando el estándar oficial del repositorio
+  const iteraciones = [];
+  const evaluar = (x) => {
+    const fx = f(x);
+    validarFinito(fx, `f(${x})`);
+    return fx;
+  };
+
   const { valor: resultadoRaiz, tiempo_ms } = medirTiempo(() => {
-    let a = x0, b = x1, c = x2;
+    let a = x0;
+    let b = x1;
+    let c = x2;
 
     for (let n = 1; n <= maxIter; n++) {
-      const fa = f(a);
-      const fb = f(b);
-      const fc = f(c);
+      const fc = evaluar(c);
+      const xNuevo = fc === 0 ? c : siguientePunto(a, b, c, evaluar(a), evaluar(b), fc, n);
+      const fxNuevo = xNuevo === c ? fc : evaluar(xNuevo);
+      const error = errorAbsoluto(xNuevo, c);
+      verificarDivergencia(error, 'muller', n);
 
-      // Diferencias divididas para la parábola
-      const h1 = b - a;
-      const h2 = c - b;
-
-      const d1 = (fb - fa) / h1;
-      const d2 = (fc - fb) / h2;
-
-      const A = (d2 - d1) / (h2 + h1);
-      const B = A * h2 + d2;
-      const C = fc;
-
-      // Evaluación del discriminante real
-      const discriminante = B * B - 4 * A * C;
-
-      // Para discriminante negativo (raíces complejas) se usa |discriminante|
-      // y se retorna la parte real de la raíz compleja
-
-      const sqrtDisc = Math.sqrt(Math.abs(discriminante));
-
-      // Determinación del denominador de mayor magnitud para estabilidad
-      const denominador = Math.abs(B + sqrtDisc) >= Math.abs(B - sqrtDisc)
-        ? B + sqrtDisc
-        : B - sqrtDisc;
-
-      if (denominador === 0) {
-        throw new ErrorDominio(
-          `Trazo.muller: División por cero detectada en la iteración ${n} por denominador nulo.`
+      iteraciones.push({ n, x0: a, x1: b, x2: c, xNuevo, fxNuevo, error });
+      if (error === 0 && Math.abs(fxNuevo) >= tolerancia) {
+        throw new ErrorConvergencia(
+          `ChuspaNumeric.muller: La aproximación se estancó sin alcanzar la tolerancia en la iteración ${n}.`,
         );
       }
-
-      const xNuevo = c - (2 * C) / denominador;
-      const fxNuevo = f(xNuevo);
-      const error = errorAbsoluto(xNuevo, c);
-
-      // Registro de iteración requerido por el issue
-      iteraciones.push({ n, x0: a, x1: b, x2: c, xNuevo, fxNuevo, error });
-
-      // Evaluación del criterio de convergencia
       if (error < tolerancia) {
-        convergio = true;
-        mensaje = `Convergencia alcanzada en ${n} iteraciones.`;
         return xNuevo;
       }
 
-      // Desplazamiento de la ventana
       a = b;
       b = c;
       c = xNuevo;
     }
 
     throw new ErrorConvergencia(
-      `Trazo.muller: no convergió en ${maxIter} iteraciones con tolerancia ${tolerancia}.`
+      `ChuspaNumeric.muller: no convergió en ${maxIter} iteraciones con tolerancia ${tolerancia}.`
     );
   });
 
-  // Retorno del resultado usando la fábrica del contrato
   return crearResultado({
     resultado: resultadoRaiz,
     iteraciones,
-    convergio,
-    mensaje,
+    convergio: true,
+    mensaje: `Convergencia alcanzada en ${iteraciones.length} iteraciones.`,
     meta: {
       metodo: 'Müller',
       parametros: { x0, x1, x2, tolerancia, maxIter },

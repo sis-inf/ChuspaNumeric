@@ -16,7 +16,7 @@ import {
  * @param {number} opciones.x1 Segunda aproximación inicial.
  * @param {number} [opciones.tolerancia=1e-6]
  * @param {number} [opciones.maxIter=100]
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  */
 function secante({
   f,
@@ -45,7 +45,7 @@ function secante({
 
     if (denominador === 0) {
       throw new ErrorDominio(
-        `Trazo.secante: división por cero en la iteración ${n}.`
+        `ChuspaNumeric.secante: división por cero en la iteración ${n}.`
       );
     }
 

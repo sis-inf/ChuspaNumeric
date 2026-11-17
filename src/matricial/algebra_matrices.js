@@ -106,3 +106,33 @@ export function multiplicarEscalar(escalar, A) {
   }
   return resultado;
 }
+
+export function trazaMatriz(A) {
+  validarMatriz(A, 'A');
+  const [filas, cols] = dimensiones(A);
+  if (filas !== cols) {
+    throw new Error(`La traza requiere una matriz cuadrada: A es ${filas}x${cols}.`);
+  }
+  let traza = 0;
+  for (let i = 0; i < filas; i++) traza += A[i][i];
+  return traza;
+}
+
+export function potenciaMatriz(A, n) {
+  validarMatriz(A, 'A');
+  const [filas, cols] = dimensiones(A);
+  if (filas !== cols) {
+    throw new Error(`La potencia requiere una matriz cuadrada: A es ${filas}x${cols}.`);
+  }
+  if (!Number.isInteger(n) || n < 0) {
+    throw new Error(`El exponente debe ser un entero mayor o igual a 0, recibido: ${n}`);
+  }
+  let resultado = [];
+  for (let i = 0; i < filas; i++) {
+    const fila = [];
+    for (let j = 0; j < filas; j++) fila.push(i === j ? 1 : 0);
+    resultado.push(fila);
+  }
+  for (let k = 0; k < n; k++) resultado = multiplicarMatrices(resultado, A);
+  return resultado;
+}

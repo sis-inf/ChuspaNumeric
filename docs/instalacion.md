@@ -1,8 +1,8 @@
-# Guía de instalación de Trazo
+# Guía de instalación de ChuspaNumeric
 
 ## Descripción
 
-Trazo es una librería de métodos numéricos.
+ChuspaNumeric es una librería de métodos numéricos.
 
 ---
 
@@ -36,13 +36,13 @@ git --version
 Ejecute el siguiente comando en la terminal:
 
 ```bash
-git clone https://github.com/sis-inf/trazo.git
+git clone https://github.com/sis-inf/ChuspaNumeric.git
 ```
 
 Luego ingrese al proyecto:
 
 ```bash
-cd trazo
+cd ChuspaNumeric
 ```
 ---
 

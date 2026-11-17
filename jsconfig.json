@@ -3,7 +3,8 @@
     "checkJs": true,
     "strict": true,
     "noEmit": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "target": "ES2020"
   },
   "include": ["*.js"],
   "exclude": ["node_modules", "src", "test.js"]

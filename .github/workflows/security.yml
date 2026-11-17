@@ -15,12 +15,12 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Inicializar CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v4.39.1
         with:
           languages: javascript-typescript
 
       - name: Análisis de CodeQL
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v4.39.1

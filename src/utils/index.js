@@ -19,3 +19,21 @@ export {
   esDiagonalDominante,
   esSimetrica,
 } from './generadores_matrices.js';
+
+export {
+  sumaComplejos,
+  productoComplejos,
+  moduloComplejo,
+  conjugadoComplejo,
+  divisionComplejos,
+} from './numeros_complejos.js';
+
+export {
+  sumaVectores,
+  restaVectores,
+  productoPunto,
+  productoCruz,
+  magnitudVector,
+  normalizarVector,
+  escalarPorVector,
+} from './algebra_vectores.js';

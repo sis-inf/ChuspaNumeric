@@ -1,6 +1,6 @@
 # Métodos de Integración Numérica
 
-Este documento describe los métodos de integración numérica implementados en **Trazo** para aproximar integrales definidas de la forma:
+Este documento describe los métodos de integración numérica implementados en **ChuspaNumeric** para aproximar integrales definidas de la forma:
 
 ```
 ∫[a, b] f(x) dx
@@ -41,10 +41,10 @@ E = -(b-a)³ / (12n²) · f''(ξ),   ξ ∈ [a, b]
 
 **1** — integra exactamente polinomios de grado ≤ 1 (líneas rectas). Para funciones cuadráticas o superiores introduce error.
 
-### Uso en Trazo
+### Uso en ChuspaNumeric
 
 ```javascript
-import { trapezoidal } from 'trazo';
+import { trapezoidal } from 'ChuspaNumeric';
 const resultado = trapezoidal(f, 0, 1, 100);
 ```
 
@@ -77,10 +77,10 @@ E = -(b-a)⁵ / (180n⁴) · f⁽⁴⁾(ξ),   ξ ∈ [a, b]
 
 **3** — aunque usa parábolas, integra exactamente polinomios de grado ≤ 3 (propiedad especial de los coeficientes de Simpson). Es el doble que el Trapecio.
 
-### Uso en Trazo
+### Uso en ChuspaNumeric
 
 ```javascript
-import { simpson13 } from 'trazo';
+import { simpson13 } from 'ChuspaNumeric';
 const { resultado } = simpson13({ f, a: 0, b: 1, n: 100 });
 ```
 
@@ -115,10 +115,10 @@ Nótese que la constante es mayor que en Simpson 1/3 (`80` vs `180`), por lo que
 
 **3** — igual que Simpson 1/3.
 
-### Uso en Trazo
+### Uso en ChuspaNumeric
 
 ```javascript
-import { simpson38 } from 'trazo';
+import { simpson38 } from 'ChuspaNumeric';
 const { resultado } = simpson38({ f, a: 0, b: 1, n: 99 });
 ```
 

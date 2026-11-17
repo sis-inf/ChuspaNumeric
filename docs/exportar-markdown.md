@@ -3,7 +3,7 @@
 ## Introducción
 
 Este documento describe cómo exportar los resultados de los métodos
-numéricos de Trazo a formato Markdown, útil para incluir en entregas
+numéricos de ChuspaNumeric a formato Markdown, útil para incluir en entregas
 académicas, Pull Requests o reportes técnicos.
 
 > **Nota:** Al momento de escribir este documento, la función
@@ -15,7 +15,7 @@ académicas, Pull Requests o reportes técnicos.
 
 ## ¿Para qué sirve exportarMarkdown?
 
-Cuando resuelves un problema numérico con Trazo, el resultado incluye
+Cuando resuelves un problema numérico con ChuspaNumeric, el resultado incluye
 no solo el valor final sino también la tabla completa de iteraciones
 (`resultado.iteraciones`). `exportarMarkdown` convierte esa información
 en un reporte legible que puedes pegar directamente en:
@@ -29,8 +29,8 @@ en un reporte legible que puedes pegar directamente en:
 ## Uso básico (API propuesta)
 
 ```js
-import { biseccion } from 'trazo/src/no-lineales/biseccion.js';
-import { exportarMarkdown } from 'trazo/src/io/exportar_markdown.js';
+import { biseccion } from 'chuspanumeric/src/no-lineales/biseccion.js';
+import { exportarMarkdown } from 'chuspanumeric/src/io/exportar_markdown.js';
 
 // Resolver el problema
 const resultado = biseccion({
@@ -98,7 +98,7 @@ debe generar para el problema anterior:
 
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
-| `resultado` | `Object` | Objeto retornado por cualquier método de Trazo (debe seguir el contrato de `crearResultado`). |
+| `resultado` | `Object` | Objeto retornado por cualquier método de ChuspaNumeric (debe seguir el contrato de `crearResultado`). |
 | `opciones.titulo` | `string` | Título del reporte. Por defecto usa `meta.metodo` del resultado. |
 | `opciones.descripcion` | `string \| null` | Descripción opcional del problema resuelto. |
 | `opciones.maxIteraciones` | `number` | Número máximo de filas a mostrar en la tabla (por defecto: todas). |
@@ -110,8 +110,8 @@ debe generar para el problema anterior:
 ### Entrega académica
 
 ```js
-import { gaussSeidel } from 'trazo/src/lineales/gauss-seidel.js';
-import { exportarMarkdown } from 'trazo/src/io/exportar_markdown.js';
+import { gaussSeidel } from 'chuspanumeric/src/lineales/gauss-seidel.js';
+import { exportarMarkdown } from 'chuspanumeric/src/io/exportar_markdown.js';
 
 const resultado = gaussSeidel({
     A: [[4, -1, 0], [-1, 4, -1], [0, -1, 4]],
@@ -139,7 +139,7 @@ automáticamente en la interfaz de GitHub.
 
 ## Relación con otros exportadores
 
-Trazo prevé múltiples formatos de exportación para el mismo resultado:
+ChuspaNumeric prevé múltiples formatos de exportación para el mismo resultado:
 
 | Función | Formato | Uso típico |
 |---------|---------|-----------|

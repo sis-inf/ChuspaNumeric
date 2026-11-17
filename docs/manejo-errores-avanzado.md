@@ -2,7 +2,7 @@
 
 ## Introducción
 
-Trazo incorpora un sistema extendido para el manejo de errores y advertencias durante la ejecución de métodos numéricos. Además de los errores generales descritos en `docs/manejo-errores.md`, la biblioteca dispone de mecanismos específicos para detectar divergencias numéricas, limitar el tiempo de ejecución de métodos iterativos y reportar advertencias que no impiden obtener un resultado.
+ChuspaNumeric incorpora un sistema extendido para el manejo de errores y advertencias durante la ejecución de métodos numéricos. Además de los errores generales descritos en `docs/manejo-errores.md`, la biblioteca dispone de mecanismos específicos para detectar divergencias numéricas, limitar el tiempo de ejecución de métodos iterativos y reportar advertencias que no impiden obtener un resultado.
 
 Este documento complementa la guía general de manejo de errores y describe el uso de `ErrorDivergencia`, `ErrorTimeout` y del sistema de *warnings* no bloqueantes.
 
@@ -96,7 +96,7 @@ Esto permite que la aplicación decida cómo tratar estas situaciones sin detene
 Los *warnings* no detienen la ejecución del método. Cuando existen, se incluyen en la propiedad `warnings` del objeto de resultado.
 
 ```javascript
-import { gauss } from "trazo";
+import { gauss } from "ChuspaNumeric";
 
 const resultado = gauss({
   A: [
@@ -129,7 +129,7 @@ import {
   biseccion,
   ErrorTimeout,
   ErrorDivergencia
-} from "trazo";
+} from "ChuspaNumeric";
 
 try {
 
@@ -175,7 +175,7 @@ Este patrón permite distinguir entre un tiempo de ejecución excesivo, una dive
 
 # Resumen
 
-El sistema avanzado de manejo de errores de Trazo incorpora mecanismos para informar distintos tipos de situaciones durante la ejecución de métodos numéricos:
+El sistema avanzado de manejo de errores de ChuspaNumeric incorpora mecanismos para informar distintos tipos de situaciones durante la ejecución de métodos numéricos:
 
 - `ErrorDivergencia` detecta cuando un método produce valores no numéricos.
 - `ErrorTimeout` evita ejecuciones excesivamente largas.

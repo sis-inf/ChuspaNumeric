@@ -1,6 +1,6 @@
 # Checklist de Produccion
 
-Lista de verificacion antes de usar trazo en una aplicacion real.
+Lista de verificacion antes de usar ChuspaNumeric en una aplicacion real.
 
 ## Manejo de errores
 
@@ -12,13 +12,13 @@ Lista de verificacion antes de usar trazo en una aplicacion real.
 Ejemplo:
 
     try {
-      const resultado = trazo.biseccion(f, a, b);
+      const resultado = ChuspaNumeric.biseccion(f, a, b);
     } catch (e) {
-      if (e instanceof trazo.ErrorConvergencia) {
+      if (e instanceof ChuspaNumeric.ErrorConvergencia) {
         console.error('No convergio:', e.message);
-      } else if (e instanceof trazo.ErrorDivergencia) {
+      } else if (e instanceof ChuspaNumeric.ErrorDivergencia) {
         console.error('Divergio:', e.message);
-      } else if (e instanceof trazo.ErrorTimeout) {
+      } else if (e instanceof ChuspaNumeric.ErrorTimeout) {
         console.error('Tiempo excedido:', e.message);
       }
     }
@@ -31,14 +31,14 @@ Ejemplo:
 
 Verificar numero de condicion:
 
-    const cond = trazo.numeroCondicion(matriz);
+    const cond = ChuspaNumeric.numeroCondicion(matriz);
     if (cond > 1e10) {
       console.warn('Matriz mal condicionada, precision puede ser baja');
     }
 
 ## Version del paquete
 
-- [ ] Fijaste la version exacta de trazo en package.json?
+- [ ] Fijaste la version exacta de ChuspaNumeric en package.json?
 - [ ] Evitaste rangos amplios como ^1.0.0 o ~1.0.0?
 - [ ] La API es estable en la version que estas usando?
 
@@ -46,7 +46,7 @@ Ejemplo correcto en package.json:
 
     {
       "dependencies": {
-        "trazo": "1.0.0"
+        "chuspanumeric": "1.0.0"
       }
     }
 
@@ -54,7 +54,7 @@ Ejemplo incorrecto:
 
     {
       "dependencies": {
-        "trazo": "^1.0.0"
+        "chuspanumeric": "^1.0.0"
       }
     }
 
@@ -66,7 +66,7 @@ Ejemplo incorrecto:
 
 Correr benchmarks:
 
-    npx trazo benchmark --size grande
+    npx chuspanumeric benchmark --size grande
 
 ## Tolerancias y precision
 

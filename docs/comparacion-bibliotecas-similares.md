@@ -1,18 +1,18 @@
-# Comparación de Trazo frente a bibliotecas similares
+# Comparación de ChuspaNumeric frente a bibliotecas similares
 
 ## Introducción
 
-Este documento compara Trazo con otras bibliotecas JavaScript de
+Este documento compara ChuspaNumeric con otras bibliotecas JavaScript de
 cálculo numérico ya establecidas: **math.js**, **numeric.js** y
 **ml-matrix**. El objetivo es ayudar a los usuarios a elegir la
-herramienta más adecuada para su caso de uso, y posicionar a Trazo
+herramienta más adecuada para su caso de uso, y posicionar a ChuspaNumeric
 de forma honesta dentro del ecosistema.
 
 ---
 
 ## Tabla comparativa general
 
-| Característica | Trazo | math.js | numeric.js | ml-matrix |
+| Característica | ChuspaNumeric | math.js | numeric.js | ml-matrix |
 |---|---|---|---|---|
 | **Enfoque principal** | Métodos numéricos educativos con tablas de iteraciones paso a paso | Calculadora simbólica y numérica de propósito general | Álgebra lineal de bajo nivel y métodos numéricos generales | Álgebra lineal de alto rendimiento (matrices densas y dispersas) |
 | **Idioma de la API** | Español (nombres de funciones y campos en español) | Inglés | Inglés | Inglés |
@@ -33,9 +33,9 @@ de forma honesta dentro del ecosistema.
 
 ## Descripción de cada biblioteca
 
-### Trazo
+### ChuspaNumeric
 
-Trazo es una biblioteca de **métodos numéricos educativos** para
+ChuspaNumeric es una biblioteca de **métodos numéricos educativos** para
 JavaScript, desarrollada en el contexto académico de la carrera de
 Sistemas e Informática. Su característica diferenciadora es que todos
 los métodos devuelven no solo el resultado final, sino también la
@@ -129,17 +129,17 @@ rendimiento en operaciones matriciales de gran escala.
 
 ---
 
-## ¿Cuándo usar Trazo en lugar de las otras?
+## ¿Cuándo usar ChuspaNumeric en lugar de las otras?
 
 | Si necesitas... | Usa |
 |---|---|
-| Ver las iteraciones paso a paso de un método numérico | **Trazo** |
-| Resolver un sistema de ecuaciones para un trabajo académico | **Trazo** |
+| Ver las iteraciones paso a paso de un método numérico | **ChuspaNumeric** |
+| Resolver un sistema de ecuaciones para un trabajo académico | **ChuspaNumeric** |
 | Evaluar una expresión matemática escrita por el usuario | **math.js** |
 | Álgebra simbólica (derivar, simplificar) | **math.js** |
 | Operaciones matriciales de alto rendimiento | **ml-matrix** |
 | API similar a NumPy en JavaScript | **numeric.js** (con precaución por el mantenimiento mínimo) |
-| Bundle pequeño sin dependencias externas | **Trazo** o **numeric.js** |
+| Bundle pequeño sin dependencias externas | **ChuspaNumeric** o **numeric.js** |
 
 ---
 
@@ -148,6 +148,6 @@ rendimiento en operaciones matriciales de gran escala.
 * [math.js](https://mathjs.org) — documentación oficial.
 * [numeric.js](http://numericjs.com) — repositorio y documentación.
 * [ml-matrix](https://github.com/mljs/matrix) — repositorio GitHub.
-* `docs/limitaciones.md` — limitaciones conocidas de Trazo.
-* `docs/arquitectura-decisiones.md` — por qué Trazo descartó math.js
+* `docs/limitaciones.md` — limitaciones conocidas de ChuspaNumeric.
+* `docs/arquitectura-decisiones.md` — por qué ChuspaNumeric descartó math.js
   como dependencia (ADR-004).

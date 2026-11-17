@@ -1,6 +1,6 @@
 /**
  * parser_expresiones.js
- * Trazo — Librería de Métodos Numéricos
+ * ChuspaNumeric — Librería de Métodos Numéricos
  *
  * Convierte expresiones matemáticas en formato string a funciones
  * JavaScript evaluables de forma segura, usando mathjs.
@@ -45,7 +45,7 @@ import { compile } from 'mathjs';
  * @param {string} expresionString - Expresión matemática en formato string.
  *                                   La variable independiente debe ser `x`.
  * @returns {Function} Función JS de la forma `(x) => number` lista para
- *                     pasarse a cualquier método numérico de Trazo.
+ *                     pasarse a cualquier método numérico de ChuspaNumeric.
  *
  * @throws {Error} Si la expresión está vacía o no es un string.
  * @throws {Error} Si la expresión contiene sintaxis inválida.
@@ -63,8 +63,8 @@ import { compile } from 'mathjs';
  * g(0); // -1
  *
  * @example
- * // Uso con métodos de Trazo
- * import { biseccion } from 'trazo';
+ * // Uso con métodos de ChuspaNumeric
+ * import { biseccion } from 'chuspanumeric';
  * const f = parsearExpresion('x^3 - x - 1');
  * const res = biseccion({ f, a: 1, b: 2 });
  */

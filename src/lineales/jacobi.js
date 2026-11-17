@@ -16,7 +16,7 @@ import {
  * @param {number[]}   [x0]             - Vector inicial. Por defecto vector de ceros.
  * @param {number}     [tolerancia=1e-6] - Criterio de parada (norma euclidiana del error).
  * @param {number}     [maxIter=100]     - Número máximo de iteraciones.
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorDominio} Si algún elemento de la diagonal de A es cero.
  */
 function jacobi({ A, b, x0, tolerancia = 1e-6, maxIter = 100 }) {
@@ -36,7 +36,7 @@ function jacobi({ A, b, x0, tolerancia = 1e-6, maxIter = 100 }) {
   for (let i = 0; i < n; i++) {
     if (A[i][i] === 0) {
       throw new ErrorDominio(
-        `Trazo.jacobi: el elemento diagonal A[${i}][${i}] es cero. ` +
+        `ChuspaNumeric.jacobi: el elemento diagonal A[${i}][${i}] es cero. ` +
         `Considera reordenar las filas para que la diagonal sea no nula.`
       );
     }

@@ -1,8 +1,8 @@
-# Estilo de Commits para Trazo
+# Estilo de Commits para ChuspaNumeric
 
 ## Introducción
 
-El proyecto Trazo utiliza la convención *Conventional Commits* para mantener un historial claro y consistente.
+El proyecto ChuspaNumeric utiliza la convención *Conventional Commits* para mantener un historial claro y consistente.
 
 ## Formato
 

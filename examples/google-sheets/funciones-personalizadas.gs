@@ -1,11 +1,11 @@
 /**
  * @file funciones-personalizadas.gs
  * @description Funciones personalizadas de Google Sheets que implementan
- * métodos numéricos de Trazo sin depender de npm.
+ * métodos numéricos de ChuspaNumeric sin depender de npm.
  *
  * Apps Script ejecuta JavaScript en el servidor de Google y NO soporta
  * `import` ni `require` de paquetes npm. Por eso este archivo contiene
- * implementaciones standalone (autocontenidas) de los métodos de Trazo,
+ * implementaciones standalone (autocontenidas) de los métodos de ChuspaNumeric,
  * copiadas y adaptadas del código fuente del repositorio.
  *
  * Para usar estas funciones en una hoja de cálculo:
@@ -13,14 +13,14 @@
  * 2. Ve a Extensiones → Apps Script.
  * 3. Pega el contenido de este archivo en el editor.
  * 4. Guarda (Ctrl+S) y vuelve a la hoja.
- * 5. Usa las funciones como cualquier función de Sheets: =TRAZO_BISECCION(...)
+ * 5. Usa las funciones como cualquier función de Sheets: =CHUSPANUMERIC_BISECCION(...)
  *
  * Consulta README.md para instrucciones detalladas y limitaciones.
  */
 
 // =============================================================================
 // IMPLEMENTACIONES STANDALONE DE LOS MÉTODOS NUMÉRICOS
-// (Adaptadas de trazo/src/ para funcionar sin módulos ES)
+// (Adaptadas de chuspanumeric/src/ para funcionar sin módulos ES)
 // =============================================================================
 
 /**
@@ -120,7 +120,7 @@ function _trapecio(f, a, b, n) {
 
 // =============================================================================
 // FUNCIONES PERSONALIZADAS PARA GOOGLE SHEETS
-// Prefijo TRAZO_ para evitar conflictos con funciones nativas de Sheets.
+// Prefijo CHUSPANUMERIC_ para evitar conflictos con funciones nativas de Sheets.
 // =============================================================================
 
 /**
@@ -141,11 +141,11 @@ function _trapecio(f, a, b, n) {
  * @customfunction
  *
  * Ejemplo en Sheets:
- *   =TRAZO_BISECCION("x2_menos_4", 0, 3)          → 2
- *   =TRAZO_BISECCION("x3_menos_2x_menos_5", 2, 3)  → 2.0946
- *   =TRAZO_BISECCION(1, 0, 3)                       → 2  (usando ID numérico)
+ *   =CHUSPANUMERIC_BISECCION("x2_menos_4", 0, 3)          → 2
+ *   =CHUSPANUMERIC_BISECCION("x3_menos_2x_menos_5", 2, 3)  → 2.0946
+ *   =CHUSPANUMERIC_BISECCION(1, 0, 3)                       → 2  (usando ID numérico)
  */
-function TRAZO_BISECCION(funcionId, a, b, tolerancia, maxIter) {
+function CHUSPANUMERIC_BISECCION(funcionId, a, b, tolerancia, maxIter) {
   tolerancia = tolerancia || 1e-6;
   maxIter = maxIter || 100;
 
@@ -166,10 +166,10 @@ function TRAZO_BISECCION(funcionId, a, b, tolerancia, maxIter) {
  * @customfunction
  *
  * Ejemplo en Sheets:
- *   =TRAZO_NEWTON("x2_menos_4", 3)       → 2
- *   =TRAZO_NEWTON("cos_menos_x", 1)      → 0.7391
+ *   =CHUSPANUMERIC_NEWTON("x2_menos_4", 3)       → 2
+ *   =CHUSPANUMERIC_NEWTON("cos_menos_x", 1)      → 0.7391
  */
-function TRAZO_NEWTON(funcionId, x0, tolerancia, maxIter) {
+function CHUSPANUMERIC_NEWTON(funcionId, x0, tolerancia, maxIter) {
   tolerancia = tolerancia || 1e-6;
   maxIter = maxIter || 50;
 
@@ -190,10 +190,10 @@ function TRAZO_NEWTON(funcionId, x0, tolerancia, maxIter) {
  * @customfunction
  *
  * Ejemplo en Sheets:
- *   =TRAZO_TRAPECIO("x2", 0, 1, 100)    → 0.3333 (≈ 1/3)
- *   =TRAZO_TRAPECIO("sin_x", 0, 3.14159, 200)  → 2.0000
+ *   =CHUSPANUMERIC_TRAPECIO("x2", 0, 1, 100)    → 0.3333 (≈ 1/3)
+ *   =CHUSPANUMERIC_TRAPECIO("sin_x", 0, 3.14159, 200)  → 2.0000
  */
-function TRAZO_TRAPECIO(funcionId, a, b, n) {
+function CHUSPANUMERIC_TRAPECIO(funcionId, a, b, n) {
   n = n || 100;
   var f = _obtenerFuncion(funcionId);
   return _trapecio(f, a, b, n);
@@ -212,7 +212,7 @@ function TRAZO_TRAPECIO(funcionId, a, b, n) {
  *
  * @customfunction
  */
-function TRAZO_BISECCION_ITERS(funcionId, a, b, tolerancia, maxIter) {
+function CHUSPANUMERIC_BISECCION_ITERS(funcionId, a, b, tolerancia, maxIter) {
   tolerancia = tolerancia || 1e-6;
   maxIter = maxIter || 100;
   var f = _obtenerFuncion(funcionId);
@@ -280,7 +280,7 @@ function _obtenerFuncion(funcionId) {
     var idx = Math.round(funcionId) - 1;
     if (idx < 0 || idx >= ALIAS_NUMERICOS.length) {
       throw new Error(
-        'TRAZO: ID de función ' + funcionId + ' no válido. ' +
+        'CHUSPANUMERIC: ID de función ' + funcionId + ' no válido. ' +
         'IDs disponibles: 1-' + ALIAS_NUMERICOS.length + '. ' +
         'Ver ALIAS_NUMERICOS en el script.'
       );
@@ -292,7 +292,7 @@ function _obtenerFuncion(funcionId) {
   var nombre = String(funcionId).trim().toLowerCase().replace(/ /g, '_');
   if (!CATALOGO[nombre]) {
     throw new Error(
-      'TRAZO: función "' + funcionId + '" no encontrada en el catálogo. ' +
+      'CHUSPANUMERIC: función "' + funcionId + '" no encontrada en el catálogo. ' +
       'Funciones disponibles: ' + Object.keys(CATALOGO).join(', ') + '. ' +
       'Para agregar una nueva función, edita CATALOGO en el script.'
     );
@@ -312,9 +312,9 @@ function _obtenerFuncion(funcionId) {
  *
  * @customfunction
  *
- * Ejemplo: =TRAZO_LISTA_FUNCIONES()
+ * Ejemplo: =CHUSPANUMERIC_LISTA_FUNCIONES()
  */
-function TRAZO_LISTA_FUNCIONES() {
+function CHUSPANUMERIC_LISTA_FUNCIONES() {
   var nombres = Object.keys(CATALOGO);
   return nombres.map(function(nombre, idx) {
     return [String(idx + 1 <= ALIAS_NUMERICOS.length ? idx + 1 : '-'), nombre];

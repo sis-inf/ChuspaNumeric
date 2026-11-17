@@ -1,6 +1,6 @@
 # Métodos para Sistemas de Ecuaciones Lineales
 
-Esta guía explica los métodos disponibles en Trazo para resolver sistemas de la forma **Ax = b**, donde `A` es una matriz de coeficientes, `x` es el vector de incógnitas y `b` es el vector de términos independientes.
+Esta guía explica los métodos disponibles en ChuspaNumeric para resolver sistemas de la forma **Ax = b**, donde `A` es una matriz de coeficientes, `x` es el vector de incógnitas y `b` es el vector de términos independientes.
 
 ---
 
@@ -15,7 +15,7 @@ Los métodos para resolver sistemas lineales se dividen en dos grandes familias:
 | Costo computacional | O(n³) operaciones | Depende de la velocidad de convergencia |
 | Sensibilidad al tamaño | Costosos para sistemas grandes (n > 1000) | Más eficientes en sistemas grandes y dispersos |
 | Requisito especial | Ninguno adicional | La matriz debe satisfacer criterios de convergencia |
-| Ejemplos en Trazo | `gauss`, `gaussJordan` | `jacobi` |
+| Ejemplos en ChuspaNumeric | `gauss`, `gaussJordan` | `jacobi` |
 
 **¿Cuándo usar cada uno?**
 
@@ -39,7 +39,7 @@ La eliminación de Gauss transforma la matriz aumentada `[A|b]` en una forma tri
 **Ejemplo:**
 
 ```js
-import { gauss } from 'trazo';
+import { gauss } from 'ChuspaNumeric';
 
 const A = [
   [2, 1, -1],
@@ -67,7 +67,7 @@ Gauss-Jordan extiende la eliminación de Gauss hasta reducir la matriz aumentada
 **Ejemplo:**
 
 ```js
-import { gaussJordan } from 'trazo';
+import { gaussJordan } from 'ChuspaNumeric';
 
 const A = [
   [1, 2,  1],
@@ -96,7 +96,7 @@ La descomposición LU factoriza la matriz `A` en el producto de una matriz trian
 **Ejemplo:**
 
 ```js
-import { lu } from 'trazo';
+import { lu } from 'ChuspaNumeric';
 
 const A = [[4, 3], [6, 3]];
 const b = [10, 12];
@@ -121,7 +121,7 @@ Cholesky es una variante de LU especializada para matrices **simétricas definid
 
 **Cuándo usarlo:** Sistemas que provienen de modelos de elementos finitos, mínimos cuadrados o cualquier problema donde la matriz es naturalmente SPD.
 
-> **Estado:** Pendiente de implementación en Trazo.
+> **Estado:** Pendiente de implementación en ChuspaNumeric.
 
 ---
 
@@ -140,7 +140,7 @@ Itera hasta que la norma del error entre dos aproximaciones consecutivas sea men
 **Ejemplo:**
 
 ```js
-import { jacobi } from 'trazo';
+import { jacobi } from 'ChuspaNumeric';
 
 const A = [
   [10, -1, 2],
@@ -183,7 +183,7 @@ xᵢ⁽ᵏ⁺¹⁾ = (bᵢ - Σⱼ<ᵢ Aᵢⱼ · xⱼ⁽ᵏ⁺¹⁾ - Σⱼ>ᵢ
 
 En la mayoría de los casos prácticos, Gauss-Seidel converge en aproximadamente la mitad de iteraciones que Jacobi para la misma tolerancia.
 
-> **Estado:** Pendiente de implementación en Trazo.
+> **Estado:** Pendiente de implementación en ChuspaNumeric.
 
 ---
 

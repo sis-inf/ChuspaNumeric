@@ -1,6 +1,6 @@
 # Registro de decisiones arquitectónicas (ADR)
 
-Este documento registra las decisiones de diseño significativas del proyecto Trazo. Cada entrada sigue el formato **Título / Estado / Contexto / Decisión / Consecuencias**, inspirado en la práctica de Architecture Decision Records (ADR) popularizada por Michael Nygard.
+Este documento registra las decisiones de diseño significativas del proyecto ChuspaNumeric. Cada entrada sigue el formato **Título / Estado / Contexto / Decisión / Consecuencias**, inspirado en la práctica de Architecture Decision Records (ADR) popularizada por Michael Nygard.
 
 El propósito de este registro no es justificar las decisiones tomadas, sino dejar constancia de por qué se tomaron, qué alternativas se consideraron y qué compromisos (trade-offs) implican, para que futuros contribuidores puedan entender el proyecto sin tener que reconstruir esa historia a partir del código o del historial de commits.
 
@@ -101,7 +101,7 @@ TypeScript nativo ofrece la experiencia de tipos más completa, pero introduce u
 
 ### Decisión
 
-Trazo usa **ES Modules puros** (`"type": "module"` en `package.json`) con **verificación de tipos mediante JSDoc** y `jsconfig.json`:
+ChuspaNumeric usa **ES Modules puros** (`"type": "module"` en `package.json`) con **verificación de tipos mediante JSDoc** y `jsconfig.json`:
 
 ```json
 {
@@ -139,7 +139,7 @@ El script `"typecheck": "tsc -p jsconfig.json --noEmit"` en `package.json` permi
 
 ### Contexto
 
-La primera generación de métodos de Trazo (visible en `src/root/bisection.js` y `src/root/newtonRaphson.js`) recibía la función matemática como una **cadena de texto** que se evaluaba en tiempo de ejecución usando la librería `mathjs`:
+La primera generación de métodos de ChuspaNumeric (visible en `src/root/bisection.js` y `src/root/newtonRaphson.js`) recibía la función matemática como una **cadena de texto** que se evaluaba en tiempo de ejecución usando la librería `mathjs`:
 
 ```js
 import { create, all } from 'mathjs';
@@ -183,13 +183,13 @@ Los archivos `src/root/bisection.js` y `src/root/newtonRaphson.js` permanecen en
 ### Consecuencias
 
 **Positivas:**
-- Sin dependencias de producción: el bundle final de Trazo contiene solo código propio.
+- Sin dependencias de producción: el bundle final de ChuspaNumeric contiene solo código propio.
 - Las funciones JavaScript nativas tienen soporte nativo de closures, lo que permite parametrizar comportamiento de forma idiomática.
 - El rendimiento de evaluación es el de una llamada de función JavaScript normal (compilada por el motor V8), no el de un intérprete de expresiones.
 
 **Negativas / compromisos:**
 - El umbral de entrada aumenta para usuarios no programadores: necesitan saber JavaScript para definir `f` como función.
-- No existe actualmente una forma de usar Trazo desde una interfaz de usuario donde el usuario escriba la expresión matemática como texto — esta funcionalidad requeriría una capa de presentación que encapsule `mathjs` o similar, separada de la librería.
+- No existe actualmente una forma de usar ChuspaNumeric desde una interfaz de usuario donde el usuario escriba la expresión matemática como texto — esta funcionalidad requeriría una capa de presentación que encapsule `mathjs` o similar, separada de la librería.
 
 ---
 

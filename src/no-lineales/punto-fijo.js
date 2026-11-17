@@ -9,7 +9,7 @@ import { ErrorConvergencia } from '../core/errores.js';
  * @param {number} params.x0 - Aproximación inicial
  * @param {number} params.tolerancia - Criterio de parada para la precisión (por defecto 1e-6)
  * @param {number} params.maxIter - Número máximo de iteraciones permitidas (por defecto 100)
- * @returns {Object} Objeto de resultado uniforme según el contrato de Trazo
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
  * @throws {ErrorConvergencia} Si se alcanza maxIter sin lograr la convergencia
  */
 export function puntoFijo({ g, x0, tolerancia = 1e-6, maxIter = 100 }) {

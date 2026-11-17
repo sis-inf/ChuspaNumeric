@@ -5,7 +5,7 @@
 Si encuentras una vulnerabilidad de seguridad:
 
 1. **No** crees un issue público
-2. Reporta la vulnerabilidad de forma privada a través de [GitHub Security Advisories](https://github.com/sis-inf/trazo/security/advisories)
+2. Reporta la vulnerabilidad de forma privada a través de [GitHub Security Advisories](https://github.com/sis-inf/ChuspaNumeric/security/advisories)
 3. Incluye descripción detallada del problema, pasos para reproducir y impacto potencial
 4. Espera confirmación de recepción
 

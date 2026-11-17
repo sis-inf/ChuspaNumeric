@@ -12,14 +12,14 @@ function obtenerMatriz(entrada) {
   }
 
   throw new ErrorParametros(
-    "Trazo.calcularInversa: debe proporcionar una matriz cuadrada usando calcularInversa({ A }) o calcularInversa(A)."
+    "ChuspaNumeric.calcularInversa: debe proporcionar una matriz cuadrada usando calcularInversa({ A }) o calcularInversa(A)."
   );
 }
 
 function validarMatrizCuadrada(A) {
   if (!Array.isArray(A) || A.length === 0) {
     throw new ErrorParametros(
-      "Trazo.calcularInversa: 'A' debe ser una matriz cuadrada no vacía."
+      "ChuspaNumeric.calcularInversa: 'A' debe ser una matriz cuadrada no vacía."
     );
   }
 
@@ -28,14 +28,14 @@ function validarMatrizCuadrada(A) {
   for (let i = 0; i < n; i++) {
     if (!Array.isArray(A[i]) || A[i].length !== n) {
       throw new ErrorParametros(
-        `Trazo.calcularInversa: 'A' debe ser cuadrada. La fila ${i} no tiene longitud ${n}.`
+        `ChuspaNumeric.calcularInversa: 'A' debe ser cuadrada. La fila ${i} no tiene longitud ${n}.`
       );
     }
 
     for (let j = 0; j < n; j++) {
       if (typeof A[i][j] !== 'number' || !Number.isFinite(A[i][j])) {
         throw new ErrorParametros(
-          `Trazo.calcularInversa: A[${i}][${j}] debe ser un número finito.`
+          `ChuspaNumeric.calcularInversa: A[${i}][${j}] debe ser un número finito.`
         );
       }
     }
@@ -60,7 +60,7 @@ function columnaIdentidad(n, columna) {
  *
  * @param {Object|number[][]} entrada - Objeto { A } o matriz A directamente.
  * @param {number[][]} entrada.A - Matriz cuadrada a invertir.
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorParametros} Si A no es una matriz cuadrada válida.
  * @throws {ErrorDominio} Si A es singular y no tiene inversa.
  *
@@ -109,7 +109,7 @@ function calcularInversa(entrada) {
   } catch (error) {
     if (error instanceof ErrorDominio) {
       throw new ErrorDominio(
-        `Trazo.calcularInversa: la matriz es singular o no tiene inversa. ${error.message}`
+        `ChuspaNumeric.calcularInversa: la matriz es singular o no tiene inversa. ${error.message}`
       );
     }
 

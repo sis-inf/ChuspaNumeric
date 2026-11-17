@@ -1,8 +1,8 @@
 /**
- * Script de benchmark para los métodos numéricos de Trazo.
+ * Script de benchmark para los métodos numéricos de ChuspaNumeric.
  *
  * Ejecuta cada método con un caso de prueba representativo y mide su
- * tiempo de ejecución usando `medirTiempo` del propio contrato de Trazo,
+ * tiempo de ejecución usando `medirTiempo` del propio contrato de ChuspaNumeric,
  * repitiendo cada caso varias veces para obtener un tiempo promedio estable.
  *
  * Uso: node scripts/benchmark.js

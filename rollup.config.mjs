@@ -2,12 +2,12 @@ export default {
   input: 'src/index.js',
   output: [
     {
-      file: 'dist/trazo.cjs.js',
+      file: 'dist/chuspanumeric.cjs.js',
       format: 'cjs',
       sourcemap: true
     },
     {
-      file: 'dist/trazo.esm.js',
+      file: 'dist/chuspanumeric.esm.js',
       format: 'esm',
       sourcemap: true
     }

@@ -1,10 +1,10 @@
 # Rendimiento comparativo de los métodos para sistemas lineales
 
-Este documento compara el rendimiento real de los tres métodos de Trazo para resolver sistemas de ecuaciones lineales (`gauss`, `jacobi`, `gaussSeidel`), con énfasis en el caso de uso descrito en el contexto de esta tarea: **elegir el método adecuado cuando el sistema es grande y el tiempo de ejecución importa**.
+Este documento compara el rendimiento real de los tres métodos de ChuspaNumeric para resolver sistemas de ecuaciones lineales (`gauss`, `jacobi`, `gaussSeidel`), con énfasis en el caso de uso descrito en el contexto de esta tarea: **elegir el método adecuado cuando el sistema es grande y el tiempo de ejecución importa**.
 
 ## Nota sobre la metodología
 
-> ⚠️ El subcomando `trazo bench` mencionado como referencia para esta tarea no existe en el proyecto: `trazo` es actualmente una librería JavaScript sin interfaz de línea de comandos (no hay campo `bin` en `package.json` ni ningún archivo de CLI en el repositorio). En su lugar, los tiempos de esta tabla se midieron directamente con la utilidad de medición que sí existe en el proyecto, `medirTiempo()` (definida en `src/core/contrato.js`), invocando cada método con sistemas generados de prueba. El script usado para esta medición no forma parte de esta entrega (no se incluye ningún archivo de código en este PR); se documenta su lógica más abajo para que la medición sea reproducible.
+> ⚠️ El subcomando `ChuspaNumeric bench` mencionado como referencia para esta tarea no existe en el proyecto: `ChuspaNumeric` es actualmente una librería JavaScript sin interfaz de línea de comandos (no hay campo `bin` en `package.json` ni ningún archivo de CLI en el repositorio). En su lugar, los tiempos de esta tabla se midieron directamente con la utilidad de medición que sí existe en el proyecto, `medirTiempo()` (definida en `src/core/contrato.js`), invocando cada método con sistemas generados de prueba. El script usado para esta medición no forma parte de esta entrega (no se incluye ningún archivo de código en este PR); se documenta su lógica más abajo para que la medición sea reproducible.
 
 ## Entorno de referencia
 

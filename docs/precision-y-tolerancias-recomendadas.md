@@ -2,7 +2,7 @@
 
 ## Introducción
 
-Todos los métodos iterativos de Trazo exponen un parámetro `tolerancia`
+Todos los métodos iterativos de ChuspaNumeric exponen un parámetro `tolerancia`
 configurable que controla cuándo el método considera que ha convergido.
 Sin embargo, elegir un valor adecuado depende del contexto: un cálculo
 educativo de verificación rápida y un cálculo de ingeniería con
@@ -37,7 +37,7 @@ Este documento proporciona recomendaciones prácticas para elegir
 
 Si pides una tolerancia muy estricta pero limitas demasiado el número
 de iteraciones, el método puede no alcanzar la precisión pedida antes
-de agotar los intentos. En ese caso, Trazo devuelve el resultado con
+de agotar los intentos. En ese caso, ChuspaNumeric devuelve el resultado con
 `convergio: false` y el mensaje indica que se alcanzó `maxIter`.
 
 **Ejemplo problemático:**

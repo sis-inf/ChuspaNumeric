@@ -1,6 +1,6 @@
 # Benchmarks
 
-Este documento registra los tiempos de ejecución de los 20 métodos numéricos de Trazo, medidos con el script [`scripts/benchmark.js`](../scripts/benchmark.js).
+Este documento registra los tiempos de ejecución de los 20 métodos numéricos de ChuspaNumeric, medidos con el script [`scripts/benchmark.js`](../scripts/benchmark.js).
 
 ## Entorno de referencia
 

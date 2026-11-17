@@ -13,7 +13,7 @@ Botón **Fork** en la esquina superior derecha de GitHub.
 Asegúrate que el **owner** sea tu cuenta de GithHub, luego click al botón de color verde: "**Create Fork**".
 Ahora deberías tener un repositorio en tu **cuenta personal** de GitHub llamado **tu_nombre_usuario/nombre_repositorio**. 
 
-*Ejemplo.-* **Atoxny/pulso**
+*Ejemplo.-* **Atoxny/ChuspaNumeric**
 
 ### 2. Clona tu fork
 Desde el apartado **Code** del repositorio en tu cuenta personal realiza la clonación con los siguientes pasos:
@@ -26,10 +26,10 @@ Desde el apartado **Code** del repositorio en tu cuenta personal realiza la clon
 ```bash
 # Clonar el repositorio
 # Recuerda PEGAR la URL que copiaste en lugar del URL de ejemplo :D
-git clone https://github.com/TU-USUARIO/chuspanumeric.git
+git clone https://github.com/TU-USUARIO/ChuspaNumeric.git
 
 # Moverte dentro la carpeta donde se clonó el repositorio
-cd chuspanumeric
+cd ChuspaNumeric
 ```
 
 ### Instalación de la biblioteca
@@ -49,20 +49,20 @@ import { nombreDeLaFuncion } from 'chuspanumeric';
 ```
 
 ### 3. Agrega el repo original como upstream
-Para estar al tanto de las modificaciones que se realicen en el **repositorio original (sis-inf/chuspanumeric)** debes agregar el repositorio original como un upstream de la siguiente manera en la terminal de GitBash, puedes **copiar** el siguiente comando:
+Para estar al tanto de las modificaciones que se realicen en el **repositorio original (sis-inf/ChuspaNumeric)** debes agregar el repositorio original como un upstream de la siguiente manera en la terminal de GitBash, puedes **copiar** el siguiente comando:
 
 ```bash
-git remote add upstream https://github.com/sis-inf/chuspanumeric.git
+git remote add upstream https://github.com/sis-inf/ChuspaNumeric.git
 ```
 Revisa si se agregó de manera exitosa el repositorio como upstream.
 
 ```bash
 git remote -v
 # Deberia salirte como resultado, luego de ingresar ese comando, lo siguiente:
-origin https://github.com/TU-USUARIO/chuspanumeric.git (fetch)
-origin https://github.com/TU-USUARIO/chuspanumeric.git (push)
-upstream https://github.com/sis-inf/chuspanumeric.git (fetch)
-upstream https://github.com/sis-inf/chuspanumeric.git (push)
+origin https://github.com/TU-USUARIO/ChuspaNumeric.git (fetch)
+origin https://github.com/TU-USUARIO/ChuspaNumeric.git (push)
+upstream https://github.com/sis-inf/ChuspaNumeric.git (fetch)
+upstream https://github.com/sis-inf/ChuspaNumeric.git (push)
 ```
 Asegúrate de que te aparezca en **origin** tu nombre de usuario en el apartado ***TU-USUARIO***, mientras que en **upstream** el nombre de ***sis-inf***. 
 
@@ -145,9 +145,74 @@ git push origin tipo/descripcion-corta
    En caso de que no aparezca: 
      * Dirígete a la pestaña `Pull Requests`-> `New Pull Request`
 3. Verifica el  destino del PR
-   - Base repository: `sis-inf/chuspanumeric` → base `dev`
-   - Head repository: `TU-USUARIO/chuspanumeric` → compare `tu-rama`
+   - Base repository: `sis-inf/ChuspaNumeric` → base `dev`
+   - Head repository: `TU-USUARIO/ChuspaNumeric` → compare `tu-rama`
 4. Edita la descripción y el título del PR según los cambios que hayas realizado sin olvidarte de agregar al `Closes #` el numero del Issue que realizaste.
+---
+
+## Contrato de retorno de los métodos numéricos
+
+Todo método numérico del proyecto debe devolver su resultado con la **misma estructura**. Así, cualquier archivo, prueba o herramienta (CLI, exportación) puede leer los resultados sin conocer los detalles de cada método.
+
+Para lograrlo, usa las dos funciones de `src/core/contrato.js`:
+
+| Función | Qué hace |
+|---|---|
+| `crearResultado({ ... })` | Construye el objeto de resultado uniforme |
+| `medirTiempo(fn)` | Ejecuta `fn` y devuelve `{ valor, tiempo_ms }` |
+
+> ⚠️ **Es obligatorio** para todo método numérico nuevo: debe retornar con `crearResultado` y medir su tiempo con `medirTiempo`. No retornes números, arreglos u objetos con una estructura propia.
+
+### Estructura del objeto devuelto
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `resultado` | `number`, `Array` o `null` | Valor calculado por el método |
+| `iteraciones` | `Array` (por defecto `[]`) | Detalle de cada paso del método |
+| `convergio` | `boolean` (por defecto `false`) | Indica si el método alcanzó su criterio de parada |
+| `mensaje` | `string` (por defecto `""`) | Descripción legible del resultado |
+| `meta.metodo` | `string` | Nombre del método (ej. `"trapecio"`) |
+| `meta.parametros` | `Object` | Parámetros con los que se ejecutó el método |
+| `meta.tiempo_ms` | `number` | Tiempo de ejecución en milisegundos (lo entrega `medirTiempo`) |
+| `warnings` | `string[]` (opcional) | Advertencias no bloqueantes. Solo aparece si hay alguna |
+
+### Ejemplo mínimo
+
+Versión simplificada de `src/integracion/trapecio.js`, que sigue el contrato completo:
+
+```js
+import { crearResultado, medirTiempo } from "../core/contrato.js";
+
+function trapecio({ f, a, b, n = 100 }) {
+  // 1. Validaciones (validarFuncion, validarIntervalo, ...)
+
+  // 2. Cálculo, medido con medirTiempo
+  const { valor, tiempo_ms } = medirTiempo(() => {
+    // ... calcular `resultado` e `iteraciones` ...
+    return { resultado, iteraciones };
+  });
+
+  // 3. Retornar usando el contrato de ChuspaNumeric
+  return crearResultado({
+    resultado: valor.resultado,
+    iteraciones: valor.iteraciones,
+    convergio: true,
+    mensaje: `Integración por regla del trapecio con ${n} subintervalos.`,
+    meta: {
+      metodo: "trapecio",
+      parametros: { f, a, b, n },
+      tiempo_ms,
+    },
+  });
+}
+```
+
+Puntos clave:
+- Importa ambas funciones desde `core/contrato.js` (ajusta la ruta relativa según la carpeta de tu método).
+- Envuelve **solo el cálculo** en `medirTiempo` y pasa el `tiempo_ms` obtenido a `meta`.
+- Siempre llena `meta.metodo` y `meta.parametros`.
+- Retorna **siempre** con `crearResultado`, nunca una estructura distinta.
+
 ---
 
 ## Convención de commits
@@ -176,13 +241,30 @@ chore: configurar GitHub Actions para CI
 
 Este proyecto usa español como idioma estándar para la estructura de carpetas. Crear directorios con nombres en inglés (como integration, linearAlgebra o math) es un error frecuente que será rechazado en el PR.
 
+### Convención para nombres de archivos en `src/`
+
+Al crear un archivo nuevo dentro de `src/`, usa **kebab-case**: escribe el nombre en minúsculas y separa las palabras con guiones medios (`-`).
+
+Ejemplos:
+
+- ✅ `punto-fijo.js`
+- ✅ `gauss-seidel.js`
+- ❌ `punto_fijo.js`
+- ❌ `gaussSeidel.js`
+
+Antes de agregar un método nuevo, revisa si ya existe una implementación en `src/`. Busca también nombres parecidos o escritos con otra convención. Si el método ya existe, trabaja sobre ese archivo en lugar de crear otro duplicado.
+
+Esta regla se aplica únicamente a los nombres de archivo. Las funciones y los parámetros deben seguir usando **camelCase**, como se explica en `docs/convenciones-nombres-funciones.md`.
+
+No es necesario renombrar los archivos existentes que todavía usan guion bajo; esos casos pueden corregirse por separado.
+
 **Directorios canónicos bajo src/**
 
 | Directorio | Contenido |
 |---|---|
 | `src/analisis/` | Métodos de análisis numérico y ajuste de datos |
 | `src/cli/` | Interfaz de línea de comandos y herramientas CLI |
-| `src/core/` | Componentes base, contratos, errores y validaciones compartidas |
+| `src/core/` | Componentes base, contrato de resultados y errores compartidos |
 | `src/diferencias/` | Métodos de derivación numérica |
 | `src/edo/` | Métodos para ecuaciones diferenciales ordinarias |
 | `src/integracion/` | Métodos de integración numérica |
@@ -190,7 +272,7 @@ Este proyecto usa español como idioma estándar para la estructura de carpetas.
 | `src/io/` | Exportación y manejo de entrada/salida de datos |
 | `src/lineales/` | Métodos para sistemas de ecuaciones lineales |
 | `src/matricial/` | Operaciones y métodos de álgebra matricial |
-| `src/no-lineales/` | Métodos para sistemas de ecuaciones no lineales |
+| `src/no-lineales/` | Métodos para encontrar raíces de ecuaciones no lineales |
 | `src/polinomios/` | Métodos y operaciones con polinomios |
 | `src/utils/` | Utilidades y validaciones compartidas |
 

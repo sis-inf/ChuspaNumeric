@@ -23,7 +23,7 @@ function validarSimetria(A, n) {
  * usando la descomposición de Cholesky.
  *
  * @param {number[][]} A - Matriz simétrica definida positiva (n×n).
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorParametros} Si A no es cuadrada o no es simétrica.
  * @throws {ErrorDominio}    Si A no es definida positiva.
  *
@@ -86,7 +86,7 @@ function descomposicionCholesky(A) {
  *
  * @param {number[][]} L - Matriz triangular inferior de Cholesky (n×n).
  * @param {number[]}   b - Vector de términos independientes (longitud n).
- * @returns {Object} Resultado siguiendo el contrato de Trazo.
+ * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
  *
  * @example
  * const { resultado } = resolverCholesky([[2,0],[1,1.414]], [8, 7]);

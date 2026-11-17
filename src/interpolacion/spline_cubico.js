@@ -21,19 +21,19 @@ export function splineCubicoNatural(xs, ys, x) {
     // Validaciones
     if (!Array.isArray(xs) || !Array.isArray(ys)) {
         throw new ErrorParametros(
-            `Trazo: 'xs' y 'ys' deben ser arreglos.`
+            `ChuspaNumeric: 'xs' y 'ys' deben ser arreglos.`
         );
     }
 
     if (xs.length < 3) {
         throw new ErrorParametros(
-            `Trazo: 'xs' debe tener al menos 3 elementos. Se recibió: ${xs.length}.`
+            `ChuspaNumeric: 'xs' debe tener al menos 3 elementos. Se recibió: ${xs.length}.`
         );
     }
 
     if (xs.length !== ys.length) {
         throw new ErrorParametros(
-            `Trazo: 'xs' y 'ys' deben tener la misma longitud.`
+            `ChuspaNumeric: 'xs' y 'ys' deben tener la misma longitud.`
         );
     }
 
@@ -41,7 +41,7 @@ export function splineCubicoNatural(xs, ys, x) {
     for (let i = 1; i < xs.length; i++) {
         if (xs[i] <= xs[i - 1]) {
             throw new ErrorParametros(
-                `Trazo: 'xs' debe estar ordenado ascendentemente. ` +
+                `ChuspaNumeric: 'xs' debe estar ordenado ascendentemente. ` +
                 `xs[${i - 1}]=${xs[i - 1]} >= xs[${i}]=${xs[i]}.`
             );
         }

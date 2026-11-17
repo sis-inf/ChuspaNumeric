@@ -1,3 +1,5 @@
+import { ErrorParametros } from '../../../src/core/errores.js';
+
 import {
   regresionLineal,
   regresionPolinomial
@@ -15,6 +17,9 @@ describe('ajuste por mínimos cuadrados', () => {
     expect(res.pendiente).toBeCloseTo(2, 10);
     expect(res.intercepto).toBeCloseTo(1, 10);
     expect(res.r2).toBeCloseTo(1, 10);
+    // La recta es y = 2x + 1
+    // Para x = 4, el resultado esperado es 9.
+    expect(res.prediccion(4)).toBeCloseTo(9, 10);
 
   });
 
@@ -32,4 +37,20 @@ describe('ajuste por mínimos cuadrados', () => {
 
   });
 
+  test('regresionLineal rechaza menos de dos observaciones', () => {
+    expect(() => regresionLineal([1], [3])).toThrow(ErrorParametros);
+    expect(() => regresionLineal([1], [3])).toThrow(
+      'se necesitan al menos 2 puntos'
+    );
+  });
+
+  test('regresionLineal rechaza arreglos de distinta longitud', () => {
+    const xs = [1, 2, 3];
+    const ys = [2, 4];
+
+    expect(() => regresionLineal(xs, ys)).toThrow(ErrorParametros);
+    expect(() => regresionLineal(xs, ys)).toThrow(
+      'xs e ys deben tener la misma longitud'
+    );
+  });
 });

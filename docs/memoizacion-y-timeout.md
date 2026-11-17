@@ -14,7 +14,7 @@ El parametro timeoutMs permite limitar el tiempo maximo de ejecucion de un metod
 
 ### Ejemplo con biseccion
 
-    import { biseccion, ErrorTimeout, ErrorConvergencia } from 'trazo';
+    import { biseccion, ErrorTimeout, ErrorConvergencia } from 'chuspanumeric';
 
     const f = (x) => Math.cos(x) - x;
 
@@ -38,7 +38,7 @@ El parametro timeoutMs permite limitar el tiempo maximo de ejecucion de un metod
 
 ### Ejemplo con Newton-Raphson
 
-    import { newtonRaphson, ErrorTimeout } from 'trazo';
+    import { newtonRaphson, ErrorTimeout } from 'chuspanumeric';
 
     const f  = (x) => x * x - 2;
     const df = (x) => 2 * x;
@@ -96,7 +96,7 @@ Algunos metodos numericos evaluan la misma funcion multiples veces con los mismo
 
     const fMemo = memoizar(fCostosa);
 
-    import { biseccion } from 'trazo';
+    import { biseccion } from 'chuspanumeric';
 
     const resultado = biseccion({ f: fMemo, a: 0, b: 10, tolerancia: 1e-6 });
 

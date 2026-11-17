@@ -1,6 +1,6 @@
- # Limitaciones de la librería Trazo
+ # Limitaciones de la librería ChuspaNumeric
 
-A continuación se describen las limitaciones conocidas de la librería Trazo en su versión actual:
+A continuación se describen las limitaciones conocidas de la librería ChuspaNumeric en su versión actual:
 
 ---
 

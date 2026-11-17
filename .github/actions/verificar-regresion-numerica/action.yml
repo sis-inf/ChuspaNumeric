@@ -9,7 +9,7 @@ runs:
       run: |
         node --input-type=module <<'NODE'
         import { readFile } from 'node:fs/promises';
-        import * as Trazo from './src/index.js';
+        import * as ChuspaNumeric from './src/index.js';
 
         const rutaCasos = './tests/datos/esperados/casos_referencia.json';
         const casos = JSON.parse(await readFile(rutaCasos, 'utf8'));
@@ -64,7 +64,7 @@ runs:
 
           switch (caso.metodo) {
             case 'biseccion':
-              return Trazo.biseccion({
+              return ChuspaNumeric.biseccion({
                 f,
                 a: caso.a,
                 b: caso.b,
@@ -73,7 +73,7 @@ runs:
               });
 
             case 'falsaPosicion':
-              return Trazo.falsaPosicion({
+              return ChuspaNumeric.falsaPosicion({
                 f,
                 a: caso.a,
                 b: caso.b,
@@ -83,21 +83,21 @@ runs:
 
             case 'newtonRaphson':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.newtonRaphson({
+                () => ChuspaNumeric.newtonRaphson({
                   f,
                   df,
                   x0: caso.x0,
                   tolerancia: caso.tolerancia,
                   maxIter: caso.maxIter,
                 }),
-                () => Trazo.newtonRaphson({
+                () => ChuspaNumeric.newtonRaphson({
                   f,
                   derivada: df,
                   x0: caso.x0,
                   tolerancia: caso.tolerancia,
                   maxIter: caso.maxIter,
                 }),
-                () => Trazo.newtonRaphson({
+                () => ChuspaNumeric.newtonRaphson({
                   f,
                   fDerivada: df,
                   x0: caso.x0,
@@ -108,21 +108,21 @@ runs:
 
             case 'secante':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.secante({
+                () => ChuspaNumeric.secante({
                   f,
                   x0: caso.x0,
                   x1: caso.x1,
                   tolerancia: caso.tolerancia,
                   maxIter: caso.maxIter,
                 }),
-                () => Trazo.secante({
+                () => ChuspaNumeric.secante({
                   f,
                   xAnterior: caso.x0,
                   xActual: caso.x1,
                   tolerancia: caso.tolerancia,
                   maxIter: caso.maxIter,
                 }),
-                () => Trazo.secante({
+                () => ChuspaNumeric.secante({
                   f,
                   a: caso.x0,
                   b: caso.x1,
@@ -133,50 +133,50 @@ runs:
 
             case 'trapecio':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.trapecio(f, caso.a, caso.b, caso.n),
-                () => Trazo.trapecio({ f, a: caso.a, b: caso.b, n: caso.n }),
+                () => ChuspaNumeric.trapecio(f, caso.a, caso.b, caso.n),
+                () => ChuspaNumeric.trapecio({ f, a: caso.a, b: caso.b, n: caso.n }),
               ]);
 
             case 'simpson13':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.simpson13(f, caso.a, caso.b),
-                () => Trazo.simpson13({ f, a: caso.a, b: caso.b }),
+                () => ChuspaNumeric.simpson13(f, caso.a, caso.b),
+                () => ChuspaNumeric.simpson13({ f, a: caso.a, b: caso.b }),
               ]);
 
             case 'simpson38':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.simpson38(f, caso.a, caso.b),
-                () => Trazo.simpson38({ f, a: caso.a, b: caso.b }),
+                () => ChuspaNumeric.simpson38(f, caso.a, caso.b),
+                () => ChuspaNumeric.simpson38({ f, a: caso.a, b: caso.b }),
               ]);
 
             case 'simpsonCompuesto':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.simpsonCompuesto(f, caso.a, caso.b, caso.n),
-                () => Trazo.simpsonCompuesto({ f, a: caso.a, b: caso.b, n: caso.n }),
+                () => ChuspaNumeric.simpsonCompuesto(f, caso.a, caso.b, caso.n),
+                () => ChuspaNumeric.simpsonCompuesto({ f, a: caso.a, b: caso.b, n: caso.n }),
               ]);
 
             case 'lagrange':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.lagrange({ puntos: caso.puntos, x: caso.x }),
-                () => Trazo.lagrange(caso.puntos, caso.x),
+                () => ChuspaNumeric.lagrange({ puntos: caso.puntos, x: caso.x }),
+                () => ChuspaNumeric.lagrange(caso.puntos, caso.x),
               ]);
 
             case 'gaussJordan':
-              return Trazo.gaussJordan({
+              return ChuspaNumeric.gaussJordan({
                 A: caso.A,
                 b: caso.vector,
               });
 
             case 'det2x2':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.det2x2(caso.A),
-                () => Trazo.det2x2({ A: caso.A }),
+                () => ChuspaNumeric.det2x2(caso.A),
+                () => ChuspaNumeric.det2x2({ A: caso.A }),
               ]);
 
             case 'det3x3':
               return ejecutarConCandidatos(caso.metodo, [
-                () => Trazo.det3x3(caso.A),
-                () => Trazo.det3x3({ A: caso.A }),
+                () => ChuspaNumeric.det3x3(caso.A),
+                () => ChuspaNumeric.det3x3({ A: caso.A }),
               ]);
 
             default:

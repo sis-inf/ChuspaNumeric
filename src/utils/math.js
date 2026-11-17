@@ -9,7 +9,4 @@ function redondear(numero, decimales) {
   return Math.round(numero * factor) / factor;
 }
 
-module.exports = {
-  calcularErrorRelativo,
-  redondear,
-};
+export { calcularErrorRelativo, redondear };

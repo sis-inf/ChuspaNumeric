@@ -1,4 +1,4 @@
-# API de Funciones Matemáticas - Trazo
+# API de Funciones Matemáticas - ChuspaNumeric
 
 ## Métodos de Sistemas Lineales
 

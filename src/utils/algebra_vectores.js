@@ -2,17 +2,17 @@ import { ErrorParametros } from '../core/errores.js';
 
 function validarVector(v, nombre) {
   if (!Array.isArray(v)) {
-    throw new ErrorParametros(`Trazo.algebraVectores: '${nombre}' debe ser un vector.`);
+    throw new ErrorParametros(`ChuspaNumeric.algebraVectores: '${nombre}' debe ser un vector.`);
   }
 
   if (v.length === 0) {
-    throw new ErrorParametros(`Trazo.algebraVectores: '${nombre}' no puede estar vacío.`);
+    throw new ErrorParametros(`ChuspaNumeric.algebraVectores: '${nombre}' no puede estar vacío.`);
   }
 
   for (const valor of v) {
     if (typeof valor !== 'number' || !Number.isFinite(valor)) {
       throw new ErrorParametros(
-        `Trazo.algebraVectores: '${nombre}' solo debe contener números finitos.`
+        `ChuspaNumeric.algebraVectores: '${nombre}' solo debe contener números finitos.`
       );
     }
   }
@@ -21,7 +21,7 @@ function validarVector(v, nombre) {
 function validarMismaDimension(v1, v2) {
   if (v1.length !== v2.length) {
     throw new ErrorParametros(
-      `Trazo.algebraVectores: los vectores deben tener la misma dimensión. ` +
+      `ChuspaNumeric.algebraVectores: los vectores deben tener la misma dimensión. ` +
       `Se recibió ${v1.length} y ${v2.length}.`
     );
   }
@@ -29,6 +29,11 @@ function validarMismaDimension(v1, v2) {
 
 /**
  * Suma dos vectores de la misma dimensión.
+ *
+ * @param {number[]} v1 - Primer vector (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo vector, de la misma dimensión que v1.
+ * @returns {number[]} Vector suma, elemento a elemento.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
  */
 export function sumaVectores(v1, v2) {
   validarVector(v1, 'v1');
@@ -40,6 +45,11 @@ export function sumaVectores(v1, v2) {
 
 /**
  * Resta dos vectores de la misma dimensión.
+ *
+ * @param {number[]} v1 - Vector minuendo (no vacío, con números finitos).
+ * @param {number[]} v2 - Vector sustraendo, de la misma dimensión que v1.
+ * @returns {number[]} Vector diferencia, elemento a elemento.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
  */
 export function restaVectores(v1, v2) {
   validarVector(v1, 'v1');
@@ -51,6 +61,11 @@ export function restaVectores(v1, v2) {
 
 /**
  * Calcula el producto punto entre dos vectores de la misma dimensión.
+ *
+ * @param {number[]} v1 - Primer vector (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo vector, de la misma dimensión que v1.
+ * @returns {number} Producto punto de v1 y v2.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
  */
 export function productoPunto(v1, v2) {
   validarVector(v1, 'v1');
@@ -62,6 +77,11 @@ export function productoPunto(v1, v2) {
 
 /**
  * Calcula el producto cruz entre dos vectores de dimensión 3.
+ *
+ * @param {number[]} v1 - Primer vector de dimensión 3.
+ * @param {number[]} v2 - Segundo vector de dimensión 3.
+ * @returns {number[]} Vector de dimensión 3 con el producto cruz de v1 y v2.
+ * @throws {ErrorParametros} Si algún vector no es válido o no tiene dimensión 3.
  */
 export function productoCruz(v1, v2) {
   validarVector(v1, 'v1');
@@ -69,7 +89,7 @@ export function productoCruz(v1, v2) {
 
   if (v1.length !== 3 || v2.length !== 3) {
     throw new ErrorParametros(
-      'Trazo.algebraVectores: productoCruz solo está definido para vectores de dimensión 3.'
+      'ChuspaNumeric.algebraVectores: productoCruz solo está definido para vectores de dimensión 3.'
     );
   }
 
@@ -82,6 +102,10 @@ export function productoCruz(v1, v2) {
 
 /**
  * Calcula la magnitud o norma euclidiana de un vector.
+ *
+ * @param {number[]} v - Vector (no vacío, con números finitos).
+ * @returns {number} Magnitud (norma euclidiana) de v.
+ * @throws {ErrorParametros} Si v no es un vector válido.
  */
 export function magnitudVector(v) {
   validarVector(v, 'v');
@@ -91,6 +115,10 @@ export function magnitudVector(v) {
 
 /**
  * Normaliza un vector dividiéndolo entre su magnitud.
+ *
+ * @param {number[]} v - Vector (no vacío, con números finitos).
+ * @returns {number[]} Vector unitario en la dirección de v.
+ * @throws {ErrorParametros} Si v no es un vector válido o es el vector cero.
  */
 export function normalizarVector(v) {
   validarVector(v, 'v');
@@ -99,7 +127,7 @@ export function normalizarVector(v) {
 
   if (magnitud === 0) {
     throw new ErrorParametros(
-      'Trazo.algebraVectores: no se puede normalizar el vector cero.'
+      'ChuspaNumeric.algebraVectores: no se puede normalizar el vector cero.'
     );
   }
 
@@ -108,15 +136,68 @@ export function normalizarVector(v) {
 
 /**
  * Multiplica un vector por un escalar.
+ *
+ * @param {number} escalar - Número finito por el que se multiplica.
+ * @param {number[]} v - Vector (no vacío, con números finitos).
+ * @returns {number[]} Vector con cada elemento de v multiplicado por escalar.
+ * @throws {ErrorParametros} Si escalar no es un número finito o v no es un vector válido.
  */
 export function escalarPorVector(escalar, v) {
   if (typeof escalar !== 'number' || !Number.isFinite(escalar)) {
     throw new ErrorParametros(
-      `Trazo.algebraVectores: 'escalar' debe ser un número finito. Se recibió: ${escalar}.`
+      `ChuspaNumeric.algebraVectores: 'escalar' debe ser un número finito. Se recibió: ${escalar}.`
     );
   }
 
   validarVector(v, 'v');
 
   return v.map((valor) => escalar * valor);
+}
+
+/**
+ * Calcula la distancia euclidiana entre dos puntos (la norma de su diferencia).
+ *
+ * @param {number[]} v1 - Primer punto (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo punto, de la misma dimensión que v1.
+ * @returns {number} Distancia euclidiana entre v1 y v2.
+ * @throws {ErrorParametros} Si algún vector no es válido o las dimensiones no coinciden.
+ *
+ * @example
+ * distanciaEuclidiana([1, 2], [4, 6]) // 5
+ */
+export function distanciaEuclidiana(v1, v2) {
+  return magnitudVector(restaVectores(v1, v2));
+}
+
+/**
+ * Calcula el ángulo en radianes entre dos vectores de la misma dimensión.
+ *
+ * El coseno se acota a [-1, 1] para evitar valores fuera de dominio por errores
+ * de redondeo. Lanza ErrorParametros si alguno de los vectores tiene magnitud cero.
+ *
+ * @param {number[]} v1 - Primer vector (no vacío, con números finitos).
+ * @param {number[]} v2 - Segundo vector, de la misma dimensión que v1.
+ * @returns {number} Ángulo entre v1 y v2, en radianes.
+ * @throws {ErrorParametros} Si algún vector no es válido, las dimensiones no coinciden o alguno tiene magnitud cero.
+ *
+ * @example
+ * anguloEntreVectores([1, 0], [0, 1]) // Math.PI / 2
+ */
+export function anguloEntreVectores(v1, v2) {
+  validarVector(v1, 'v1');
+  validarVector(v2, 'v2');
+  validarMismaDimension(v1, v2);
+
+  const magnitud1 = magnitudVector(v1);
+  const magnitud2 = magnitudVector(v2);
+
+  if (magnitud1 === 0 || magnitud2 === 0) {
+    throw new ErrorParametros(
+      'ChuspaNumeric.algebraVectores: no se puede calcular el ángulo con un vector de magnitud cero.'
+    );
+  }
+
+  const coseno = productoPunto(v1, v2) / (magnitud1 * magnitud2);
+
+  return Math.acos(Math.min(1, Math.max(-1, coseno)));
 }

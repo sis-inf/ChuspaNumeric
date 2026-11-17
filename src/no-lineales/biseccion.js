@@ -42,7 +42,7 @@ import {
  *     },
  *     tiempo_ms: number
  *   }
- * }} Objeto de resultado siguiendo el contrato de Trazo.
+ * }} Objeto de resultado siguiendo el contrato de ChuspaNumeric.
  * @throws {ErrorParametros} Si la función no es válida, el intervalo es inválido, la tolerancia o el máximo de iteraciones no son válidos, o si f(a) · f(b) >= 0.
  * @throws {ErrorTimeout} Si se excede el tiempo máximo de ejecución configurado.
  */
@@ -55,14 +55,14 @@ function biseccion({ f, a, b, tolerancia = 1e-6, maxIter = 100, timeoutMs = null
   if (timeoutMs !== null) {
     if (typeof timeoutMs !== "number" || !isFinite(timeoutMs) || timeoutMs <= 0) {
       throw new ErrorParametros(
-        `Trazo.biseccion: 'timeoutMs' debe ser un número finito mayor a cero o null. Se recibió: ${timeoutMs}.`
+        `ChuspaNumeric.biseccion: 'timeoutMs' debe ser un número finito mayor a cero o null. Se recibió: ${timeoutMs}.`
       );
     }
   }
 
   if (f(a) * f(b) >= 0) {
     throw new ErrorParametros(
-      `Trazo.biseccion: f(a) · f(b) >= 0. ` +
+      `ChuspaNumeric.biseccion: f(a) · f(b) >= 0. ` +
       `f(${a}) = ${f(a)}, f(${b}) = ${f(b)}. ` +
       `El intervalo [a, b] debe contener un cambio de signo.`
     );
@@ -81,7 +81,7 @@ function biseccion({ f, a, b, tolerancia = 1e-6, maxIter = 100, timeoutMs = null
     if (timeoutMs !== null && n % INTERVALO_VERIFICACION === 0) {
       if (performance.now() - inicio > timeoutMs) {
         throw new ErrorTimeout(
-          `Trazo.biseccion: excedió el timeout de ${timeoutMs}ms después de ${n} iteraciones.`
+          `ChuspaNumeric.biseccion: excedió el timeout de ${timeoutMs}ms después de ${n} iteraciones.`
         );
       }
     }

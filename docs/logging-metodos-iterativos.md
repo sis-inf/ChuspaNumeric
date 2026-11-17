@@ -2,7 +2,7 @@
 
 ## ¿Qué es `onIteracion`?
 
-Todos los métodos iterativos de Trazo registran el progreso de cada paso en el campo `iteraciones` del resultado — un array con un objeto por cada iteración ejecutada. Esto permite inspeccionar cómo evolucionó el cálculo una vez terminado.
+Todos los métodos iterativos de ChuspaNumeric registran el progreso de cada paso en el campo `iteraciones` del resultado — un array con un objeto por cada iteración ejecutada. Esto permite inspeccionar cómo evolucionó el cálculo una vez terminado.
 
 El callback `onIteracion` es la extensión natural de este mecanismo: en lugar de esperar a que el método termine para leer `iteraciones`, `onIteracion` es una función que el usuario puede pasar como parámetro y que el método llama **en tiempo real** al completar cada paso, con el mismo objeto que luego aparecerá en `iteraciones`.
 
@@ -12,7 +12,7 @@ Esto es útil para:
 - Detener la ejecución cuando una condición externa se cumple (por ejemplo, cuando el error cae por debajo de un umbral personalizado antes de que el método haya convergido formalmente).
 - Registrar (`log`) pasos intermedios sin necesidad de guardar todo el historial en memoria.
 
-> **Nota**: al momento de escribir este documento, `onIteracion` no está implementado como parámetro en los métodos de Trazo — el mecanismo disponible es el array `iteraciones` del resultado. Este documento describe el diseño propuesto para `onIteracion` y cómo se usaría una vez implementado, con ejemplos basados en la estructura real de `iteraciones` que ya existe en el proyecto.
+> **Nota**: al momento de escribir este documento, `onIteracion` no está implementado como parámetro en los métodos de ChuspaNumeric — el mecanismo disponible es el array `iteraciones` del resultado. Este documento describe el diseño propuesto para `onIteracion` y cómo se usaría una vez implementado, con ejemplos basados en la estructura real de `iteraciones` que ya existe en el proyecto.
 
 ---
 
@@ -23,7 +23,7 @@ Antes de usar `onIteracion`, es útil conocer el formato exacto del objeto que e
 ### Bisección
 
 ```js
-import { biseccion } from 'trazo/src/no-lineales/biseccion.js';
+import { biseccion } from 'ChuspaNumeric/src/no-lineales/biseccion.js';
 
 const r = biseccion({ f: x => x**3 - 2*x - 5, a: 2, b: 3, tolerancia: 1e-4 });
 console.log(r.iteraciones[0]);
@@ -43,7 +43,7 @@ console.log(r.iteraciones[1]);
 ### Jacobi y Gauss-Seidel
 
 ```js
-import { jacobi } from 'trazo/src/lineales/jacobi.js';
+import { jacobi } from 'ChuspaNumeric/src/lineales/jacobi.js';
 
 const A = [[10, -1, 2], [-1, 11, -1], [2, -1, 10]];
 const b = [6, 25, -11];
@@ -61,7 +61,7 @@ console.log(r.iteraciones[0]);
 ### EDO (Euler, Euler mejorado, RK4)
 
 ```js
-import { euler } from 'trazo/src/edo/euler.js';
+import { euler } from 'ChuspaNumeric/src/edo/euler.js';
 
 const r = euler({ f: (x, y) => y, x0: 0, y0: 1, h: 0.5, xFinal: 2 });
 console.log(r.iteraciones[0]);
@@ -84,7 +84,7 @@ console.log(r.iteraciones[1]);
 Cuando `onIteracion` esté implementado, se pasará como un parámetro adicional al método, y será llamado automáticamente con el objeto de cada iteración:
 
 ```js
-import { biseccion } from 'trazo/src/no-lineales/biseccion.js';
+import { biseccion } from 'ChuspaNumeric/src/no-lineales/biseccion.js';
 
 const r = biseccion({
   f: x => x**3 - 2*x - 5,
@@ -117,7 +117,7 @@ Iter 4: c = 2.06250000, error = 0.06
 El caso más simple: imprimir el error en cada iteración para ver cómo converge el método.
 
 ```js
-import { jacobi } from 'trazo/src/lineales/jacobi.js';
+import { jacobi } from 'ChuspaNumeric/src/lineales/jacobi.js';
 
 const A = [[10, -1, 2], [-1, 11, -1], [2, -1, 10]];
 const b = [6, 25, -11];
@@ -140,7 +140,7 @@ console.log('Solución:', r.resultado);
 Acumular las iteraciones en un array propio para construir una tabla antes de que el método termine (útil si el cálculo puede tardar y se quiere visualización parcial):
 
 ```js
-import { newtonRaphson } from 'trazo/src/no-lineales/newton-raphson.js';
+import { newtonRaphson } from 'ChuspaNumeric/src/no-lineales/newton-raphson.js';
 
 const tabla = [];
 
@@ -163,7 +163,7 @@ console.table(tabla);
 Aunque el método tiene su propio criterio de parada (`tolerancia`), `onIteracion` permite reaccionar a condiciones externas — por ejemplo, detener la visualización cuando el error cae por debajo de un umbral visual, sin esperar la convergencia matemática completa:
 
 ```js
-import { euler } from 'trazo/src/edo/euler.js';
+import { euler } from 'ChuspaNumeric/src/edo/euler.js';
 
 let ultimoY;
 
@@ -190,7 +190,7 @@ const r = euler({
 Mientras `onIteracion` no esté implementado como parámetro, el mismo efecto puede lograrse procesando el array `iteraciones` del resultado una vez que el método ha terminado:
 
 ```js
-import { biseccion } from 'trazo/src/no-lineales/biseccion.js';
+import { biseccion } from 'ChuspaNumeric/src/no-lineales/biseccion.js';
 
 const r = biseccion({
   f: x => x**3 - 2*x - 5,

@@ -3,29 +3,28 @@
  * Verifica que diferentes métodos que resuelven el mismo problema
  * entreguen resultados coherentes entre sí.
  *
- * Importa todos los métodos desde src/index.js
+ * Importa cada método directamente desde su módulo en src/
  */
 
-import {
-  biseccion,
-  falsaPosicion,
-  newtonRaphson,
-  secante,
-  puntoFijo,
-  gauss,
-  gaussJordan,
-  lu,
-  jacobi,
-  gaussSeidel,
-  lagrange,
-  newtonDD,
-  trapecio,
-  simpson13,
-  simpson38,
-  euler,
-  eulerMejorado,
-  rungeKutta4,
-} from '../src/index.js';
+import { biseccion } from '../src/no-lineales/biseccion.js';
+import { falsaPosicion } from '../src/no-lineales/falsa-posicion.js';
+import { newtonRaphson } from '../src/no-lineales/newton-raphson.js';
+import { secante } from '../src/no-lineales/secante.js';
+import { puntoFijo } from '../src/no-lineales/punto-fijo.js';
+import { gauss } from '../src/lineales/gauss.js';
+import { gaussJordan } from '../src/lineales/gauss-jordan.js';
+import { lu } from '../src/lineales/lu.js';
+import { jacobi } from '../src/lineales/jacobi.js';
+import { gaussSeidel } from '../src/lineales/gauss-seidel.js';
+import { lagrange } from '../src/interpolacion/lagrange.js';
+import { newtonDD } from '../src/interpolacion/newton-dd.js';
+import { trapecio } from '../src/integracion/trapecio.js';
+import { simpson13 } from '../src/integracion/simpson-13.js';
+import { simpson38 } from '../src/integracion/simpson-38.js';
+import gaussLegendre from '../src/integracion/gauss_legendre.js';
+import { euler } from '../src/edo/euler.js';
+import { eulerMejorado } from '../src/edo/euler-mejorado.js';
+import { rungeKutta4 } from '../src/edo/runge_kutta_4.js';
 
 describe('Pruebas de integración cruzada', () => {
   // ============================================================
@@ -320,6 +319,47 @@ describe('Pruebas de integración cruzada', () => {
           }
         });
       }
+    });
+  });
+
+  // ============================================================
+  // 6. INTERPOLACIÓN Y CUADRATURA
+  // ============================================================
+  describe('Interpolación y cuadratura', () => {
+    const muestrear = (f, a, b, cantidad) =>
+      Array.from({ length: cantidad }, (_, i) => {
+        const x = a + ((b - a) * i) / (cantidad - 1);
+        return [x, f(x)];
+      });
+
+    test('Lagrange y Gauss-Legendre integran x³ - 2x + 1 en [0,2] de forma exacta', () => {
+      const f = (x) => x ** 3 - 2 * x + 1;
+      const a = 0;
+      const b = 2;
+      const esperado = 2;
+
+      const puntos = muestrear(f, a, b, 4);
+      const interpolante = (x) => lagrange({ puntos, x }).resultado;
+
+      const integral = gaussLegendre(interpolante, a, b, 2);
+
+      expect(Math.abs(integral - esperado)).toBeLessThan(1e-10);
+    });
+
+    test('la integral del interpolante de sin(x) en [0,π] coincide con la integral directa', () => {
+      const a = 0;
+      const b = Math.PI;
+      const esperado = 2;
+      const tolerancia = 1e-4;
+
+      const puntos = muestrear(Math.sin, a, b, 7);
+      const interpolante = (x) => lagrange({ puntos, x }).resultado;
+
+      const integralInterpolada = gaussLegendre(interpolante, a, b, 5);
+      const integralDirecta = gaussLegendre(Math.sin, a, b, 5);
+
+      expect(Math.abs(integralInterpolada - integralDirecta)).toBeLessThan(tolerancia);
+      expect(Math.abs(integralInterpolada - esperado)).toBeLessThan(tolerancia);
     });
   });
 });

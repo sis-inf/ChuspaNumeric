@@ -1,6 +1,7 @@
 import { gauss } from '../../../src/lineales/gauss.js';
 import { gaussJordan } from '../../../src/lineales/gauss-jordan.js';
 import { matrizIdentidad } from '../../../src/utils/generadores_matrices.js';
+import { ErrorDominio } from '../../../src/core/errores.js';
 
 // -------------------------------------------------------------------
 // Eliminación Gaussiana
@@ -68,6 +69,33 @@ describe('Eliminación Gaussiana (gauss)', () => {
     const b = [3, 6];
 
     expect(() => gauss({ A, b })).toThrow();
+  });
+
+  test('Lanza ErrorDominio cuando el pivote inicial es nulo', () => {
+    // El método no realiza intercambio de filas.
+    const A = [
+      [0, 1],
+      [1, 2]
+    ];
+    const b = [1, 3];
+
+    expect(() => gauss({ A, b })).toThrow(ErrorDominio);
+    expect(() => gauss({ A, b })).toThrow('Pivote nulo en la columna 1');
+  });
+
+  test('Registra una advertencia cuando el pivote es pequeño respecto a la matriz', () => {
+    const A = [
+      [1e-11, 1],
+      [0, 1]
+    ];
+    const b = [1 + 1e-11, 1];
+
+    const res = gauss({ A, b });
+
+    expect(res.convergio).toBe(true);
+    expect(res.warnings).toHaveLength(1);
+    expect(res.warnings[0]).toContain('Pivote pequeño detectado en columna 1');
+    expect(res.warnings[0]).toContain('Posible inestabilidad numérica');
   });
   
   test('Resuelve sistema con matriz identidad (solución igual a b)', () => {

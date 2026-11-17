@@ -1,8 +1,8 @@
 # Casos de uso avanzados
 
-Este documento complementa `docs/casos-de-uso.md` con cuatro escenarios end-to-end que combinan varios métodos y funcionalidades de Trazo. Cada escenario incluye el código real, los resultados obtenidos al ejecutarlo, y una interpretación del resultado.
+Este documento complementa `docs/casos-de-uso.md` con cuatro escenarios end-to-end que combinan varios métodos y funcionalidades de ChuspaNumeric. Cada escenario incluye el código real, los resultados obtenidos al ejecutarlo, y una interpretación del resultado.
 
-> **Nota sobre disponibilidad de funcionalidades**: algunos escenarios descritos en el issue de origen de este documento mencionaban características como un CLI con subcomando `trazo bench` o `--grafico`, un *playground* integrado, métodos RK45 y gradiente conjugado. Ninguna de esas características existe en el repositorio al momento de escribir este documento. Los cuatro escenarios presentados aquí se construyeron exclusivamente con los métodos y utilidades que sí están implementados, verificando cada uno de forma práctica antes de documentarlo.
+> **Nota sobre disponibilidad de funcionalidades**: algunos escenarios descritos en el issue de origen de este documento mencionaban características como un CLI con subcomando `chuspanumeric bench` o `--grafico`, un *playground* integrado, métodos RK45 y gradiente conjugado. Ninguna de esas características existe en el repositorio al momento de escribir este documento. Los cuatro escenarios presentados aquí se construyeron exclusivamente con los métodos y utilidades que sí están implementados, verificando cada uno de forma práctica antes de documentarlo.
 
 ---
 
@@ -21,9 +21,9 @@ Resolver la EDO `y' = -5y`, `y(0) = 1`, con solución exacta `y(x) = e^(-5x)`, u
 ### Código
 
 ```js
-import { euler } from 'trazo/src/edo/euler.js';
-import { eulerMejorado } from 'trazo/src/edo/euler-mejorado.js';
-import { rungeKutta4 } from 'trazo/src/edo/runge_kutta_4.js';
+import { euler } from 'chuspanumeric/src/edo/euler.js';
+import { eulerMejorado } from 'chuspanumeric/src/edo/euler-mejorado.js';
+import { rungeKutta4 } from 'chuspanumeric/src/edo/runge_kutta_4.js';
 
 const f = (x, y) => -5 * y;
 const params = { f, x0: 0, y0: 1, h: 0.1, xFinal: 1 };
@@ -90,8 +90,8 @@ H = | 1      1/2    1/3  |        b = H·[1,1,1] = | 11/6  |
 ### Código
 
 ```js
-import { descomposicionCholesky, resolverCholesky } from 'trazo/src/lineales/cholesky.js';
-import { normaFrobenius } from 'trazo/src/matricial/norma_matriz.js';
+import { descomposicionCholesky, resolverCholesky } from 'chuspanumeric/src/lineales/cholesky.js';
+import { normaFrobenius } from 'chuspanumeric/src/matricial/norma_matriz.js';
 
 const H = [
   [1,    1/2,  1/3],
@@ -132,7 +132,7 @@ L = | 1.000000    0           0          |
 
 ### Interpretación
 
-A pesar del mal condicionamiento de la matriz de Hilbert, Cholesky la resuelve con una precisión de `1e-14` (el error absoluto componente a componente es del orden del épsilon de máquina), porque la estructura del algoritmo aprovecha la simetría y positividad definida de la matriz. Para comparar: si se usara el método de Gauss estándar con esta misma matriz, el resultado sería igualmente preciso en este tamaño reducido, pero para matrices de Hilbert de orden mayor (n ≥ 10) el mal condicionamiento comienza a hacerse visible en la solución numérica. La norma de Frobenius `||H||_F ≈ 1.41` da una medida del "tamaño" de la matriz; para estimar el número de condición completo se necesitaría también la norma de `H⁻¹`, lo cual está fuera del alcance de las utilidades actuales de Trazo.
+A pesar del mal condicionamiento de la matriz de Hilbert, Cholesky la resuelve con una precisión de `1e-14` (el error absoluto componente a componente es del orden del épsilon de máquina), porque la estructura del algoritmo aprovecha la simetría y positividad definida de la matriz. Para comparar: si se usara el método de Gauss estándar con esta misma matriz, el resultado sería igualmente preciso en este tamaño reducido, pero para matrices de Hilbert de orden mayor (n ≥ 10) el mal condicionamiento comienza a hacerse visible en la solución numérica. La norma de Frobenius `||H||_F ≈ 1.41` da una medida del "tamaño" de la matriz; para estimar el número de condición completo se necesitaría también la norma de `H⁻¹`, lo cual está fuera del alcance de las utilidades actuales de ChuspaNumeric.
 
 ---
 
@@ -140,7 +140,7 @@ A pesar del mal condicionamiento de la matriz de Hilbert, Cholesky la resuelve c
 
 ### Problema
 
-Un estudiante registra la posición de un objeto en caída libre cada segundo durante 5 segundos. Con Trazo ajusta un polinomio de grado 2 a los datos y genera un reporte en formato JSON que puede incluir en una entrega académica o convertir manualmente a Markdown.
+Un estudiante registra la posición de un objeto en caída libre cada segundo durante 5 segundos. Con ChuspaNumeric ajusta un polinomio de grado 2 a los datos y genera un reporte en formato JSON que puede incluir en una entrega académica o convertir manualmente a Markdown.
 
 ### Datos
 
@@ -160,13 +160,13 @@ Los datos corresponden al modelo físico `s(t) = ½·g·t²` con `g ≈ 9.8 m/s�
 - `regresionPolinomial(xs, ys, grado)` — ajuste de mínimos cuadrados polinomial (`src/analisis/ajuste_minimos_cuadrados.js`)
 - `exportarJSON(resultado, metadatos)` — genera un objeto JSON estructurado listo para serializar (`src/io/exportar_json.js`)
 
-> **Nota**: en el issue de origen se menciona "regresión no lineal". La implementación disponible en Trazo es `regresionPolinomial`, que realiza un ajuste polinomial (técnicamente lineal en los coeficientes) usando mínimos cuadrados. Para el caso de la caída libre, un polinomio de grado 2 es exactamente el modelo correcto.
+> **Nota**: en el issue de origen se menciona "regresión no lineal". La implementación disponible en ChuspaNumeric es `regresionPolinomial`, que realiza un ajuste polinomial (técnicamente lineal en los coeficientes) usando mínimos cuadrados. Para el caso de la caída libre, un polinomio de grado 2 es exactamente el modelo correcto.
 
 ### Código
 
 ```js
-import { regresionPolinomial } from 'trazo/src/analisis/ajuste_minimos_cuadrados.js';
-import { exportarJSON } from 'trazo/src/io/exportar_json.js';
+import { regresionPolinomial } from 'chuspanumeric/src/analisis/ajuste_minimos_cuadrados.js';
+import { exportarJSON } from 'chuspanumeric/src/io/exportar_json.js';
 
 const tiempo   = [0, 1, 2, 3, 4, 5];
 const posicion = [0.0, 4.9, 19.6, 44.1, 78.4, 122.5];
@@ -224,7 +224,7 @@ El ajuste encuentra el coeficiente dominante `a₂ ≈ 4.9`, que corresponde exa
 
 Encontrar la raíz real de `f(x) = x³ - 2x - 5`, a partir del punto inicial `x₀ = 2`, y observar cómo el error disminuye en cada iteración para comprender la convergencia cuadrática característica de Newton-Raphson.
 
-> **Nota**: en el issue de origen se menciona el uso de un CLI con `--grafico` para visualizar la convergencia directamente en terminal. Ese CLI no existe en Trazo al momento de escribir este documento. Lo que sí existe y permite el mismo análisis es el campo `iteraciones` del resultado, que contiene para cada paso los valores `x`, `f(x)`, `f'(x)` y el error — suficiente para construir la tabla de convergencia que aquí se presenta, ya sea en consola, en un archivo Markdown o en cualquier entorno de visualización.
+> **Nota**: en el issue de origen se menciona el uso de un CLI con `--grafico` para visualizar la convergencia directamente en terminal. Ese CLI no existe en ChuspaNumeric al momento de escribir este documento. Lo que sí existe y permite el mismo análisis es el campo `iteraciones` del resultado, que contiene para cada paso los valores `x`, `f(x)`, `f'(x)` y el error — suficiente para construir la tabla de convergencia que aquí se presenta, ya sea en consola, en un archivo Markdown o en cualquier entorno de visualización.
 
 ### Métodos disponibles
 
@@ -233,7 +233,7 @@ Encontrar la raíz real de `f(x) = x³ - 2x - 5`, a partir del punto inicial `x�
 ### Código
 
 ```js
-import { newtonRaphson } from 'trazo/src/no-lineales/newton-raphson.js';
+import { newtonRaphson } from 'chuspanumeric/src/no-lineales/newton-raphson.js';
 
 const resultado = newtonRaphson({
   f:          x => x**3 - 2*x - 5,

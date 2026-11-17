@@ -1,6 +1,6 @@
 /**
  * @file numeros_complejos.js
- * @description Utilidades básicas para operar con números complejos en Trazo.
+ * @description Utilidades básicas para operar con números complejos en ChuspaNumeric.
  *
  * Un número complejo se representa como un objeto plano { re, im } donde:
  * - `re` es la parte real (número)
@@ -48,7 +48,7 @@ function _validarComplejo(z, nombre) {
     !isFinite(z.im)
   ) {
     throw new ErrorParametros(
-      `Trazo.numeros_complejos: "${nombre}" debe ser un objeto { re, im } con ` +
+      `ChuspaNumeric.numeros_complejos: "${nombre}" debe ser un objeto { re, im } con ` +
       `valores numéricos finitos. Se recibió: ${JSON.stringify(z)}.`
     );
   }
@@ -169,7 +169,7 @@ export function divisionComplejos(z1, z2) {
 
   if (denominador === 0) {
     throw new ErrorParametros(
-      'Trazo.divisionComplejos: el denominador es el complejo cero { re: 0, im: 0 }. ' +
+      'ChuspaNumeric.divisionComplejos: el denominador es el complejo cero { re: 0, im: 0 }. ' +
       'La división por cero no está definida.'
     );
   }
@@ -178,4 +178,39 @@ export function divisionComplejos(z1, z2) {
     re: (z1.re * z2.re + z1.im * z2.im) / denominador,
     im: (z1.im * z2.re - z1.re * z2.im) / denominador,
   };
+}
+
+/**
+ * Resta dos números complejos: (a + bi) - (c + di) = (a-c) + (b-d)i
+ *
+ * @param {{ re: number, im: number }} z1 - Minuendo.
+ * @param {{ re: number, im: number }} z2 - Sustraendo.
+ * @returns {{ re: number, im: number }} La resta z1 - z2.
+ * @throws {ErrorParametros} Si algún operando no es un complejo válido.
+ *
+ * @example
+ * restaComplejos({ re: 5, im: 4 }, { re: 2, im: 1 });
+ * // { re: 3, im: 3 }
+ */
+export function restaComplejos(z1, z2) {
+  _validarComplejo(z1, 'z1');
+  _validarComplejo(z2, 'z2');
+  return { re: z1.re - z2.re, im: z1.im - z2.im };
+}
+
+/**
+ * Calcula el argumento (ángulo polar en radianes) de un número complejo:
+ * arg(a + bi) = atan2(b, a), en el intervalo [-π, π].
+ *
+ * @param {{ re: number, im: number }} z - El número complejo.
+ * @returns {number} El argumento de z en radianes.
+ * @throws {ErrorParametros} Si z no es un complejo válido.
+ *
+ * @example
+ * argumentoComplejo({ re: 0, im: 1 });   // Math.PI / 2
+ * argumentoComplejo({ re: -1, im: 0 });  // Math.PI
+ */
+export function argumentoComplejo(z) {
+  _validarComplejo(z, 'z');
+  return Math.atan2(z.im, z.re);
 }

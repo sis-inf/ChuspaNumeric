@@ -42,6 +42,4 @@ function formatearTablaIteraciones(tabla, opciones = {}) {
   return resultado.join('\n');
 }
 
-module.exports = {
-  formatearTablaIteraciones,
-};
+export { formatearTablaIteraciones };

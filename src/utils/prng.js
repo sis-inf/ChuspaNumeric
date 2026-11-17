@@ -1,7 +1,7 @@
 /**
  * @file prng.js
  * @description Generador de números pseudoaleatorios (PRNG) con semilla
- * reproducible para uso en Trazo.
+ * reproducible para uso en ChuspaNumeric.
  *
  * ## Motivación
  *
@@ -27,14 +27,14 @@
  *
  * El LCG tiene período completo (2³² = ~4 mil millones de valores antes de
  * repetirse) y distribución uniforme, suficiente para uso en tests y métodos
- * numéricos de Trazo. Para aplicaciones criptográficas o simulaciones de
+ * numéricos de ChuspaNumeric. Para aplicaciones criptográficas o simulaciones de
  * alta calidad estadística, usar algoritmos más avanzados como Mersenne
  * Twister o xoshiro256.
  *
  * ## Uso
  *
  * ```js
- * import { crearGeneradorAleatorio } from 'trazo/src/utils/prng.js';
+ * import { crearGeneradorAleatorio } from 'chuspanumeric/src/utils/prng.js';
  *
  * const random = crearGeneradorAleatorio(42);
  * console.log(random()); // siempre el mismo valor para semilla 42
@@ -53,6 +53,12 @@ const LCG_C = 1013904223;
 const LCG_M = 2 ** 32;
 
 /**
+ * Función generadora devuelta por crearGeneradorAleatorio.
+ *
+ * @typedef {() => number} GeneradorAleatorio
+ */
+
+/**
  * Crea un generador de números pseudoaleatorios con semilla.
  *
  * Devuelve una función que, al llamarse, produce el siguiente número de la
@@ -63,13 +69,13 @@ const LCG_M = 2 ** 32;
  *   - Si es un número, el generador es **determinista y reproducible**.
  *   - Si es `null` o se omite, se usa `Date.now()` como semilla (no
  *     reproducible entre ejecuciones).
- * @returns {() => number} Función sin argumentos que devuelve el siguiente
+ * @returns {GeneradorAleatorio} Función sin argumentos que devuelve el siguiente
  *   número pseudoaleatorio en `[0, 1)`.
  * @throws {ErrorParametros} Si se pasa una semilla que no es un número
  *   finito (excepto `null`).
  *
  * @example
- * import { crearGeneradorAleatorio } from 'trazo/src/utils/prng.js';
+ * import { crearGeneradorAleatorio } from 'chuspanumeric/src/utils/prng.js';
  *
  * // Reproducible: misma semilla → misma secuencia
  * const r1 = crearGeneradorAleatorio(42);
@@ -88,13 +94,18 @@ const LCG_M = 2 ** 32;
 export function crearGeneradorAleatorio(semilla = null) {
   if (semilla !== null && (typeof semilla !== 'number' || !isFinite(semilla))) {
     throw new ErrorParametros(
-      `Trazo.crearGeneradorAleatorio: la semilla debe ser un número finito o null. ` +
+      `ChuspaNumeric.crearGeneradorAleatorio: la semilla debe ser un número finito o null. ` +
       `Se recibió: ${semilla} (${typeof semilla}).`
     );
   }
 
   let estado = semilla !== null ? semilla >>> 0 : Date.now() >>> 0;
 
+  /**
+   * Devuelve el siguiente número pseudoaleatorio de la secuencia.
+   *
+   * @returns {number} Número pseudoaleatorio en el intervalo `[0, 1)`.
+   */
   return function siguiente() {
     estado = (LCG_A * estado + LCG_C) % LCG_M;
     return estado / LCG_M;

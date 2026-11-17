@@ -2,7 +2,7 @@
 
 ## Introducción
 
-Esta guía describe el proceso estándar para agregar un nuevo método numérico al proyecto Trazo.
+Esta guía describe el proceso estándar para agregar un nuevo método numérico al proyecto ChuspaNumeric.
 
 ---
 

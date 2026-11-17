@@ -2,7 +2,7 @@
 
 ## Introducción
 
-Este documento define la política de versionado semántico que seguirá el proyecto **Trazo** en sus próximas publicaciones. El objetivo es establecer criterios claros para decidir cuándo incrementar la versión `MAJOR`, `MINOR` o `PATCH`, especialmente ahora que el proyecto cuenta con un flujo real de publicación a npm y una API pública en proceso de consolidación.
+Este documento define la política de versionado semántico que seguirá el proyecto **ChuspaNumeric** en sus próximas publicaciones. El objetivo es establecer criterios claros para decidir cuándo incrementar la versión `MAJOR`, `MINOR` o `PATCH`, especialmente ahora que el proyecto cuenta con un flujo real de publicación a npm y una API pública en proceso de consolidación.
 
 La política se basa en el formato `MAJOR.MINOR.PATCH`, donde cada número comunica el impacto del cambio sobre los usuarios de la librería.
 
@@ -10,7 +10,7 @@ La política se basa en el formato `MAJOR.MINOR.PATCH`, donde cada número comun
 
 ## Esquema de versionado
 
-Trazo seguirá el esquema de versionado semántico:
+ChuspaNumeric seguirá el esquema de versionado semántico:
 
 `MAJOR.MINOR.PATCH`
 
@@ -60,7 +60,7 @@ Los cambios realizados únicamente en archivos internos, pruebas, scripts o docu
 
 El archivo `package.json` declara actualmente la versión `1.0.0`. Sin embargo, al evaluar el estado real del proyecto antes de los lotes recientes de corrección, pruebas y exportación de métodos, esta versión no parecía reflejar completamente una API pública estable, accesible y validada para uso externo.
 
-En versionado semántico, una versión `1.0.0` normalmente comunica que la API pública ya se considera estable. En el caso de Trazo, el proyecto seguía en desarrollo activo y una parte importante de la API pública, incluyendo aproximadamente 41 métodos recientemente exportados, todavía no había sido realmente accesible ni probada en uso real antes de estos cambios.
+En versionado semántico, una versión `1.0.0` normalmente comunica que la API pública ya se considera estable. En el caso de ChuspaNumeric, el proyecto seguía en desarrollo activo y una parte importante de la API pública, incluyendo aproximadamente 41 métodos recientemente exportados, todavía no había sido realmente accesible ni probada en uso real antes de estos cambios.
 
 Por este motivo, desde una interpretación estricta de versionado semántico, el proyecto pudo haber estado mejor representado por una versión `0.x.y` durante esa etapa previa. Las versiones `0.x` suelen utilizarse cuando la API pública aún está en desarrollo, puede cambiar con mayor frecuencia y todavía no existe una garantía fuerte de compatibilidad hacia atrás.
 
@@ -88,6 +88,6 @@ También se recomienda revisar la documentación de API, los métodos exportados
 
 ## Conclusión
 
-Trazo seguirá una política de versionado semántico para ordenar sus futuras publicaciones y comunicar con claridad el impacto de cada cambio. La versión `1.0.0` actual queda documentada como una versión que pudo no haber representado completamente el estado real de madurez de la API antes de los lotes recientes de corrección, pruebas y exportación de métodos.
+ChuspaNumeric seguirá una política de versionado semántico para ordenar sus futuras publicaciones y comunicar con claridad el impacto de cada cambio. La versión `1.0.0` actual queda documentada como una versión que pudo no haber representado completamente el estado real de madurez de la API antes de los lotes recientes de corrección, pruebas y exportación de métodos.
 
 Desde este punto en adelante, los cambios incompatibles deberán incrementar `MAJOR`, las nuevas funcionalidades compatibles deberán incrementar `MINOR` y las correcciones compatibles deberán incrementar `PATCH`.

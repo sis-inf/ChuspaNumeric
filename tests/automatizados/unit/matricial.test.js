@@ -31,11 +31,20 @@ describe('Funciones matriciales', () => {
         const resultadoSarrus = determinanteSarrus(matriz);
         const resultadoDet3x3 = det3x3(matriz);
 
-        expect(resultadoSarrus)
+        expect(resultadoSarrus.resultado)
             .toBe(resultadoDet3x3);
 
-        expect(resultadoSarrus)
+        expect(resultadoSarrus.resultado)
             .toBe(22);
+
+        expect(resultadoSarrus.convergio)
+            .toBe(true);
+
+        expect(resultadoSarrus.iteraciones)
+            .toEqual([]);
+
+        expect(resultadoSarrus.meta.metodo)
+            .toBe('sarrus');
     });
 
 
@@ -52,8 +61,19 @@ describe('Funciones matriciales', () => {
 
         const vector = [3, 4];
 
-        expect(normaEuclideana(vector))
+        const resultado = normaEuclideana(vector);
+
+        expect(resultado.resultado)
             .toBe(5);
+
+        expect(resultado.convergio)
+            .toBe(true);
+
+        expect(resultado.meta.metodo)
+            .toBe('norma-euclideana');
+
+        expect(resultado.meta.parametros)
+            .toEqual({ longitud: 2 });
     });
 
 
@@ -69,8 +89,19 @@ describe('Funciones matriciales', () => {
 
         const vector = [-3, 4, 2];
 
-        expect(normaInfinita(vector))
+        const resultado = normaInfinita(vector);
+
+        expect(resultado.resultado)
             .toBe(4);
+
+        expect(resultado.convergio)
+            .toBe(true);
+
+        expect(resultado.meta.metodo)
+            .toBe('norma-infinita');
+
+        expect(resultado.meta.parametros)
+            .toEqual({ longitud: 3 });
     });
 
 
@@ -90,8 +121,19 @@ describe('Funciones matriciales', () => {
             [3, 4]
         ];
 
-        expect(normaFrobenius(matriz))
+        const resultado = normaFrobenius(matriz);
+
+        expect(resultado.resultado)
             .toBeCloseTo(Math.sqrt(30), 10);
+
+        expect(resultado.convergio)
+            .toBe(true);
+
+        expect(resultado.meta.metodo)
+            .toBe('norma-frobenius');
+
+        expect(resultado.meta.parametros)
+            .toEqual({ filas: 2, columnas: 2 });
     });
 
 });

@@ -1,8 +1,8 @@
-﻿# Ãndice General de DocumentaciÃ³n â€” Trazo
+﻿# Ãndice General de DocumentaciÃ³n â€” ChuspaNumeric
 
 ## IntroducciÃ³n
 
-Este documento es el Ã­ndice navegable maestro de la documentaciÃ³n del proyecto **Trazo**. Su objetivo es centralizar todos los documentos disponibles en la carpeta `docs/`, organizarlos por categorÃ­a y facilitar la navegaciÃ³n para usuarios, contribuidores y mantenedores del proyecto.
+Este documento es el Ã­ndice navegable maestro de la documentaciÃ³n del proyecto **ChuspaNumeric**. Su objetivo es centralizar todos los documentos disponibles en la carpeta `docs/`, organizarlos por categorÃ­a y facilitar la navegaciÃ³n para usuarios, contribuidores y mantenedores del proyecto.
 
 Cada entrada incluye un enlace relativo al documento correspondiente y una breve descripciÃ³n de su contenido.
 
@@ -45,7 +45,7 @@ Cada entrada incluye un enlace relativo al documento correspondiente y una breve
 - [exportar-markdown.md](exportar-markdown.md) â€” Documenta cÃ³mo exportar contenido en formato Markdown.
 - [preguntas-frecuentes.md](preguntas-frecuentes.md) â€” Responde dudas frecuentes sobre el proyecto.
 - [errores-comunes.md](errores-comunes.md) â€” Enumera errores frecuentes y sus soluciones.
-- [comparacion-bibliotecas-similares.md](comparacion-bibliotecas-similares.md) â€” Compara Trazo con bibliotecas similares.
+- [comparacion-bibliotecas-similares.md](comparacion-bibliotecas-similares.md) â€” Compara ChuspaNumeric con bibliotecas similares.
 
 
 ---
