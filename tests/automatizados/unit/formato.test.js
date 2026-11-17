@@ -77,4 +77,48 @@ describe('Pruebas unitarias de formato.js', () => {
     expect(aproximadamenteIgual(aproximaciones[2], referencia, 1e-3))
       .toBe(false);
   });
+
+  test('el error absoluto disminuye al reducir el tamaño de paso h', () => {
+    const referencia = 2;
+    const pasos = [0.1, 0.01, 0.001];
+
+    const aproximaciones = pasos.map((h) => referencia + h * h);
+    const errores = aproximaciones.map((valor) =>
+      errorAbsoluto(valor, referencia)
+    );
+
+    expect(errores[1]).toBeLessThan(errores[0]);
+    expect(errores[2]).toBeLessThan(errores[1]);
+    expect(errores[2]).toBeLessThan(1e-5);
+  });
+
+  test('el error relativo disminuye al reducir el tamaño de paso h', () => {
+    const referencia = 2;
+    const pasos = [0.1, 0.01, 0.001];
+
+    const erroresRelativos = pasos.map((h) => {
+      const aproximacion = referencia + h * h;
+      return errorRelativo(referencia, aproximacion);
+    });
+
+    expect(erroresRelativos[0]).toBeCloseTo(0.005, 8);
+    expect(erroresRelativos[1]).toBeCloseTo(0.00005, 8);
+    expect(erroresRelativos[2]).toBeCloseTo(0.0000005, 8);
+
+    expect(erroresRelativos[1]).toBeLessThan(erroresRelativos[0]);
+    expect(erroresRelativos[2]).toBeLessThan(erroresRelativos[1]);
+  });
+
+  test('detecta cuando el error relativo aumenta con pasos menores', () => {
+    const referencia = 2;
+    const pasos = [0.1, 0.01, 0.001];
+
+    const erroresRelativos = pasos.map((h) => {
+      const aproximacion = referencia + 0.01 / h;
+      return errorRelativo(referencia, aproximacion);
+    });
+
+    expect(erroresRelativos[1]).toBeGreaterThan(erroresRelativos[0]);
+    expect(erroresRelativos[2]).toBeGreaterThan(erroresRelativos[1]);
+  });
 });
