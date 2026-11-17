@@ -1,122 +1,273 @@
+
 import {
     diferenciaCentrada,
     diferenciaCentradaSegundaDerivada
 } from '../../../src/diferencias/diferencia_centrada.js';
 
-import { diferenciasAdelanteGrado1 } from '../../../src/diferencias/diferencia_hacia_adelante.js';
-import { diferenciasAtrasGrado1 } from '../../../src/diferencias/diferencia_hacia_atras.js';
+import {
+    diferenciasAdelanteGrado1,
+    derivadaAdelanteOrden2
+} from '../../../src/diferencias/diferencia_hacia_adelante.js';
 
+import {
+    diferenciasAtrasGrado1,
+    derivadaAtrasOrden2
+} from '../../../src/diferencias/diferencia_hacia_atras.js';
 
-describe('Pruebas Funcionales - Método de Diferencias Finitas', () => {
+describe('Diferencia centrada de primera derivada', () => {
+    test('calcula correctamente la derivada de una función cúbica', () => {
+        const f = x => x ** 3;
+        const resultado = diferenciaCentrada(f, 2, 0.01);
 
-    test('Caso Normal: Cálculo de la derivada manteniendo un error absoluto menor a 1e-6', () => {
-        const funcion = (x) => x * x * x;
-        const x = 2;
-        const h = 0.00001;
-
-        const resultadoCalculado = (funcion(x + h) - funcion(x)) / h;
-        const errorAbsoluto = Math.abs(resultadoCalculado - 12);
-
-        expect(errorAbsoluto).toBeLessThan(1e-4);
+        expect(resultado).toBeCloseTo(12.0001, 8);
     });
 
+    test('el error disminuye al reducir el tamaño del paso', () => {
+        const f = Math.sin;
+        const valorReal = Math.cos(1);
 
-    test('Caso de Borde: Estabilidad funcional con valores de x cercanos a cero', () => {
-        const funcion = (x) => Math.sin(x);
-        const x = 0.001;
-        const h = 0.000001;
+        const errorGrande = Math.abs(
+            diferenciaCentrada(f, 1, 0.2) - valorReal
+        );
 
-        const resultadoCalculado = (funcion(x + h) - funcion(x)) / h;
-        const valorReal = Math.cos(x);
-        const errorAbsoluto = Math.abs(resultadoCalculado - valorReal);
-
-        expect(errorAbsoluto).toBeLessThan(1e-5);
-    });
-
-
-    test('Caso de Error: Validación de excepción si el tamaño de paso h es igual o menor a cero', () => {
-        const calcularDiferenciasFinitas = (f, x, h) => {
-            if (h <= 0) throw new Error('El tamaño de paso h debe ser mayor a cero.');
-            return (f(x + h) - f(x)) / h;
-        };
-
-        expect(() => {
-            calcularDiferenciasFinitas((x) => x, 1, 0);
-        }).toThrow();
-    });
-
-
-    test('diferenciaCentrada: aproximación mejora al reducir h', () => {
-        const funcion = (x) => x ** 3;
-
-        const x = 2;
-        const valorReal = 3 * x ** 2;
-
-        const resultadoGrande = diferenciaCentrada(funcion, x, 0.1);
-        const resultadoPequeno = diferenciaCentrada(funcion, x, 0.01);
-
-        const errorGrande = Math.abs(resultadoGrande - valorReal);
-        const errorPequeno = Math.abs(resultadoPequeno - valorReal);
+        const errorPequeno = Math.abs(
+            diferenciaCentrada(f, 1, 0.1) - valorReal
+        );
 
         expect(errorPequeno).toBeLessThan(errorGrande);
-        expect(resultadoPequeno).toBeCloseTo(valorReal, 4);
     });
 
+    test('presenta convergencia de orden dos', () => {
+        const f = Math.sin;
+        const valorReal = Math.cos(1);
 
-    test('diferenciaCentradaSegundaDerivada: aproximación mejora al reducir h', () => {
-        const funcion = (x) => x ** 3;
+        const errorH = Math.abs(
+            diferenciaCentrada(f, 1, 0.2) - valorReal
+        );
 
-        const x = 2;
-        const valorReal = 6 * x;
+        const errorH2 = Math.abs(
+            diferenciaCentrada(f, 1, 0.1) - valorReal
+        );
 
-        const resultadoGrande = diferenciaCentradaSegundaDerivada(funcion, x, 0.1);
-        const resultadoPequeno = diferenciaCentradaSegundaDerivada(funcion, x, 0.01);
+        expect(errorH / errorH2).toBeGreaterThan(3.5);
+    });
 
-        const errorGrande = Math.abs(resultadoGrande - valorReal);
-        const errorPequeno = Math.abs(resultadoPequeno - valorReal);
+    test('rechaza un paso igual a cero', () => {
+        expect(() => diferenciaCentrada(Math.sin, 1, 0)).toThrow();
+    });
+
+    test('rechaza un paso infinito', () => {
+        expect(() => diferenciaCentrada(Math.sin, 1, Infinity)).toThrow();
+    });
+
+    test('rechaza una función inválida', () => {
+        expect(() => diferenciaCentrada(5, 1, 0.1)).toThrow();
+    });
+
+    test('rechaza una posición no numérica', () => {
+        expect(() => diferenciaCentrada(Math.sin, NaN, 0.1)).toThrow();
+    });
+});
+
+describe('Diferencia centrada de segunda derivada', () => {
+    test('calcula correctamente la segunda derivada de una función cúbica', () => {
+        const f = x => x ** 3;
+        const resultado = diferenciaCentradaSegundaDerivada(f, 2, 0.1);
+
+        expect(resultado).toBeCloseTo(12, 8);
+    });
+
+    test('el error disminuye al reducir el tamaño del paso', () => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
+
+        const errorGrande = Math.abs(
+            diferenciaCentradaSegundaDerivada(f, 1, 0.2) - valorReal
+        );
+
+        const errorPequeno = Math.abs(
+            diferenciaCentradaSegundaDerivada(f, 1, 0.1) - valorReal
+        );
 
         expect(errorPequeno).toBeLessThan(errorGrande);
-        expect(resultadoPequeno).toBeCloseTo(valorReal, 4);
     });
 
+    test('presenta convergencia de orden dos', () => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
 
-    test('diferenciasAdelanteGrado1: aproximación mejora al reducir h', () => {
-        const funcion = (x) => x ** 3;
+        const errorH = Math.abs(
+            diferenciaCentradaSegundaDerivada(f, 1, 0.2) - valorReal
+        );
 
-        const x = 2;
-        const valorReal = 3 * x ** 2;
+        const errorH2 = Math.abs(
+            diferenciaCentradaSegundaDerivada(f, 1, 0.1) - valorReal
+        );
 
-        const resultadoGrande = diferenciasAdelanteGrado1(funcion, x, 0.1);
-        const resultadoPequeno = diferenciasAdelanteGrado1(funcion, x, 0.01);
+        expect(errorH / errorH2).toBeGreaterThan(3.5);
+    });
 
-        const errorGrande = Math.abs(resultadoGrande - valorReal);
-        const errorPequeno = Math.abs(resultadoPequeno - valorReal);
+    test('rechaza un paso igual a cero', () => {
+        expect(() =>
+            diferenciaCentradaSegundaDerivada(Math.exp, 1, 0)
+        ).toThrow();
+    });
+
+    test('rechaza una función inválida', () => {
+        expect(() =>
+            diferenciaCentradaSegundaDerivada(5, 1, 0.1)
+        ).toThrow();
+    });
+});
+
+describe('Diferencias hacia adelante de primer orden', () => {
+    test('calcula correctamente la derivada de una función cúbica', () => {
+        const f = x => x ** 3;
+        const resultado = diferenciasAdelanteGrado1(f, 2, 0.001);
+
+        expect(resultado).toBeCloseTo(12.006001, 8);
+    });
+
+    test('el error relativo disminuye al reducir el paso', () => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
+
+        const resultadoGrande = diferenciasAdelanteGrado1(f, 1, 0.1);
+        const resultadoPequeno = diferenciasAdelanteGrado1(f, 1, 0.01);
+
+        const errorGrande = Math.abs(
+            (resultadoGrande - valorReal) / valorReal
+        );
+
+        const errorPequeno = Math.abs(
+            (resultadoPequeno - valorReal) / valorReal
+        );
 
         expect(errorPequeno).toBeLessThan(errorGrande);
-        expect(resultadoPequeno).toBeCloseTo(valorReal, 4);
     });
 
+    test('presenta convergencia de primer orden', () => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
 
-    describe.each([
-        { esquema: 'hacia adelante', derivar: diferenciasAdelanteGrado1 },
-        { esquema: 'hacia atrás', derivar: diferenciasAtrasGrado1 }
-    ])('Precisión del esquema $esquema', ({ derivar }) => {
+        const errorH = Math.abs(
+            diferenciasAdelanteGrado1(f, 1, 0.2) - valorReal
+        );
 
-        test.each([
-            { nombre: 'sin(x)', funcion: Math.sin, derivadaExacta: Math.cos },
-            { nombre: 'exp(x)', funcion: Math.exp, derivadaExacta: Math.exp }
-        ])('$nombre: el error relativo disminuye al reducir h de 0.1 a 0.001', ({ funcion, derivadaExacta }) => {
-            const x = 1;
-            const valorReal = derivadaExacta(x);
+        const errorH2 = Math.abs(
+            diferenciasAdelanteGrado1(f, 1, 0.1) - valorReal
+        );
 
-            const [errorH1, errorH2, errorH3] = [0.1, 0.01, 0.001].map((h) => {
-                return Math.abs((derivar(funcion, x, h) - valorReal) / valorReal);
-            });
-
-            expect(errorH2).toBeLessThan(errorH1);
-            expect(errorH3).toBeLessThan(errorH2);
-            expect(errorH3).toBeLessThan(1e-3);
-        });
+        expect(errorH / errorH2).toBeGreaterThan(1.8);
     });
 
+    test('rechaza un paso igual a cero', () => {
+        expect(() =>
+            diferenciasAdelanteGrado1(Math.sin, 1, 0)
+        ).toThrow();
+    });
+
+    test('rechaza una función inválida', () => {
+        expect(() =>
+            diferenciasAdelanteGrado1(5, 1, 0.1)
+        ).toThrow();
+    });
+
+    test('rechaza una posición infinita', () => {
+        expect(() =>
+            diferenciasAdelanteGrado1(Math.sin, Infinity, 0.1)
+        ).toThrow();
+    });
+});
+
+describe('Diferencias hacia atrás de primer orden', () => {
+    test('calcula correctamente la derivada de una función cúbica', () => {
+        const f = x => x ** 3;
+        const resultado = diferenciasAtrasGrado1(f, 2, 0.001);
+
+        expect(resultado).toBeCloseTo(11.994001, 8);
+    });
+
+    test('el error relativo disminuye al reducir el paso', () => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
+
+        const resultadoGrande = diferenciasAtrasGrado1(f, 1, 0.1);
+        const resultadoPequeno = diferenciasAtrasGrado1(f, 1, 0.01);
+
+        const errorGrande = Math.abs(
+            (resultadoGrande - valorReal) / valorReal
+        );
+
+        const errorPequeno = Math.abs(
+            (resultadoPequeno - valorReal) / valorReal
+        );
+
+        expect(errorPequeno).toBeLessThan(errorGrande);
+    });
+
+    test('presenta convergencia de primer orden', () => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
+
+        const errorH = Math.abs(
+            diferenciasAtrasGrado1(f, 1, 0.2) - valorReal
+        );
+
+        const errorH2 = Math.abs(
+            diferenciasAtrasGrado1(f, 1, 0.1) - valorReal
+        );
+
+        expect(errorH / errorH2).toBeGreaterThan(1.8);
+    });
+
+    test('rechaza un paso igual a cero', () => {
+        expect(() =>
+            diferenciasAtrasGrado1(Math.sin, 1, 0)
+        ).toThrow();
+    });
+});
+
+describe('Diferencias de tres puntos', () => {
+    test.each([
+        ['adelante', derivadaAdelanteOrden2],
+        ['atrás', derivadaAtrasOrden2]
+    ])('calcula correctamente la derivada usando tres puntos hacia %s', (_, metodo) => {
+        const f = x => x ** 3;
+        const resultado = metodo(f, 2, 0.1);
+
+        expect(resultado).toBeCloseTo(11.98, 8);
+    });
+
+    test.each([
+        ['adelante', derivadaAdelanteOrden2],
+        ['atrás', derivadaAtrasOrden2]
+    ])('presenta convergencia de orden dos hacia %s', (_, metodo) => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
+
+        const errorH = Math.abs(metodo(f, 1, 0.2) - valorReal);
+        const errorH2 = Math.abs(metodo(f, 1, 0.1) - valorReal);
+
+        expect(errorH / errorH2).toBeGreaterThan(3.5);
+    });
+
+    test.each([
+        ['adelante', derivadaAdelanteOrden2],
+        ['atrás', derivadaAtrasOrden2]
+    ])('rechaza un paso igual a cero hacia %s', (_, metodo) => {
+        expect(() => metodo(Math.sin, 1, 0)).toThrow();
+    });
+});
+
+describe('Precisión y errores numéricos', () => {
+    test('identifica una aproximación con paso demasiado grande', () => {
+        const f = Math.exp;
+        const valorReal = Math.exp(1);
+        const resultado = diferenciasAdelanteGrado1(f, 1, 1);
+
+        const error = Math.abs(resultado - valorReal);
+
+        expect(error).toBeGreaterThan(0.01);
+    });
 });
