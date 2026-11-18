@@ -32,6 +32,22 @@ git clone https://github.com/TU-USUARIO/ChuspaNumeric.git
 cd ChuspaNumeric
 ```
 
+### Instalación de la biblioteca
+
+Para instalar la biblioteca desde npm, ejecuta el siguiente comando:
+
+```bash
+npm install chuspanumeric
+```
+
+### Ejemplo de importación
+
+Para utilizar las funciones de la biblioteca:
+
+```javascript
+import { nombreDeLaFuncion } from 'chuspanumeric';
+```
+
 ### 3. Agrega el repo original como upstream
 Para estar al tanto de las modificaciones que se realicen en el **repositorio original (sis-inf/ChuspaNumeric)** debes agregar el repositorio original como un upstream de la siguiente manera en la terminal de GitBash, puedes **copiar** el siguiente comando:
 
@@ -176,7 +192,7 @@ function trapecio({ f, a, b, n = 100 }) {
     return { resultado, iteraciones };
   });
 
-  // 3. Retornar usando el contrato de Trazo
+  // 3. Retornar usando el contrato de ChuspaNumeric
   return crearResultado({
     resultado: valor.resultado,
     iteraciones: valor.iteraciones,
