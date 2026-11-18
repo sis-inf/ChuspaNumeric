@@ -1,6 +1,10 @@
 import { crearResultado } from '../core/contrato.js';
-import { ErrorDominio } from '../core/errores.js';
-import { validarMatrizCuadrada, validarVector } from '../utils/validaciones.js';
+import { ErrorDominio, ErrorParametros } from '../core/errores.js';
+import {
+    validarMatrizCuadrada,
+    validarNumero,
+    validarVector
+} from '../utils/validaciones.js';
 
 /**
  * Umbral absoluto para detectar pivotes nulos o numéricamente inservibles.
@@ -33,11 +37,28 @@ const UMBRAL_PIVOTE_NULO = 1e-12;
  * @param {number[][]} params.A - Matriz de coeficientes cuadrada (n x n)
  * @param {number[]} params.b - Vector de términos independientes (n)
  * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
+ * @throws {ErrorParametros} Si los parámetros no son un objeto, si A no es una matriz
+ *   cuadrada de números finitos o si b no es un vector finito de la dimensión de A
  * @throws {ErrorDominio} Si el sistema no puede resolverse por pivote nulo
  */
-export function gaussPivoteoParcial({ A, b }) {
+export function gaussPivoteoParcial(params) {
+    if (params === null || typeof params !== 'object' || Array.isArray(params)) {
+        const recibido = params === null ? 'null' : Array.isArray(params) ? 'array' : typeof params;
+        throw new ErrorParametros(
+            `ChuspaNumeric.gaussPivoteoParcial: 'params' debe ser un objeto con { A, b }. Se recibió: ${recibido}.`
+        );
+    }
+
+    const { A, b } = params;
+
     validarMatrizCuadrada(A);
     const n = A.length;
+
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            validarNumero(A[i][j], `A[${i}][${j}]`);
+        }
+    }
 
     validarVector(b, n);
 
