@@ -180,3 +180,75 @@ describe('unidades - unidadesDisponibles', () => {
     expect(disponibles.temperatura).toEqual(['C', 'F', 'K']);
   });
 });
+
+describe('unidades - precision y errores relativos', () => {
+  test.each([0.1, 0.01, 0.001, 0.000001])(
+    'longitud conserva la precision con un paso h=%p',
+    (h) => {
+      const resultado = convertirLongitud(h, 'km', 'm');
+      const esperado = h * 1000;
+
+      const errorRelativo = Math.abs(resultado - esperado) / esperado;
+
+      expect(errorRelativo).toBeLessThan(1e-12);
+    }
+  );
+
+  test.each([
+    [1e-6, 'm', 'km'],
+    [0.001, 'm', 'km'],
+    [0.1, 'm', 'km'],
+  ])(
+    'longitud mantiene un error relativo pequeno para %p %s a %s',
+    (valor, origen, destino) => {
+      const convertido = convertirLongitud(valor, origen, destino);
+      const recuperado = convertirLongitud(convertido, destino, origen);
+
+      const errorRelativo = Math.abs(recuperado - valor) / Math.abs(valor);
+
+      expect(errorRelativo).toBeLessThan(1e-10);
+    }
+  );
+
+  test('presion mantiene la precision en conversiones de ida y vuelta', () => {
+    const referencia = 101325;
+    const convertido = convertirPresion(referencia, 'Pa', 'atm');
+    const recuperado = convertirPresion(convertido, 'atm', 'Pa');
+
+    const errorRelativo =
+      Math.abs(recuperado - referencia) / referencia;
+
+    expect(errorRelativo).toBeLessThan(1e-10);
+  });
+
+  test('energia conserva la precision para valores pequenos', () => {
+    const referencia = 0.001;
+    const convertido = convertirEnergia(referencia, 'kJ', 'J');
+    const recuperado = convertirEnergia(convertido, 'J', 'kJ');
+
+    const errorRelativo =
+      Math.abs(recuperado - referencia) / referencia;
+
+    expect(errorRelativo).toBeLessThan(1e-10);
+  });
+
+  test('temperatura conserva la precision en una conversion reversible', () => {
+    const referencia = 25.123456;
+    const convertido = convertirTemperatura(referencia, 'C', 'F');
+    const recuperado = convertirTemperatura(convertido, 'F', 'C');
+
+    const errorAbsoluto = Math.abs(recuperado - referencia);
+
+    expect(errorAbsoluto).toBeLessThan(1e-10);
+  });
+
+  test('una tolerancia estricta detecta perdida de precision por redondeo', () => {
+    const referencia = convertirLongitud(1.234567, 'km', 'm');
+    const aproximacion = Math.round(referencia * 10) / 10;
+
+    const errorAbsoluto = Math.abs(aproximacion - referencia);
+
+    expect(errorAbsoluto).toBeLessThan(0.1);
+    expect(errorAbsoluto).toBeGreaterThan(1e-4);
+  });
+});
