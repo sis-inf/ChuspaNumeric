@@ -252,3 +252,51 @@ describe('unidades - precision y errores relativos', () => {
     expect(errorAbsoluto).toBeGreaterThan(1e-4);
   });
 });
+
+describe('unidades - ordenes de convergencia y divergencia', () => {
+  const pasos = [0.1, 0.01, 0.001];
+  const referencia = convertirLongitud(2, 'km', 'm');
+
+  test('verifica convergencia de primer orden al reducir h', () => {
+    const errores = pasos.map((h) => {
+      const aproximacion = convertirLongitud(2 + h, 'km', 'm');
+      return Math.abs(aproximacion - referencia);
+    });
+
+    expect(errores[1] / errores[0]).toBeCloseTo(0.1, 8);
+    expect(errores[2] / errores[1]).toBeCloseTo(0.1, 8);
+  });
+
+  test('verifica convergencia de segundo orden al reducir h', () => {
+    const errores = pasos.map((h) => {
+      const aproximacion = convertirLongitud(2 + h ** 2, 'km', 'm');
+      return Math.abs(aproximacion - referencia);
+    });
+
+    expect(errores[1] / errores[0]).toBeCloseTo(0.01, 8);
+    expect(errores[2] / errores[1]).toBeCloseTo(0.01, 8);
+  });
+
+  test('detecta falta de convergencia cuando el error relativo permanece constante', () => {
+    const erroresRelativos = pasos.map(() => {
+      const aproximacion = convertirLongitud(2.1, 'km', 'm');
+      return Math.abs(aproximacion - referencia) / referencia;
+    });
+
+    const tolerancia = 1e-6;
+
+    expect(erroresRelativos.every((error) => error > tolerancia)).toBe(true);
+    expect(erroresRelativos[1]).toBeCloseTo(erroresRelativos[0], 10);
+    expect(erroresRelativos[2]).toBeCloseTo(erroresRelativos[1], 10);
+  });
+
+  test('detecta divergencia cuando el error relativo aumenta al reducir h', () => {
+    const erroresRelativos = pasos.map((h) => {
+      const aproximacion = convertirLongitud(2 + 0.01 / h, 'km', 'm');
+      return Math.abs(aproximacion - referencia) / referencia;
+    });
+
+    expect(erroresRelativos[1]).toBeGreaterThan(erroresRelativos[0]);
+    expect(erroresRelativos[2]).toBeGreaterThan(erroresRelativos[1]);
+  });
+});
