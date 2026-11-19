@@ -1,7 +1,7 @@
 // METODO DE HALLEY
 
 import { crearResultado, medirTiempo } from '../core/contrato.js';
-import { ErrorDominio } from '../core/errores.js';
+import { ErrorDominio, ErrorParametros } from '../core/errores.js';
 import {
   validarFuncion,
   validarNumero,
@@ -28,7 +28,16 @@ import {
  * @throws {ErrorDominio} Si el denominador de la actualización es cero.
  * @throws {ErrorDivergencia} Si f, sus derivadas o la iteración no son finitas.
  */
-function halley({ f, df, d2f, x0, tolerancia = 1e-6, maxIter = 100 }) {
+function halley(opciones) {
+  if (opciones === null || typeof opciones !== 'object' || Array.isArray(opciones)) {
+    const recibido = opciones === null ? 'null' : Array.isArray(opciones) ? 'array' : typeof opciones;
+    throw new ErrorParametros(
+      `ChuspaNumeric.halley: 'opciones' debe ser un objeto con { f, df, d2f, x0 }. Se recibió: ${recibido}.`
+    );
+  }
+
+  const { f, df, d2f, x0, tolerancia = 1e-6, maxIter = 100 } = opciones;
+
   validarFuncion(f, 'f');
   validarFuncion(df, 'df');
   validarFuncion(d2f, 'd2f');
