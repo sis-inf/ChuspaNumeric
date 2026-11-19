@@ -1,3 +1,10 @@
+/**
+ * @module src/index
+ * Punto de entrada principal de la librería numérica ChuspaNumeric.
+ * Agrupa los módulos por categoría y re-exporta todas las utilidades y métodos
+ * numéricos en formato ESM (con compatibilidad auxiliar para CommonJS si aplica).
+ */
+
 import { regresionLineal, regresionPolinomial } from './analisis/ajuste_minimos_cuadrados.js';
 
 import {
@@ -82,6 +89,82 @@ import {
   esSimetrica,
 } from './utils/generadores_matrices.js';
 
+/**
+ * Re-exporta el método de regresión no lineal por Gauss-Newton.
+ */
+import { regresionNoLineal } from './analisis/regresion_no_lineal.js';
+
+/**
+ * Re-exporta las utilidades de conversión de unidades físicas.
+ */
+import {
+  convertirLongitud,
+  convertirTemperatura,
+  convertirPresion,
+  convertirEnergia,
+  unidadesDisponibles,
+} from './utils/unidades.js';
+
+/**
+ * Re-exporta las utilidades de números complejos.
+ */
+import {
+  sumaComplejos,
+  productoComplejos,
+  moduloComplejo,
+  conjugadoComplejo,
+  divisionComplejos,
+} from './utils/numeros_complejos.js';
+
+/**
+ * Re-exporta la función de exportación a Markdown.
+ */
+import { exportarMarkdown } from './io/exportar_markdown.js';
+
+/**
+ * Re-exporta el generador de números pseudoaleatorios con semilla reproducible.
+ */
+import { crearGeneradorAleatorio } from './utils/prng.js';
+
+/**
+ * Re-exporta las utilidades básicas de álgebra de vectores.
+ */
+import {
+  sumaVectores,
+  restaVectores,
+  productoPunto,
+  productoCruz,
+  magnitudVector,
+  normalizarVector,
+  escalarPorVector,
+} from './utils/algebra_vectores.js';
+
+/**
+ * Re-exporta el cálculo de matriz inversa mediante Gauss-Jordan.
+ */
+import { calcularInversa } from './lineales/inversa.js';
+
+/**
+ * Re-exporta el método de integración por cuadratura de Gauss-Legendre.
+ */
+import gaussLegendre from './integracion/gauss_legendre.js';
+
+/**
+ * @typedef {Object} LibreriaChuspaNumeric
+ * @property {Record<string, Function>} lineales Métodos para sistemas lineales y determinantes.
+ * @property {Record<string, Function>} noLineales Métodos para ecuaciones no lineales.
+ * @property {Record<string, Function>} interpolacion Métodos de interpolación numérica.
+ * @property {Record<string, Function>} integracion Métodos de integración numérica y derivación.
+ * @property {Record<string, Function>} edo Métodos numéricos para ecuaciones diferenciales ordinarias.
+ * @property {Record<string, Function>} analisis Métodos de ajuste y análisis numérico.
+ * @property {Record<string, Function>} diferencias Métodos de diferencias finitas y Richardson.
+ * @property {Record<string, Function>} matricial Operaciones y normas matriciales.
+ * @property {Record<string, Function>} polinomios Evaluación de polinomios.
+ * @property {Record<string, Function>} estadistica Estadística descriptiva básica.
+ * @property {Record<string, Function>} generadoresMatrices Generadores y validadores de matrices de prueba.
+ */
+
+/** @type {Record<string, Function>} */
 const lineales = {
   gauss,
   gaussPivoteoParcial,
@@ -93,9 +176,11 @@ const lineales = {
   det2x2,
   det3x3,
   descomposicionCholesky,
-  resolverCholesky
+  resolverCholesky,
+  calcularInversa
 };
 
+/** @type {Record<string, Function>} */
 const noLineales = {
   biseccion,
   falsaPosicion,
@@ -106,6 +191,7 @@ const noLineales = {
   halley
 };
 
+/** @type {Record<string, Function>} */
 const interpolacion = {
   lagrange,
   newtonDD,
@@ -116,6 +202,7 @@ const interpolacion = {
   lagrangeBaricentrica
 };
 
+/** @type {Record<string, Function>} */
 const integracion = {
   trapecio,
   simpson13,
@@ -123,9 +210,11 @@ const integracion = {
   derivative,
   simpsonCompuesto,
   integracionMonteCarlo,
-  puntoMedio
+  puntoMedio,
+  gaussLegendre
 };
 
+/** @type {Record<string, Function>} */
 const edo = {
   euler,
   eulerMejorado,
@@ -134,11 +223,14 @@ const edo = {
   metodoPuntoMedio
 };
 
+/** @type {Record<string, Function>} */
 const analisis = {
   regresionLineal,
-  regresionPolinomial
+  regresionPolinomial,
+  regresionNoLineal
 };
 
+/** @type {Record<string, Function>} */
 const diferencias = {
   diferenciaCentrada,
   diferenciaCentradaSegundaDerivada,
@@ -146,6 +238,7 @@ const diferencias = {
   derivadaRichardson
 };
 
+/** @type {Record<string, Function>} */
 const matricial = {
   determinanteSarrus,
   normaEuclideana,
@@ -159,10 +252,12 @@ const matricial = {
   calcularNumeroCondicion
 };
 
+/** @type {Record<string, Function>} */
 const polinomios = {
   evaluarHorner
 };
 
+/** @type {Record<string, Function>} */
 const estadistica = {
   media,
   varianza,
@@ -170,6 +265,7 @@ const estadistica = {
   mediana
 };
 
+/** @type {Record<string, Function>} */
 const generadoresMatrices = {
   matrizIdentidad,
   matrizHilbert,
@@ -177,6 +273,69 @@ const generadoresMatrices = {
   matrizSimetricaDefinidaPositiva,
   esDiagonalDominante,
   esSimetrica,
+};
+
+/**
+ * Construye el objeto agrupado de namespaces de ChuspaNumeric.
+ *
+ * @returns {LibreriaChuspaNumeric} Objeto con todos los namespaces de la librería.
+ */
+function crearNamespacesChuspaNumeric() {
+  return {
+    lineales,
+    noLineales,
+    interpolacion,
+    integracion,
+    edo,
+    analisis,
+    diferencias,
+    matricial,
+    polinomios,
+    estadistica,
+    generadoresMatrices,
+  };
+}
+
+/** @type {LibreriaChuspaNumeric} */
+const namespaces = crearNamespacesChuspaNumeric();
+
+/** @type {Record<string, unknown>} */
+const apiPublica = {
+  ...namespaces,
+
+  // exportaciones planas para acceso directo
+  ...lineales,
+  ...noLineales,
+  ...interpolacion,
+  ...integracion,
+  ...edo,
+  ...analisis,
+  ...diferencias,
+  ...matricial,
+  ...polinomios,
+  ...estadistica,
+  ...generadoresMatrices,
+
+  // utilidades adicionales re-exportadas
+  convertirLongitud,
+  convertirTemperatura,
+  convertirPresion,
+  convertirEnergia,
+  unidadesDisponibles,
+  sumaComplejos,
+  productoComplejos,
+  moduloComplejo,
+  conjugadoComplejo,
+  divisionComplejos,
+  exportarMarkdown,
+  crearGeneradorAleatorio,
+  sumaVectores,
+  restaVectores,
+  productoPunto,
+  productoCruz,
+  magnitudVector,
+  normalizarVector,
+  escalarPorVector,
 };
 
 export {
@@ -190,9 +349,11 @@ export {
   matricial,
   polinomios,
   estadistica,
+  generadoresMatrices,
+  crearNamespacesChuspaNumeric,
 
   // lineales
-  gauss, 
+  gauss,
   gaussPivoteoParcial,
   gaussJordan,
   jacobi,
@@ -203,6 +364,7 @@ export {
   det3x3,
   descomposicionCholesky,
   resolverCholesky,
+  calcularInversa,
 
   // no lineales
   biseccion,
@@ -230,6 +392,7 @@ export {
   simpsonCompuesto,
   integracionMonteCarlo,
   puntoMedio,
+  gaussLegendre,
 
   // edo
   euler,
@@ -241,6 +404,7 @@ export {
   // analisis
   regresionLineal,
   regresionPolinomial,
+  regresionNoLineal,
 
   // diferencias
   diferenciaCentrada,
@@ -276,75 +440,20 @@ export {
   matrizSimetricaDefinidaPositiva,
   esDiagonalDominante,
   esSimetrica,
-};
 
-export default {
-  lineales,
-  noLineales,
-  interpolacion,
-  integracion,
-  edo,
-  analisis,
-  diferencias,
-  matricial,
-  polinomios,
-  estadistica,
-
-  // exportaciones planas para acceso directo
-  ...lineales,
-  ...noLineales,
-  ...interpolacion,
-  ...integracion,
-  ...edo,
-  ...analisis,
-  ...diferencias,
-  ...matricial,
-  ...polinomios,
-  ...estadistica,
-  ...generadoresMatrices
-};
-
-/**
- * Re-exporta el método de regresión no lineal por Gauss-Newton.
- */
-export { regresionNoLineal } from './analisis/regresion_no_lineal.js';
-
-/**
- * Re-exporta las utilidades de conversión de unidades físicas.
- */
-export {
+  // utilidades adicionales
   convertirLongitud,
   convertirTemperatura,
   convertirPresion,
   convertirEnergia,
   unidadesDisponibles,
-} from './utils/unidades.js';
-
-/**
- * Re-exporta las utilidades de números complejos.
- */
-export {
   sumaComplejos,
   productoComplejos,
   moduloComplejo,
   conjugadoComplejo,
   divisionComplejos,
-} from './utils/numeros_complejos.js';
-
-/**
- * Re-exporta la función de exportación a Markdown.
- */
-export { exportarMarkdown } from './io/exportar_markdown.js';
-
-/**
- * Re-exporta el generador de números pseudoaleatorios con semilla reproducible.
- */
-export { crearGeneradorAleatorio } from './utils/prng.js';
-
-/**
- * Re-exporta las utilidades básicas de álgebra de vectores.
- */
-export {
+  exportarMarkdown,
+  crearGeneradorAleatorio,
   sumaVectores,
   restaVectores,
   productoPunto,
@@ -352,14 +461,13 @@ export {
   magnitudVector,
   normalizarVector,
   escalarPorVector,
-} from './utils/algebra_vectores.js';
+};
 
-/**
- * Re-exporta el cálculo de matriz inversa mediante Gauss-Jordan.
- */
-export { calcularInversa } from './lineales/inversa.js';
+export default apiPublica;
 
-/**
- * Re-exporta el método de integración por cuadratura de Gauss-Legendre.
- */
-export { default as gaussLegendre } from './integracion/gauss_legendre.js';
+if (typeof globalThis.module !== 'undefined' && globalThis.module.exports) {
+  globalThis.module.exports = {
+    default: apiPublica,
+    ...apiPublica,
+  };
+}
