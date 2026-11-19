@@ -1,60 +1,102 @@
-import { crearResultado } from '../core/contrato.js';
+import { crearResultado, medirTiempo } from '../core/contrato.js';
 import { ErrorParametros } from '../core/errores.js';
 import { validarFuncion, validarNumero } from '../utils/validaciones.js';
 
 /**
- * Resuelve numéricamente una EDO y' = f(x, y) usando el método de Euler.
+ * Resuelve una EDO y' = f(x, y) mediante el método de Euler.
  *
- * @param {Object} opciones
- * @param {Function} opciones.f       
- * @param {number}   opciones.x0      
- * @param {number}   opciones.y0     
- * @param {number}   opciones.h       
- * @param {number}   opciones.xFinal  
- * @returns {Object} 
- * @throws {Error} 
- *
- * @example
- * const res = euler({ f: (x, y) => y, x0: 0, y0: 1, h: 0.1, xFinal: 1 });
- * // res.resultado en x=1 es aproximadamente 2.5937
+ * @param {Object} opciones - Parámetros del método.
+ * @returns {Object} Resultado estructurado.
+ * @throws {ErrorParametros} Si los parámetros o cálculos no son válidos.
  */
-export function euler({ f, x0, y0, h, xFinal }) {
+export function euler(opciones = {}) {
+    if (
+        opciones === null ||
+        typeof opciones !== 'object' ||
+        Array.isArray(opciones)
+    ) {
+        throw new ErrorParametros(
+            'ChuspaNumeric.euler: las opciones deben ser un objeto válido.'
+        );
+    }
+
+    const { f, x0, y0, h, xFinal } = opciones;
+
     validarFuncion(f, 'f');
     validarNumero(x0, 'x0');
     validarNumero(y0, 'y0');
     validarNumero(h, 'h');
     validarNumero(xFinal, 'xFinal');
+
     if (h <= 0) {
         throw new ErrorParametros(
-            `ChuspaNumeric: el paso 'h' debe ser mayor que cero. Se recibió: ${h}.`
+            `ChuspaNumeric.euler: el paso 'h' debe ser mayor que cero.`
         );
     }
+
     if (xFinal <= x0) {
         throw new ErrorParametros(
-            `ChuspaNumeric: 'xFinal' (${xFinal}) debe ser mayor que 'x0' (${x0}).`
+            `ChuspaNumeric.euler: 'xFinal' debe ser mayor que 'x0'.`
         );
     }
-    const iteraciones = [];
-    const resultado   = [];
-    let x = x0;
-    let y = y0;
-    let n = 0;
-    while (x <= xFinal + 1e-10) {
-        const fxy = f(x, y);
-        iteraciones.push({ n, x, y, fxy });
-        resultado.push([x, y]);
-        y = y + h * fxy;
-        x = x + h;
-        n++;
-    }
+
+    const { valor, tiempo_ms } = medirTiempo(() => {
+        const iteraciones = [];
+        const resultado = [];
+
+        let x = x0;
+        let y = y0;
+        let n = 0;
+
+        while (x <= xFinal + 1e-10) {
+            const fxy = f(x, y);
+
+            if (!Number.isFinite(fxy)) {
+                throw new ErrorParametros(
+                    `ChuspaNumeric.euler: f(x, y) debe devolver un número finito en la iteración ${n}.`
+                );
+            }
+
+            iteraciones.push({ n, x, y, fxy });
+            resultado.push([x, y]);
+
+            const xSiguiente = x + h;
+
+            if (!Number.isFinite(xSiguiente) || xSiguiente <= x) {
+                throw new ErrorParametros(
+                    'ChuspaNumeric.euler: el paso h no permite avanzar numéricamente.'
+                );
+            }
+
+            if (xSiguiente > xFinal + 1e-10) {
+                break;
+            }
+
+            const ySiguiente = y + h * fxy;
+
+            if (!Number.isFinite(ySiguiente)) {
+                throw new ErrorParametros(
+                    `ChuspaNumeric.euler: resultado no finito en la iteración ${n}.`
+                );
+            }
+
+            x = xSiguiente;
+            y = ySiguiente;
+            n++;
+        }
+
+        return { resultado, iteraciones };
+    });
+
     return crearResultado({
-        resultado,
-        iteraciones,
+        resultado: valor.resultado,
+        iteraciones: valor.iteraciones,
         convergio: true,
-        mensaje: `Método de Euler completado con ${n} iteraciones.`,
+        mensaje: `Método de Euler completado con ${valor.iteraciones.length} iteraciones.`,
         meta: {
             metodo: 'Euler',
             parametros: { x0, y0, h, xFinal },
+            tiempo_ms,
         },
     });
 }
