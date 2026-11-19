@@ -5,7 +5,8 @@ import {
   convertirEnergia,
   unidadesDisponibles,
 } from '../../../src/utils/unidades.js';
-import { ErrorParametros } from '../../../src/core/errores.js';
+import { ErrorParametros, ErrorDivergencia } from '../../../src/core/errores.js';
+import { newtonRaphson } from '../../../src/no-lineales/newton-raphson.js';
 
 describe('unidades - conversiones conocidas', () => {
   test.each([
@@ -254,49 +255,93 @@ describe('unidades - precision y errores relativos', () => {
 });
 
 describe('unidades - ordenes de convergencia y divergencia', () => {
-  const pasos = [0.1, 0.01, 0.001];
-  const referencia = convertirLongitud(2, 'km', 'm');
-
-  test('verifica convergencia de primer orden al reducir h', () => {
-    const errores = pasos.map((h) => {
-      const aproximacion = convertirLongitud(2 + h, 'km', 'm');
-      return Math.abs(aproximacion - referencia);
+  test('verifica convergencia de primer orden con Newton-Raphson', () => {
+    // Para f(x) = x^3, Newton converge linealmente
+    // hacia la raíz múltiple x = 0.
+    const resultado = newtonRaphson({
+      f: (x) => x ** 3,
+      df: (x) => 3 * x ** 2,
+      x0: 1,
+      tolerancia: 1e-12,
+      maxIter: 5,
     });
 
-    expect(errores[1] / errores[0]).toBeCloseTo(0.1, 8);
-    expect(errores[2] / errores[1]).toBeCloseTo(0.1, 8);
+    const errores = resultado.iteraciones.map(
+      (iteracion) => Math.abs(iteracion.x)
+    );
+
+    expect(errores).toHaveLength(5);
+
+    for (let i = 1; i < errores.length; i++) {
+      expect(errores[i]).toBeLessThan(errores[i - 1]);
+      expect(errores[i] / errores[i - 1]).toBeCloseTo(2 / 3, 8);
+    }
   });
 
-  test('verifica convergencia de segundo orden al reducir h', () => {
-    const errores = pasos.map((h) => {
-      const aproximacion = convertirLongitud(2 + h ** 2, 'km', 'm');
-      return Math.abs(aproximacion - referencia);
+  test('verifica convergencia de segundo orden con Newton-Raphson', () => {
+    // Para f(x) = x^2 - 2, Newton converge
+    // cuadráticamente hacia la raíz simple sqrt(2).
+    const resultado = newtonRaphson({
+      f: (x) => x * x - 2,
+      df: (x) => 2 * x,
+      x0: 1.5,
+      tolerancia: 1e-12,
+      maxIter: 20,
     });
 
-    expect(errores[1] / errores[0]).toBeCloseTo(0.01, 8);
-    expect(errores[2] / errores[1]).toBeCloseTo(0.01, 8);
+    expect(resultado.convergio).toBe(true);
+
+    const errores = resultado.iteraciones.map(
+      (iteracion) => Math.abs(iteracion.x - Math.SQRT2)
+    );
+
+    expect(errores.length).toBeGreaterThanOrEqual(3);
+
+    for (let i = 0; i < 2; i++) {
+      expect(errores[i + 1]).toBeLessThan(errores[i]);
+
+      const razon = errores[i + 1] / (errores[i] ** 2);
+
+      expect(razon).toBeGreaterThan(0.2);
+      expect(razon).toBeLessThan(0.5);
+    }
   });
 
-  test('detecta falta de convergencia cuando el error relativo permanece constante', () => {
-    const erroresRelativos = pasos.map(() => {
-      const aproximacion = convertirLongitud(2.1, 'km', 'm');
-      return Math.abs(aproximacion - referencia) / referencia;
+  test('detecta falta de convergencia al agotar las iteraciones', () => {
+    const tolerancia = 1e-12;
+    const maxIter = 3;
+
+    const resultado = newtonRaphson({
+      f: (x) => x * x - 2,
+      df: (x) => 2 * x,
+      x0: 1000,
+      tolerancia,
+      maxIter,
     });
 
-    const tolerancia = 1e-6;
+    expect(resultado.convergio).toBe(false);
+    expect(resultado.iteraciones).toHaveLength(maxIter);
+    expect(resultado.mensaje).toBe(
+      'Se alcanzó el máximo de iteraciones sin converger.'
+    );
 
-    expect(erroresRelativos.every((error) => error > tolerancia)).toBe(true);
-    expect(erroresRelativos[1]).toBeCloseTo(erroresRelativos[0], 10);
-    expect(erroresRelativos[2]).toBeCloseTo(erroresRelativos[1], 10);
+    const ultima = resultado.iteraciones[
+      resultado.iteraciones.length - 1
+    ];
+
+    expect(ultima.error).toBeGreaterThan(tolerancia);
   });
 
-  test('detecta divergencia cuando el error relativo aumenta al reducir h', () => {
-    const erroresRelativos = pasos.map((h) => {
-      const aproximacion = convertirLongitud(2 + 0.01 / h, 'km', 'm');
-      return Math.abs(aproximacion - referencia) / referencia;
+  test('detecta divergencia real mediante ErrorDivergencia', () => {
+    const ejecutar = () => newtonRaphson({
+      f: (x) => x * x - 2,
+      df: (x) => 2 * x,
+      x0: 1e200,
+      tolerancia: 1e-12,
+      maxIter: 10,
     });
 
-    expect(erroresRelativos[1]).toBeGreaterThan(erroresRelativos[0]);
-    expect(erroresRelativos[2]).toBeGreaterThan(erroresRelativos[1]);
+    expect(ejecutar).toThrow(ErrorDivergencia);
+    expect(ejecutar).toThrow(/divergencia numérica detectada/);
   });
 });
