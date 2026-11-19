@@ -8,7 +8,7 @@ import {
 import { ErrorDivergencia } from '../../../src/core/errores.js';
 
 describe('error relativo - newton-raphson', () => {
-  test('el error en cada iteración decrece hasta ser menor a tolerancia', () => {
+  test('el error en cada iteracion decrece hasta ser menor a tolerancia', () => {
     const f = (x) => x ** 2 - 2;
     const df = (x) => 2 * x;
     const tolerancia = 1e-5;
@@ -23,7 +23,7 @@ describe('error relativo - newton-raphson', () => {
     expect(Math.abs(res.resultado - Math.SQRT2)).toBeLessThan(tolerancia);
   });
 
-  test('lanza error con parámetros inválidos', () => {
+  test('lanza error con parametros invalidos', () => {
     expect(() => newtonRaphson(null)).toThrow();
     expect(() => newtonRaphson({})).toThrow();
     expect(() =>
@@ -31,7 +31,7 @@ describe('error relativo - newton-raphson', () => {
     ).toThrow();
   });
 
-  test('maneja no convergencia cuando maxIter es demasiado pequeño', () => {
+  test('maneja no convergencia cuando maxIter es demasiado pequeno', () => {
     const f = (x) => x ** 2 - 2;
     const df = (x) => 2 * x;
     const res = newtonRaphson({
@@ -45,7 +45,7 @@ describe('error relativo - newton-raphson', () => {
     expect(res.convergio).toBe(false);
   });
 
-  test('evalúa error relativo en un caso exitoso adicional (x^3 - 8 = 0)', () => {
+  test('evalua error relativo en un caso exitoso adicional (x^3 - 8 = 0)', () => {
     const f = (x) => x ** 3 - 8;
     const df = (x) => 3 * x ** 2;
     const tolerancia = 1e-5;
@@ -59,7 +59,7 @@ describe('error relativo - newton-raphson', () => {
     expect(ultimaIter.error).toBeLessThan(tolerancia);
   });
 
-  test('compara la precisión con diferentes tolerancias', () => {
+  test('compara la precision con diferentes tolerancias', () => {
     const f = (x) => x ** 2 - 2;
     const df = (x) => 2 * x;
 
@@ -93,7 +93,7 @@ describe('error relativo - newton-raphson', () => {
     );
   });
 
-  test('detecta la divergencia cuando una iteración produce Infinity', () => {
+  test('detecta la divergencia cuando una iteracion produce Infinity', () => {
     expect(() =>
       newtonRaphson({
         f: () => Infinity,
@@ -121,7 +121,62 @@ describe('error relativo - newton-raphson', () => {
     }
   });
 
-  test('comprueba el orden de convergencia cuadrática de Newton-Raphson', () => {
+  test('evalua diferentes tamanos de paso entre aproximaciones sucesivas', () => {
+    const f = (x) => x ** 2 - 2;
+    const df = (x) => 2 * x;
+
+    const calcularTamanosPaso = (x0) => {
+      const resultado = newtonRaphson({
+        f,
+        df,
+        x0,
+        tolerancia: 1e-10,
+      });
+
+      const aproximaciones = [
+        ...resultado.iteraciones.map((iteracion) => iteracion.x),
+        resultado.resultado,
+      ];
+
+      const tamanosPaso = aproximaciones.slice(1).map(
+        (aproximacion, indice) =>
+          Math.abs(aproximacion - aproximaciones[indice])
+      );
+
+      return { resultado, tamanosPaso };
+    };
+
+    const desdeUno = calcularTamanosPaso(1);
+    const desdeTres = calcularTamanosPaso(3);
+
+    expect(desdeUno.resultado.convergio).toBe(true);
+    expect(desdeTres.resultado.convergio).toBe(true);
+
+    expect(desdeUno.tamanosPaso.length).toBeGreaterThan(1);
+    expect(desdeTres.tamanosPaso.length).toBeGreaterThan(1);
+
+    expect(desdeUno.tamanosPaso[0]).not.toBeCloseTo(
+      desdeTres.tamanosPaso[0],
+      8
+    );
+
+    for (const { resultado, tamanosPaso } of [desdeUno, desdeTres]) {
+      expect(tamanosPaso).toHaveLength(resultado.iteraciones.length);
+
+      for (let i = 0; i < tamanosPaso.length; i++) {
+        expect(tamanosPaso[i]).toBeCloseTo(
+          resultado.iteraciones[i].error,
+          12
+        );
+
+        if (i > 0) {
+          expect(tamanosPaso[i]).toBeLessThan(tamanosPaso[i - 1]);
+        }
+      }
+    }
+  });
+
+  test('comprueba el orden de convergencia cuadratica de Newton-Raphson', () => {
     const resultado = newtonRaphson({
       f: (x) => x ** 2 - 2,
       df: (x) => 2 * x,
@@ -145,7 +200,7 @@ describe('error relativo - newton-raphson', () => {
   });
 });
 
-describe('error relativo y porcentual - cálculo y bordes', () => {
+describe('error relativo y porcentual - calculo y bordes', () => {
   test('calcula el error relativo y porcentual', () => {
     expect(errorRelativo(4, 3)).toBe(0.25);
     expect(errorPorcentual(4, 3)).toBe(25);
@@ -177,7 +232,7 @@ describe('error relativo y porcentual - cálculo y bordes', () => {
     expect(Number.isFinite(errorRelativo(1e-300, 1))).toBe(true);
   });
 
-  test('calcula errores con valores pequeños sin producir Infinity', () => {
+  test('calcula errores con valores pequenos sin producir Infinity', () => {
     const resultado = errorRelativo(1e-10, 0.9e-10);
 
     expect(Number.isFinite(resultado)).toBe(true);
