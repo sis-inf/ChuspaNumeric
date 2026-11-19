@@ -2,8 +2,17 @@ import { crearResultado } from "../core/contrato.js";
 import { ErrorParametros, ErrorDominio } from "../core/errores.js";
 import {
   validarMatrizCuadrada,
+  validarNumero,
   validarVector,
 } from "../utils/validaciones.js";
+
+function validarElementosFinitos(matriz, nombre) {
+  for (let i = 0; i < matriz.length; i++) {
+    for (let j = 0; j < matriz[i].length; j++) {
+      validarNumero(matriz[i][j], `${nombre}[${i}][${j}]`);
+    }
+  }
+}
 
 function validarSimetria(A, n) {
   for (let i = 0; i < n; i++) {
@@ -24,7 +33,7 @@ function validarSimetria(A, n) {
  *
  * @param {number[][]} A - Matriz simétrica definida positiva (n×n).
  * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
- * @throws {ErrorParametros} Si A no es cuadrada o no es simétrica.
+ * @throws {ErrorParametros} Si A no es cuadrada, contiene valores no finitos o no es simétrica.
  * @throws {ErrorDominio}    Si A no es definida positiva.
  *
  * @example
@@ -34,6 +43,7 @@ function validarSimetria(A, n) {
 function descomposicionCholesky(A) {
   validarMatrizCuadrada(A);
   const n = A.length;
+  validarElementosFinitos(A, "A");
   validarSimetria(A, n);
 
   const L = Array.from({ length: n }, () => new Array(n).fill(0));
@@ -87,6 +97,7 @@ function descomposicionCholesky(A) {
  * @param {number[][]} L - Matriz triangular inferior de Cholesky (n×n).
  * @param {number[]}   b - Vector de términos independientes (longitud n).
  * @returns {Object} Resultado siguiendo el contrato de ChuspaNumeric.
+ * @throws {ErrorParametros} Si L no es cuadrada o contiene valores no finitos, o si b no es un vector finito de su misma dimensión.
  *
  * @example
  * const { resultado } = resolverCholesky([[2,0],[1,1.414]], [8, 7]);
@@ -95,6 +106,7 @@ function descomposicionCholesky(A) {
 function resolverCholesky(L, b) {
   validarMatrizCuadrada(L);
   const n = L.length;
+  validarElementosFinitos(L, "L");
   validarVector(b, n);
 
   const iteraciones = [];
