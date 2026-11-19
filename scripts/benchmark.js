@@ -8,6 +8,9 @@
  * Uso: node scripts/benchmark.js
  */
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { medirTiempo } from '../src/core/contrato.js';
 
 import { gauss } from '../src/lineales/gauss.js';
@@ -35,7 +38,25 @@ import { euler } from '../src/edo/euler.js';
 import { eulerMejorado } from '../src/edo/euler-mejorado.js';
 import { rungeKutta4 } from '../src/edo/runge_kutta_4.js';
 
+/**
+ * @typedef {Object} CasoBenchmark
+ * @property {string} categoria Categoría del método numérico.
+ * @property {string} nombre Identificador del método evaluado.
+ * @property {() => unknown} fn Función que ejecuta el caso de prueba.
+ */
+
+/**
+ * @typedef {Object} ResultadoBenchmark
+ * @property {string} categoria Categoría del método numérico.
+ * @property {string} nombre Identificador del método evaluado.
+ * @property {() => unknown} [fn] Función original del caso (si está presente).
+ * @property {number} [promedio] Tiempo promedio de ejecución en milisegundos.
+ * @property {number} [iteracionesPorSegundo] Estimación de iteraciones por segundo.
+ * @property {string} [error] Mensaje de error si la ejecución falló.
+ */
+
 const REPETICIONES = 1000;
+const ITERACIONES_CALENTAMIENTO = 5;
 
 const A3 = [
   [2, 1, -1],
@@ -58,6 +79,7 @@ const puntosInterp = [
   [3, 20.0855],
 ];
 
+/** @type {CasoBenchmark[]} */
 const casos = [
   { categoria: 'Sistemas lineales', nombre: 'gauss', fn: () => gauss({ A: A3, b: b3 }) },
   { categoria: 'Sistemas lineales', nombre: 'gaussJordan', fn: () => gaussJordan({ A: A3, b: b3 }) },
@@ -85,44 +107,116 @@ const casos = [
   { categoria: 'EDO', nombre: 'rungeKutta4', fn: () => rungeKutta4({ f: (x, y) => y, x0: 0, y0: 1, h: 0.01, xFinal: 1 }) },
 ];
 
-console.log('# Resultados de benchmark (Node', process.version, ')');
-console.log('categoria,metodo,tiempo_promedio_ms,iteraciones_por_segundo,repeticiones,error');
-console.log('');
-
-const resultados = [];
-
-for (const caso of casos) {
-  let tiempos = [];
-  let error = null;
+/**
+ * Ejecuta un caso de benchmark múltiples veces y calcula su rendimiento promedio.
+ *
+ * @param {CasoBenchmark} caso Caso de prueba numérico a medir.
+ * @param {number} [repeticiones=REPETICIONES] Cantidad de mediciones a promediar.
+ * @param {number} [calentamiento=ITERACIONES_CALENTAMIENTO] Iteraciones previas de calentamiento JIT.
+ * @returns {ResultadoBenchmark} Resultado con tiempo promedio e iteraciones por segundo, o mensaje de error.
+ */
+function ejecutarCasoBenchmark(
+  caso,
+  repeticiones = REPETICIONES,
+  calentamiento = ITERACIONES_CALENTAMIENTO
+) {
+  const tiempos = [];
 
   try {
-    // Calentamiento (evita medir la compilación JIT inicial)
-    for (let i = 0; i < 5; i++) caso.fn();
+    for (let i = 0; i < calentamiento; i++) {
+      caso.fn();
+    }
 
-    for (let i = 0; i < REPETICIONES; i++) {
+    for (let i = 0; i < repeticiones; i++) {
       const { tiempo_ms } = medirTiempo(caso.fn);
       tiempos.push(tiempo_ms);
     }
   } catch (e) {
-    error = e.message;
-  }
-
-  if (error) {
-    console.log(`${caso.categoria},${caso.nombre},ERROR,,,${error}`);
-    resultados.push({ ...caso, error });
-    continue;
+    return { ...caso, error: e instanceof Error ? e.message : String(e) };
   }
 
   const promedio = tiempos.reduce((a, b) => a + b, 0) / tiempos.length;
   const iteracionesPorSegundo = promedio > 0 ? 1000 / promedio : Infinity;
 
-  console.log(
-    `${caso.categoria},${caso.nombre},${promedio.toFixed(4)},${iteracionesPorSegundo.toFixed(0)},${REPETICIONES},`
-  );
-
-  resultados.push({ ...caso, promedio, iteracionesPorSegundo });
+  return { ...caso, promedio, iteracionesPorSegundo };
 }
 
-console.log('');
-console.log('# JSON');
-console.log(JSON.stringify(resultados.map(({ fn, ...rest }) => rest), null, 2));
+/**
+ * Ejecuta todos los casos de benchmark configurados.
+ *
+ * @param {CasoBenchmark[]} [listaCasos=casos] Lista de casos a evaluar.
+ * @param {number} [repeticiones=REPETICIONES] Repeticiones por caso.
+ * @returns {ResultadoBenchmark[]} Arreglo de resultados obtenidos.
+ */
+function ejecutarBenchmarks(listaCasos = casos, repeticiones = REPETICIONES) {
+  return listaCasos.map((caso) => ejecutarCasoBenchmark(caso, repeticiones));
+}
+
+/**
+ * Imprime en consola los resultados del benchmark en formato CSV y JSON.
+ *
+ * @param {ResultadoBenchmark[]} resultados Resultados generados por `ejecutarBenchmarks`.
+ * @param {number} [repeticiones=REPETICIONES] Número de repeticiones usadas en la medición.
+ * @returns {void}
+ */
+function imprimirResultados(resultados, repeticiones = REPETICIONES) {
+  console.log('# Resultados de benchmark (Node', process.version, ')');
+  console.log('categoria,metodo,tiempo_promedio_ms,iteraciones_por_segundo,repeticiones,error');
+  console.log('');
+
+  for (const item of resultados) {
+    if (item.error) {
+      console.log(`${item.categoria},${item.nombre},ERROR,,,${item.error}`);
+      continue;
+    }
+
+    const promedioTexto = Number(item.promedio).toFixed(4);
+    const opsTexto = Number(item.iteracionesPorSegundo).toFixed(0);
+    console.log(
+      `${item.categoria},${item.nombre},${promedioTexto},${opsTexto},${repeticiones},`
+    );
+  }
+
+  console.log('');
+  console.log('# JSON');
+  console.log(JSON.stringify(resultados.map(({ fn, ...rest }) => rest), null, 2));
+}
+
+/**
+ * Punto de entrada principal del script de benchmark.
+ *
+ * @returns {ResultadoBenchmark[]} Resultados del benchmark ejecutado.
+ */
+function main() {
+  const resultados = ejecutarBenchmarks(casos, REPETICIONES);
+  imprimirResultados(resultados, REPETICIONES);
+  return resultados;
+}
+
+const esEjecucionDirecta =
+  Boolean(process.argv[1]) &&
+  fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (esEjecucionDirecta) {
+  main();
+}
+
+export {
+  REPETICIONES,
+  casos,
+  ejecutarCasoBenchmark,
+  ejecutarBenchmarks,
+  imprimirResultados,
+  main,
+};
+
+if (typeof globalThis.module !== 'undefined' && globalThis.module.exports) {
+  globalThis.module.exports = {
+    REPETICIONES,
+    casos,
+    ejecutarCasoBenchmark,
+    ejecutarBenchmarks,
+    imprimirResultados,
+    main,
+  };
+}
