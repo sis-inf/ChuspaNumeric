@@ -8,33 +8,65 @@ import { ErrorParametros } from '../core/errores.js';
  * @param {Array<Array<number>>} params.puntos - Array de pares [[xi, yi], ...]
  * @param {number} params.x - El punto a evaluar
  * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
- * @throws {ErrorParametros} Si los puntos son insuficientes, no están ordenados o x está fuera de rango
+ * @throws {ErrorParametros} Si los parámetros son inválidos o los cálculos no son finitos
  */
-export function splines({ puntos, x }) {
+function validarParametros(params) {
+    if (!params || typeof params !== 'object' || Array.isArray(params)) {
+        throw new ErrorParametros("El parámetro debe ser un objeto con 'puntos' y 'x'.");
+    }
+
+    const { puntos, x } = params;
+
     if (!Array.isArray(puntos) || puntos.length < 3) {
         throw new ErrorParametros("El parámetro 'puntos' debe ser un array con al menos tres pares [xi, yi].");
     }
 
-    const n = puntos.length - 1;
+    if (!Number.isFinite(x)) {
+        throw new ErrorParametros("El parámetro 'x' debe ser un número finito.");
+    }
 
-    for (let i = 0; i < n; i++) {
-        if (puntos[i][0] >= puntos[i + 1][0]) {
+    for (let i = 0; i < puntos.length; i++) {
+        if (!Array.isArray(puntos[i]) || puntos[i].length !== 2) {
+            throw new ErrorParametros(`El punto en la posición ${i} debe contener exactamente dos valores [xi, yi].`);
+        }
+
+        if (!Number.isFinite(puntos[i][0]) || !Number.isFinite(puntos[i][1])) {
+            throw new ErrorParametros(`Las coordenadas del punto en la posición ${i} deben ser números finitos.`);
+        }
+
+        if (i > 0 && puntos[i][0] <= puntos[i - 1][0]) {
             throw new ErrorParametros("Los valores de x en los puntos deben estar en orden estrictamente creciente.");
         }
     }
 
-    const xMin = puntos[0][0];
-    const xMax = puntos[n][0];
+    return { puntos, x };
+}
 
+function validarRango(x, xMin, xMax) {
     if (x < xMin || x > xMax) {
         throw new ErrorParametros(`El valor x (${x}) a evaluar está fuera del rango de los puntos [${xMin}, ${xMax}].`);
     }
+}
+
+export function splines(params) {
+    const { puntos, x } = validarParametros(params);
+
+    const n = puntos.length - 1;
+
+    const xMin = puntos[0][0];
+    const xMax = puntos[n][0];
+
+    validarRango(x, xMin, xMax);
 
     const h = new Array(n);
     const alpha = new Array(n);
-    
+
     for (let i = 0; i < n; i++) {
         h[i] = puntos[i + 1][0] - puntos[i][0];
+
+        if (!Number.isFinite(h[i]) || h[i] <= 0) {
+            throw new ErrorParametros("Los intervalos entre puntos deben ser positivos y finitos.");
+        }
     }
 
     for (let i = 1; i < n; i++) {
@@ -54,6 +86,10 @@ export function splines({ puntos, x }) {
         l[i] = 2 * (puntos[i + 1][0] - puntos[i - 1][0]) - h[i - 1] * mu[i - 1];
         mu[i] = h[i] / l[i];
         z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+
+        if (![l[i], mu[i], z[i]].every(Number.isFinite) || l[i] === 0) {
+            throw new ErrorParametros("Los parámetros producen valores intermedios no válidos en el cálculo del spline.");
+        }
     }
 
     l[n] = 1;
@@ -70,6 +106,10 @@ export function splines({ puntos, x }) {
         b[j] = (puntos[j + 1][1] - puntos[j][1]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
         d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
         a[j] = puntos[j][1];
+
+        if (![a[j], b[j], c[j], d[j]].every(Number.isFinite)) {
+            throw new ErrorParametros("Los parámetros producen coeficientes no finitos.");
+        }
 
         iteraciones.push({
             tramo: j + 1,
@@ -94,6 +134,10 @@ export function splines({ puntos, x }) {
         }
     }
 
+    if (!Number.isFinite(resultado)) {
+        throw new ErrorParametros("El cálculo del spline produjo un resultado no finito.");
+    }
+
     return crearResultado({
         resultado,
         iteraciones,
@@ -101,7 +145,7 @@ export function splines({ puntos, x }) {
         mensaje: "Trazadores cúbicos calculados y evaluados con éxito.",
         meta: {
             metodo: "Splines Cúbicos Naturales",
-            parametros: { x }
+            parametros: { puntos, x }
         }
     });
 }
