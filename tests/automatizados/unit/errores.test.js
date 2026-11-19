@@ -10,6 +10,8 @@ import {
   ErrorMatrizSingular,
 } from '../../../src/core/errores.js';
 
+import { newtonRaphson } from '../../../src/no-lineales/newton-raphson.js';
+
 // Clases que heredan directamente de Error
 const erroresDirectos = [
   ['ErrorParametros', ErrorParametros],
@@ -138,77 +140,137 @@ describe('errores - distinguir tipos con instanceof', () => {
   });
 });
 
+// Pruebas nuevas con ejecuciones reales de Newton-Raphson
 describe('errores - precision y convergencia numerica', () => {
-  test.each([
-    [1e-3, 1e-2],
-    [1e-6, 1e-5],
-    [1e-9, 1e-8],
-  ])(
-    'ErrorNoConvergencia conserva el detalle cuando el error relativo supera la tolerancia %s',
-    (tolerancia, errorRelativo) => {
-      expect(errorRelativo).toBeGreaterThan(tolerancia);
+  const f = (x) => x * x - 2;
+  const df = (x) => 2 * x;
 
-      const mensaje = `No convergio: error relativo ${errorRelativo}, tolerancia ${tolerancia}`;
-      const error = new ErrorNoConvergencia(mensaje);
+  test.each([1e-3, 1e-6, 1e-10])(
+    'Newton-Raphson alcanza la tolerancia %p',
+    (tolerancia) => {
+      const resultado = newtonRaphson({
+        f,
+        df,
+        x0: 1,
+        tolerancia,
+        maxIter: 100,
+      });
 
-      expect(error).toBeInstanceOf(ErrorNoConvergencia);
-      expect(error).toBeInstanceOf(ErrorNumerico);
-      expect(error.message).toBe(mensaje);
+      const errorAbsoluto = Math.abs(resultado.resultado - Math.SQRT2);
+
+      expect(resultado.convergio).toBe(true);
+      expect(errorAbsoluto).toBeLessThan(tolerancia);
     }
   );
 
-  test.each([
-    [0.1, 0.01],
-    [0.01, 0.0001],
-    [0.001, 0.000001],
-  ])(
-    'ErrorConvergencia conserva el paso h=%s y el error asociado',
-    (paso, errorAbsoluto) => {
-      const mensaje = `Paso h=${paso}; error absoluto=${errorAbsoluto}`;
-      const error = new ErrorConvergencia(mensaje);
+  test('Newton-Raphson muestra convergencia de primer orden para una raiz multiple', () => {
+    // Para f(x) = x^3, Newton-Raphson converge linealmente a x = 0.
+    const resultado = newtonRaphson({
+      f: (x) => x ** 3,
+      df: (x) => 3 * x ** 2,
+      x0: 1,
+      tolerancia: 1e-12,
+      maxIter: 5,
+    });
 
-      expect(error).toBeInstanceOf(ErrorConvergencia);
-      expect(error.message).toBe(mensaje);
-      expect(error.toString()).toBe(`ErrorConvergencia: ${mensaje}`);
+    const errores = resultado.iteraciones.map(
+      (iteracion) => Math.abs(iteracion.x)
+    );
+
+    expect(errores).toHaveLength(5);
+
+    for (let i = 1; i < errores.length; i++) {
+      expect(errores[i]).toBeLessThan(errores[i - 1]);
+      expect(errores[i] / errores[i - 1]).toBeCloseTo(2 / 3, 8);
+    }
+  });
+
+  test('Newton-Raphson muestra convergencia de segundo orden para una raiz simple', () => {
+    const resultado = newtonRaphson({
+      f,
+      df,
+      x0: 1.5,
+      tolerancia: 1e-12,
+      maxIter: 20,
+    });
+
+    const errores = resultado.iteraciones.map(
+      (iteracion) => Math.abs(iteracion.x - Math.SQRT2)
+    );
+
+    expect(resultado.convergio).toBe(true);
+    expect(errores.length).toBeGreaterThanOrEqual(3);
+
+    for (let i = 0; i < 2; i++) {
+      expect(errores[i + 1]).toBeLessThan(errores[i]);
+
+      const razonCuadratica =
+        errores[i + 1] / (errores[i] ** 2);
+
+      expect(razonCuadratica).toBeGreaterThan(0.2);
+      expect(razonCuadratica).toBeLessThan(0.5);
+    }
+  });
+
+  test('el error relativo disminuye durante la convergencia real', () => {
+    const resultado = newtonRaphson({
+      f,
+      df,
+      x0: 1,
+      tolerancia: 1e-12,
+      maxIter: 20,
+    });
+
+    const erroresRelativos = resultado.iteraciones.map(
+      (iteracion) =>
+        Math.abs(iteracion.x - Math.SQRT2) / Math.SQRT2
+    );
+
+    expect(resultado.convergio).toBe(true);
+    expect(erroresRelativos.length).toBeGreaterThan(2);
+
+    for (let i = 1; i < erroresRelativos.length; i++) {
+      expect(erroresRelativos[i]).toBeLessThan(erroresRelativos[i - 1]);
+    }
+  });
+
+  test.each([1, 3])(
+    'Newton-Raphson informa no convergencia con maxIter=%p',
+    (maxIter) => {
+      const tolerancia = 1e-12;
+
+      const resultado = newtonRaphson({
+        f,
+        df,
+        x0: 1000,
+        tolerancia,
+        maxIter,
+      });
+
+      expect(resultado.convergio).toBe(false);
+      expect(resultado.iteraciones).toHaveLength(maxIter);
+      expect(resultado.mensaje).toBe(
+        'Se alcanzó el máximo de iteraciones sin converger.'
+      );
+
+      const ultima =
+        resultado.iteraciones[resultado.iteraciones.length - 1];
+
+      expect(ultima.error).toBeGreaterThan(tolerancia);
     }
   );
 
-  test('ErrorNoConvergencia representa un error que no disminuye al reducir h', () => {
-    const pasos = [0.1, 0.01, 0.001];
-    const erroresRelativos = [0.05, 0.05, 0.05];
-    const tolerancia = 1e-6;
+  test('Newton-Raphson detecta divergencia y lanza ErrorDivergencia', () => {
+    const ejecutar = () =>
+      newtonRaphson({
+        f,
+        df,
+        x0: 1e200,
+        tolerancia: 1e-12,
+        maxIter: 10,
+      });
 
-    expect(erroresRelativos.every((error) => error > tolerancia)).toBe(true);
-
-    const mensaje = `Sin convergencia para pasos ${pasos.join(', ')}`;
-    const error = new ErrorNoConvergencia(mensaje);
-
-    expect(error).toBeInstanceOf(ErrorNoConvergencia);
-    expect(error.message).toBe(mensaje);
-  });
-
-  test('ErrorDivergencia conserva el contexto de errores relativos crecientes', () => {
-    const pasos = [0.1, 0.01, 0.001];
-    const erroresRelativos = [0.1, 0.5, 2];
-
-    expect(erroresRelativos[1]).toBeGreaterThan(erroresRelativos[0]);
-    expect(erroresRelativos[2]).toBeGreaterThan(erroresRelativos[1]);
-
-    const mensaje = `Divergencia con pasos ${pasos.join(', ')}`;
-    const error = new ErrorDivergencia(mensaje);
-
-    expect(error).toBeInstanceOf(ErrorDivergencia);
-    expect(error.message).toBe(mensaje);
-  });
-
-  test('distingue errores de no convergencia y divergencia', () => {
-    const noConvergencia = new ErrorNoConvergencia('Tolerancia no alcanzada');
-    const divergencia = new ErrorDivergencia('Error creciente');
-
-    expect(noConvergencia).toBeInstanceOf(ErrorNumerico);
-    expect(noConvergencia).not.toBeInstanceOf(ErrorDivergencia);
-
-    expect(divergencia).toBeInstanceOf(ErrorDivergencia);
-    expect(divergencia).not.toBeInstanceOf(ErrorNoConvergencia);
+    expect(ejecutar).toThrow(ErrorDivergencia);
+    expect(ejecutar).toThrow(/divergencia numérica detectada/);
   });
 });
