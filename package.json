@@ -52,13 +52,13 @@
     "node": ">=16"
   },
   "devDependencies": {
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "lint-staged": "^17.6.0",
     "madge": "^8.0.0",
     "prettier": "^3.9.10",
-    "rollup": "^4.67.2"
+    "rollup": "^4.68.3"
   },
   "dependencies": {
     "mathjs": "^15.2.0"

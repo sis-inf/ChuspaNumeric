@@ -80,6 +80,169 @@ describe('polyEval', () => {
   });
 });
 
+describe('linearInterpolation - precision y orden de error', () => {
+  test.each([0.4, 0.04, 0.004])(
+    'reproduce una funcion lineal con paso h=%p',
+    (h) => {
+      const f = (x) => 3 * x + 2;
+
+      const resultado = linearInterpolation(
+        -h, f(-h),
+        h, f(h),
+        0
+      );
+
+      const errorAbsoluto = Math.abs(resultado - f(0));
+
+      expect(errorAbsoluto).toBeLessThan(1e-12);
+    }
+  );
+
+  test('presenta error de primer orden para f(x) = |x|', () => {
+    const f = (x) => Math.abs(x);
+    const pasos = [0.4, 0.2, 0.1];
+
+    const errores = pasos.map((h) => {
+      const aproximacion = linearInterpolation(
+        -h, f(-h),
+        h, f(h),
+        0
+      );
+
+      return Math.abs(aproximacion - f(0));
+    });
+
+    expect(errores[1]).toBeLessThan(errores[0]);
+    expect(errores[2]).toBeLessThan(errores[1]);
+
+    expect(errores[1] / errores[0]).toBeCloseTo(0.5, 10);
+    expect(errores[2] / errores[1]).toBeCloseTo(0.5, 10);
+  });
+
+  test('presenta error de segundo orden para f(x) = x^2', () => {
+    const f = (x) => x * x;
+    const pasos = [0.4, 0.2, 0.1];
+
+    const errores = pasos.map((h) => {
+      const aproximacion = linearInterpolation(
+        -h, f(-h),
+        h, f(h),
+        0
+      );
+
+      return Math.abs(aproximacion - f(0));
+    });
+
+    expect(errores[1]).toBeLessThan(errores[0]);
+    expect(errores[2]).toBeLessThan(errores[1]);
+
+    expect(errores[1] / errores[0]).toBeCloseTo(0.25, 10);
+    expect(errores[2] / errores[1]).toBeCloseTo(0.25, 10);
+  });
+
+  test.each([0.4, 0.2, 0.1])(
+    'calcula el error relativo para un paso h=%p',
+    (h) => {
+      const f = (x) => 1 + x * x;
+      const esperado = f(0);
+
+      const aproximacion = linearInterpolation(
+        -h, f(-h),
+        h, f(h),
+        0
+      );
+
+      const errorRelativo =
+        Math.abs(aproximacion - esperado) / Math.abs(esperado);
+
+      expect(errorRelativo).toBeCloseTo(h * h, 10);
+    }
+  );
+
+  test('una malla gruesa no alcanza la tolerancia y una fina si', () => {
+    const f = (x) => 1 + x * x;
+    const tolerancia = 1e-3;
+
+    const calcularError = (h) => {
+      const aproximacion = linearInterpolation(
+        -h, f(-h),
+        h, f(h),
+        0
+      );
+
+      return Math.abs(aproximacion - f(0));
+    };
+
+    const errorGrueso = calcularError(0.2);
+    const errorFino = calcularError(0.02);
+
+    expect(errorGrueso).toBeGreaterThan(tolerancia);
+    expect(errorFino).toBeLessThan(tolerancia);
+  });
+});
+
+describe('polyEval - precision y comportamiento numerico', () => {
+  test.each([
+    [0.1, 1.01],
+    [0.01, 1.0001],
+    [0.001, 1.000001],
+  ])(
+    'evalua x^2 + 1 con x=%p y error relativo estricto',
+    (x, esperado) => {
+      const resultado = polyEval([1, 0, 1], x).resultado;
+
+      const errorRelativo =
+        Math.abs(resultado - esperado) / Math.abs(esperado);
+
+      expect(errorRelativo).toBeLessThan(1e-12);
+    }
+  );
+
+  test('un polinomio sin raices reales no se aproxima a cero', () => {
+    const pasos = [0.1, 0.01, 0.001];
+
+    const valores = pasos.map((h) =>
+      polyEval([1, 0, 1], h).resultado
+    );
+
+    valores.forEach((valor) => {
+      expect(valor).toBeGreaterThanOrEqual(1);
+    });
+
+    expect(valores[2]).toBeCloseTo(1, 5);
+  });
+});
+
+describe('linearInterpolation y polyEval - no convergencia y desbordamiento', () => {
+  test('el error no disminuye al interpolar una discontinuidad', () => {
+    const f = (x) => (x < 0 ? -1 : 1);
+    const pasos = [0.4, 0.2, 0.1, 0.05];
+    const tolerancia = 1e-6;
+
+    const errores = pasos.map((h) => {
+      const aproximacion = linearInterpolation(
+        -h, f(-h),
+        h, f(h),
+        0
+      );
+
+      return Math.abs(aproximacion - f(0));
+    });
+
+    errores.forEach((error) => {
+      expect(error).toBeGreaterThan(tolerancia);
+      expect(error).toBeCloseTo(1, 10);
+    });
+
+    expect(errores[3]).toBeCloseTo(errores[0], 10);
+  });
+
+  test('rechaza con ErrorParametros el desbordamiento numerico', () => {
+    expect(() => polyEval([1, 0, 0], 1e200)).toThrow(ErrorParametros);
+    expect(() => polyEval([1, 0, 0], 1e200)).toThrow(/Desbordamiento/);
+  });
+});
+
 describe('polyEval - resultado estructurado y validaciones', () => {
   const capturar = (fn) => {
     try {

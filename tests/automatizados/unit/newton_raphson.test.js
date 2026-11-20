@@ -146,3 +146,77 @@ describe('newtonRaphson - derivada nula y entradas inválidas', () => {
     expect(() => newtonRaphson(opciones)).toThrow(ErrorParametros);
   });
 });
+
+
+describe('Newton-Raphson: precisión, orden y ciclos', () => {
+  test.each([1e-4, 1e-8, 1e-12])(
+    'calcula la raíz negativa con error relativo menor que %p',
+    (tolerancia) => {
+      const res = newtonRaphson({ f, df, x0: -3, tolerancia });
+
+      expect(res.convergio).toBe(true);
+      expect(Math.abs(res.resultado + Math.SQRT2) / Math.SQRT2).toBeLessThan(
+        tolerancia
+      );
+      expect(res.iteraciones.at(-1).error).toBeLessThan(tolerancia);
+    }
+  );
+
+  test.each([0.5, 2, 10])('converge desde la aproximación inicial %p', (x0) => {
+    const res = newtonRaphson({ f, df, x0, tolerancia: 1e-12 });
+
+    expect(res.convergio).toBe(true);
+    expect(Math.abs(res.resultado - Math.SQRT2) / Math.SQRT2).toBeLessThan(1e-12);
+  });
+
+  test('una raíz simple presenta convergencia cuadrática', () => {
+    const res = newtonRaphson({ f, df, x0: 2, tolerancia: 1e-12 });
+    const errores = res.iteraciones.map(({ x }) => Math.abs(x - Math.SQRT2));
+
+    expect(res.convergio).toBe(true);
+    for (let indice = 1; indice < 3; indice++) {
+      const razon = errores[indice + 1] / errores[indice] ** 2;
+      expect(razon).toBeGreaterThan(0.3);
+      expect(razon).toBeLessThan(0.4);
+    }
+  });
+
+  test('una raíz doble reduce el error linealmente', () => {
+    const res = newtonRaphson({
+      f: (x) => (x - 2) ** 2,
+      df: (x) => 2 * (x - 2),
+      x0: 3,
+      tolerancia: 1e-10,
+    });
+    const errores = res.iteraciones.map(({ x }) => Math.abs(x - 2));
+
+    expect(res.convergio).toBe(true);
+    expect(Math.abs(res.resultado - 2) / 2).toBeLessThan(1e-10);
+    for (let indice = 1; indice < errores.length; indice++) {
+      expect(errores[indice] / errores[indice - 1]).toBeCloseTo(0.5, 12);
+    }
+  });
+
+  test.each([2, 6])('un ciclo de dos puntos no converge en %p pasos', (maxIter) => {
+    const res = newtonRaphson({
+      f: (x) => x ** 3 - 2 * x + 2,
+      df: (x) => 3 * x ** 2 - 2,
+      x0: 0,
+      tolerancia: 1e-12,
+      maxIter,
+    });
+
+    expect(res.convergio).toBe(false);
+    expect(res.iteraciones).toHaveLength(maxIter);
+    res.iteraciones.forEach((iteracion, indice) => {
+      expect(iteracion.x).toBe(indice % 2);
+      expect(iteracion.error).toBe(1);
+    });
+  });
+
+  test('detecta divergencia cuando el siguiente paso desborda', () => {
+    expect(() =>
+      newtonRaphson({ f: () => 1, df: () => Number.MIN_VALUE, x0: 1 })
+    ).toThrow(ErrorDivergencia);
+  });
+});

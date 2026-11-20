@@ -34,9 +34,12 @@ import { ErrorParametros } from '../core/errores.js';
 
 /**
  * Verifica que el argumento sea un número complejo válido { re, im }.
- * @param {*} z
+ *
+ * @param {{ re: number, im: number }} z - Número complejo que se desea validar.
  * @param {string} nombre - Nombre del parámetro para el mensaje de error.
- * @throws {ErrorParametros}
+ * @returns {void} No devuelve ningún valor si la validación es correcta.
+ * @throws {ErrorParametros} Si el argumento no es un objeto complejo
+ * con partes real e imaginaria numéricas y finitas.
  */
 function _validarComplejo(z, nombre) {
   if (
@@ -44,8 +47,8 @@ function _validarComplejo(z, nombre) {
     typeof z !== 'object' ||
     typeof z.re !== 'number' ||
     typeof z.im !== 'number' ||
-    !isFinite(z.re) ||
-    !isFinite(z.im)
+    !Number.isFinite(z.re) ||
+    !Number.isFinite(z.im)
   ) {
     throw new ErrorParametros(
       `ChuspaNumeric.numeros_complejos: "${nombre}" debe ser un objeto { re, im } con ` +
