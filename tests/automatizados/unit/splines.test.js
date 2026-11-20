@@ -193,4 +193,104 @@ describe('splines - interpolación cúbica', () => {
       expect(res1.resultado).toBeCloseTo(res2.resultado, 5);
     });
   });
+
+  describe('precision y estabilidad numérica', () => {
+    test('mantiene la precisión con diferentes distribuciones de nodos', () => {
+      const casos = [
+        {
+          xs: [0, 1, 2, 3],
+          ys: [0, 1, 4, 9],
+          x: 1.5,
+          esperado: 2.3125
+        },
+        {
+          xs: [0, 0.5, 1, 1.5, 2],
+          ys: [0, 0.25, 1, 2.25, 4],
+          x: 1.25,
+          esperado: 1.5625
+        },
+        {
+          xs: [-2, -1, 0, 1, 2],
+          ys: [4, 1, 0, 1, 4],
+          x: 0.5,
+          esperado: 13 / 56
+        }
+      ];
+
+      casos.forEach(({ xs, ys, x, esperado }) => {
+        const res = splineCubicoNatural(xs, ys, x);
+        const errorRelativo = Math.abs(res.resultado - esperado) / Math.abs(esperado);
+
+        expect(res.convergio).toBe(true);
+        expect(errorRelativo).toBeLessThan(0.1);
+      });
+    });
+
+    test('mantiene precisión con valores decimales', () => {
+      const xs = [0.1, 0.2, 0.3, 0.4, 0.5];
+      const ys = xs.map(x => x * x);
+      const x = 0.25;
+
+      const res = splineCubicoNatural(xs, ys, x);
+      const esperado = x * x;
+      const errorRelativo = Math.abs(res.resultado - esperado) / esperado;
+
+      expect(res.convergio).toBe(true);
+      expect(errorRelativo).toBeLessThan(0.1);
+    });
+
+    test('ambas implementaciones mantienen resultados similares en distintos puntos', () => {
+      const xs = [0, 1, 2, 3, 4];
+      const ys = [0, 1, 4, 9, 16];
+      const puntos = xs.map((x, i) => [x, ys[i]]);
+      const valoresX = [0.5, 1.5, 2.5, 3.5];
+
+      valoresX.forEach(x => {
+        const res1 = splineCubicoNatural(xs, ys, x);
+        const res2 = splines({ puntos, x });
+
+        const errorRelativo = Math.abs(res1.resultado - res2.resultado) /
+          Math.max(Math.abs(res1.resultado), 1);
+
+        expect(res1.convergio).toBe(true);
+        expect(res2.convergio).toBe(true);
+        expect(errorRelativo).toBeLessThan(1e-10);
+      });
+    });
+
+    test('conserva las condiciones naturales con diferentes conjuntos de datos', () => {
+      const casos = [
+        {
+          xs: [0, 1, 2, 3],
+          ys: [0, 1, 4, 9]
+        },
+        {
+          xs: [0, 0.5, 1, 1.5],
+          ys: [1, 2, 1, 2]
+        },
+        {
+          xs: [-2, -1, 0, 1, 2],
+          ys: [4, 1, 0, 1, 4]
+        }
+      ];
+
+      casos.forEach(({ xs, ys }) => {
+        const res = splineCubicoNatural(xs, ys, (xs[0] + xs[xs.length - 1]) / 2);
+
+        expect(res.iteraciones[0].Mi).toBeCloseTo(0, 10);
+        expect(res.iteraciones[res.iteraciones.length - 1].Mi).toBeCloseTo(0, 10);
+      });
+    });
+
+    test('detecta desbordamiento con valores extremos', () => {
+      const xs = [0, 1, 2];
+      const ys = [-Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE];
+
+      expect(() => splineCubicoNatural(xs, ys, 1)).toThrow();
+      expect(() => splines({
+        puntos: xs.map((x, i) => [x, ys[i]]),
+        x: 1
+      })).toThrow();
+    });
+  });
 });
