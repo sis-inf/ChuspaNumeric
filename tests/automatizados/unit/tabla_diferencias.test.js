@@ -2,6 +2,7 @@
 import {
   construirTablaAdelante,
   construirTablaAtras,
+  generarTablaDiferencias,
   formatearTabla,
 } from '../../../src/analisis/tabla_diferencias.js';
 
@@ -52,5 +53,48 @@ describe('Tabla de diferencias', () => {
     construirTablaAtras(datos);
 
     expect(datos).toEqual([1, 4, 9, 16]);
+  });
+
+  test('las diferencias de segundo orden son exactas para una función cuadrática', () => {
+    const ys = [0, 1, 4, 9, 16, 25];
+    const tabla = construirTablaAdelante(ys);
+
+    expect(tabla[1]).toEqual([1, 3, 5, 7, 9]);
+    expect(tabla[2]).toEqual([2, 2, 2, 2]);
+    expect(tabla[3]).toEqual([0, 0, 0]);
+  });
+
+  test('las diferencias de tercer orden son constantes para una función cúbica', () => {
+    const ys = [0, 1, 8, 27, 64, 125];
+    const tabla = construirTablaAdelante(ys);
+
+    expect(tabla[3]).toEqual([6, 6, 6]);
+    expect(tabla[4]).toEqual([0, 0]);
+  });
+
+  test('las diferencias hacia adelante y atrás coinciden para datos equiespaciados', () => {
+    const ys = [2, 5, 10, 17, 26];
+
+    const adelante = construirTablaAdelante(ys);
+    const atras = construirTablaAtras(ys);
+
+    expect(adelante).toEqual(atras);
+  });
+
+  test('generarTablaDiferencias conserva la precisión para valores decimales', () => {
+    const ys = [0.1, 0.2, 0.3, 0.4];
+    const res = generarTablaDiferencias(ys);
+
+    expect(res.convergio).toBe(true);
+    expect(res.resultado[1][0]).toBeCloseTo(0.1, 14);
+    expect(res.resultado[2][0]).toBeCloseTo(0, 14);
+  });
+
+  test('generarTablaDiferencias detecta diferencias fuera del rango numérico', () => {
+    const ys = [-Number.MAX_VALUE, Number.MAX_VALUE];
+
+    expect(() => generarTablaDiferencias(ys)).toThrow(
+      /exceden el rango numérico representable/
+    );
   });
 });
