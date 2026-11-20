@@ -82,4 +82,57 @@ describe('trapecio - integración numérica', () => {
     expect(res.convergio).toBe(true);
     expect(res.resultado).toBeCloseTo(valorExacto, 2);
   });
+
+  test('el error relativo disminuye al aumentar los subintervalos', () => {
+    const f = (x) => x * x;
+    const calcularErrorRelativo = (n) => {
+      const res = trapecio({ f, a: 0, b: 1, n });
+      return Math.abs(res.resultado - valorExacto) / Math.abs(valorExacto);
+    };
+
+    const error10 = calcularErrorRelativo(10);
+    const error20 = calcularErrorRelativo(20);
+    const error40 = calcularErrorRelativo(40);
+
+    expect(error20).toBeLessThan(error10);
+    expect(error40).toBeLessThan(error20);
+  });
+
+  test('presenta convergencia de segundo orden al reducir el paso', () => {
+    const f = (x) => x * x;
+
+    const calcularError = (n) => {
+      const res = trapecio({ f, a: 0, b: 1, n });
+      return Math.abs(res.resultado - valorExacto);
+    };
+
+    const error10 = calcularError(10);
+    const error20 = calcularError(20);
+    const error40 = calcularError(40);
+
+    const orden1 = Math.log(error10 / error20) / Math.log(2);
+    const orden2 = Math.log(error20 / error40) / Math.log(2);
+
+    expect(orden1).toBeCloseTo(2, 10);
+    expect(orden2).toBeCloseTo(2, 10);
+  });
+
+  test('mantiene una precisión elevada con un paso pequeño', () => {
+    const f = (x) => x * x;
+    const res = trapecio({ f, a: 0, b: 1, n: 1000 });
+
+    const errorRelativo =
+      Math.abs(res.resultado - valorExacto) / Math.abs(valorExacto);
+
+    expect(res.convergio).toBe(true);
+    expect(errorRelativo).toBeLessThan(0.00001);
+  });
+
+  test('detecta divergencia cuando el área calculada no es finita', () => {
+    const f = () => Number.MAX_VALUE;
+
+    expect(() => trapecio({ f, a: 0, b: 2, n: 2 })).toThrow(
+      /debe ser un número finito/
+    );
+  });  
 });
