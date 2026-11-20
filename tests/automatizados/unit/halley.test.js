@@ -97,3 +97,98 @@ describe('halley', () => {
     );
   });
 });
+
+
+describe('Halley: precisión relativa y orden de convergencia', () => {
+  const opciones = {
+    f: (x) => x * x - 2,
+    df: (x) => 2 * x,
+    d2f: () => 2,
+  };
+
+  test.each([1e-4, 1e-8, 1e-12])(
+    'obtiene la raíz negativa con tolerancia %p',
+    (tolerancia) => {
+      const res = halley({ ...opciones, x0: -3, tolerancia });
+
+      expect(res.convergio).toBe(true);
+      expect(Math.abs(res.resultado + Math.SQRT2) / Math.SQRT2).toBeLessThan(
+        tolerancia
+      );
+      expect(res.iteraciones.at(-1).error).toBeLessThan(tolerancia);
+      res.iteraciones.slice(0, -1).forEach((iteracion) => {
+        expect(iteracion.error).toBeGreaterThanOrEqual(tolerancia);
+      });
+    }
+  );
+
+  test.each([0.5, 2, 10])('converge desde la aproximación inicial %p', (x0) => {
+    const res = halley({ ...opciones, x0, tolerancia: 1e-12 });
+
+    expect(res.convergio).toBe(true);
+    expect(Math.abs(res.resultado - Math.SQRT2) / Math.SQRT2).toBeLessThan(1e-12);
+  });
+
+  test('reducir a la mitad el error inicial muestra orden cúbico en un paso', () => {
+    const errores = [0.2, 0.1, 0.05].map((paso) => {
+      const res = halley({
+        ...opciones,
+        x0: Math.SQRT2 + paso,
+        tolerancia: 1e-14,
+        maxIter: 1,
+      });
+      expect(res.convergio).toBe(false);
+      return Math.abs(res.resultado - Math.SQRT2);
+    });
+
+    for (let indice = 0; indice < errores.length - 1; indice++) {
+      const orden = Math.log2(errores[indice] / errores[indice + 1]);
+      expect(orden).toBeGreaterThan(2.8);
+      expect(orden).toBeLessThan(3.1);
+    }
+  });
+
+  test('una raíz doble presenta convergencia lineal con razón un tercio', () => {
+    const res = halley({
+      f: (x) => (x - 2) ** 2,
+      df: (x) => 2 * (x - 2),
+      d2f: () => 2,
+      x0: 3,
+      tolerancia: 1e-10,
+    });
+    const errores = res.iteraciones.map(({ x }) => Math.abs(x - 2));
+
+    expect(res.convergio).toBe(true);
+    expect(Math.abs(res.resultado - 2) / 2).toBeLessThan(1e-10);
+    for (let indice = 1; indice < 8; indice++) {
+      expect(errores[indice] / errores[indice - 1]).toBeCloseTo(1 / 3, 10);
+    }
+  });
+
+  test.each([1, 2])(
+    'no anuncia convergencia si agota un presupuesto de %p pasos',
+    (maxIter) => {
+      const res = halley({
+        ...opciones,
+        x0: 10,
+        tolerancia: 1e-14,
+        maxIter,
+      });
+
+      expect(res.convergio).toBe(false);
+      expect(res.iteraciones).toHaveLength(maxIter);
+      expect(res.iteraciones.at(-1).error).toBeGreaterThanOrEqual(1e-14);
+      expect(Math.abs(res.resultado - Math.SQRT2)).toBeGreaterThan(1e-14);
+    }
+  );
+
+  test('detecta que una actualización abandona el dominio del logaritmo', () => {
+    expect(() => halley({
+      f: Math.log,
+      df: (x) => 1 / x,
+      d2f: (x) => -1 / (x * x),
+      x0: 0.1,
+      maxIter: 5,
+    })).toThrow(ErrorDivergencia);
+  });
+});
