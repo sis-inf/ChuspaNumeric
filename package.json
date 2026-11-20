@@ -2,7 +2,7 @@
   "name": "chuspanumeric",
   "version": "1.0.0",
   "description": "Numerical methods library for mathematics and engineering applications",
-  "main": "dist/chuspanumeric.cjs.js",
+  "main": "dist/chuspanumeric.cjs",
   "module": "dist/chuspanumeric.esm.js",
   "type": "module",
   "sideEffects": false,
@@ -16,7 +16,7 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/chuspanumeric.cjs.js",
+      "require": "./dist/chuspanumeric.cjs",
       "import": "./dist/chuspanumeric.esm.js"
     }
   },
