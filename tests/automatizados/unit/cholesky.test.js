@@ -1,3 +1,4 @@
+import { ErrorDominio, ErrorParametros } from '../../../src/core/errores.js';
 import { descomposicionCholesky, resolverCholesky } from '../../../src/lineales/cholesky.js';
 
 // Helper function to multiply matrices
@@ -199,5 +200,116 @@ describe('resolverCholesky', () => {
     const L = decomp.resultado.L;
 
     expect(() => resolverCholesky(L, b)).toThrow();
+  });
+});
+
+
+describe('Cholesky: precisión relativa y límites de factorización', () => {
+  test.each([1e-8, 1, 1e8])(
+    'reconstruye la matriz y resuelve el sistema con escala %p',
+    (escala) => {
+      const matriz = [[4, 2], [2, 3]].map((fila) =>
+        fila.map((valor) => valor * escala)
+      );
+      const copia = matriz.map((fila) => [...fila]);
+      const independientes = [8 * escala, 8 * escala];
+      const { resultado, convergio } = descomposicionCholesky(matriz);
+      const reconstruida = multiplicarMatrices(
+        resultado.L,
+        transponerMatriz(resultado.L)
+      );
+      const solucion = resolverCholesky(resultado.L, independientes);
+
+      expect(convergio).toBe(true);
+      expect(solucion.convergio).toBe(true);
+      matriz.forEach((fila, i) => {
+        fila.forEach((valor, j) => {
+          expect(Math.abs(reconstruida[i][j] - valor) / Math.abs(valor)).toBeLessThan(
+            1e-14
+          );
+        });
+      });
+      [1, 2].forEach((exacto, indice) => {
+        expect(
+          Math.abs(solucion.resultado.x[indice] - exacto) / Math.abs(exacto)
+        ).toBeLessThan(1e-14);
+      });
+      expect(matriz).toEqual(copia);
+      expect(independientes).toEqual([8 * escala, 8 * escala]);
+    }
+  );
+
+  test.each([1e-6, 1e-10, 1e-14])(
+    'cumple el umbral de error relativo %p en un sistema no diagonal',
+    (tolerancia) => {
+      const matriz = [[6, 2, 1], [2, 5, 2], [1, 2, 4]];
+      const exacta = [1.25, -2.5, 3.75];
+      const independientes = matriz.map((fila) =>
+        fila.reduce((suma, valor, indice) => suma + valor * exacta[indice], 0)
+      );
+      const { resultado: { L } } = descomposicionCholesky(matriz);
+      const res = resolverCholesky(L, independientes);
+      const norma = Math.hypot(...exacta);
+      const error = Math.hypot(
+        ...res.resultado.x.map((valor, indice) => valor - exacta[indice])
+      ) / norma;
+      const residuo = Math.hypot(...matriz.map((fila, i) =>
+        fila.reduce((suma, valor, j) => suma + valor * res.resultado.x[j], 0)
+          - independientes[i]
+      )) / Math.hypot(...independientes);
+
+      expect(res.convergio).toBe(true);
+      expect(error).toBeLessThan(tolerancia);
+      expect(residuo).toBeLessThan(tolerancia);
+    }
+  );
+
+  test.each([1e-4, 1e-8, 1e-12])(
+    'admite un pivote positivo pequeño al perturbar la diagonal en %p',
+    (paso) => {
+      const matriz = [[1, 1], [1, 1 + paso]];
+      const res = descomposicionCholesky(matriz);
+      const reconstruida = multiplicarMatrices(
+        res.resultado.L,
+        transponerMatriz(res.resultado.L)
+      );
+
+      expect(res.convergio).toBe(true);
+      expect(res.resultado.L[1][1]).toBeGreaterThan(0);
+      expect(Number.isFinite(res.resultado.L[1][1])).toBe(true);
+      expect(Math.abs(reconstruida[1][1] - matriz[1][1]) / matriz[1][1]).toBeLessThan(
+        1e-14
+      );
+    }
+  );
+
+  test.each([0, -1e-4, -1e-8])(
+    'rechaza la pérdida de positividad con perturbación %p',
+    (paso) => {
+      expect(() => descomposicionCholesky([[1, 1], [1, 1 + paso]])).toThrow(
+        ErrorDominio
+      );
+    }
+  );
+
+  test.each([NaN, Infinity, -Infinity])(
+    'rechaza coeficientes no finitos: %p',
+    (valor) => {
+      expect(() => descomposicionCholesky([[valor, 0], [0, 1]])).toThrow(
+        ErrorParametros
+      );
+      expect(() => resolverCholesky([[1, 0], [0, 1]], [1, valor])).toThrow(
+        ErrorParametros
+      );
+    }
+  );
+
+  test('la solución preserva el factor triangular recibido', () => {
+    const factor = [[2, 0], [1, Math.sqrt(2)]];
+    const copia = factor.map((fila) => [...fila]);
+
+    resolverCholesky(factor, [8, 8]);
+
+    expect(factor).toEqual(copia);
   });
 });
