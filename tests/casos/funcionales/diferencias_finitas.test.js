@@ -261,13 +261,18 @@ describe('Diferencias de tres puntos', () => {
 });
 
 describe('Precisión y errores numéricos', () => {
-    test('identifica una aproximación con paso demasiado grande', () => {
-        const f = Math.exp;
-        const valorReal = Math.exp(1);
-        const resultado = diferenciasAdelanteGrado1(f, 1, 1);
+    test('detecta divergencia numerica cuando el resultado produce Infinity', () => {
+        const f = x => x ** 2;
+        const resultado = diferenciasAdelanteGrado1(f, 1e154, 1e154);
 
-        const error = Math.abs(resultado - valorReal);
+        expect(resultado).toBe(Infinity);
+        expect(Number.isFinite(resultado)).toBe(false);
+    });
 
-        expect(error).toBeGreaterThan(0.01);
+    test('detecta un resultado NaN por desbordamiento numerico', () => {
+        const resultado = diferenciasAdelanteGrado1(Math.exp, 1000, 1);
+
+        expect(Number.isNaN(resultado)).toBe(true);
+        expect(Number.isFinite(resultado)).toBe(false);
     });
 });
