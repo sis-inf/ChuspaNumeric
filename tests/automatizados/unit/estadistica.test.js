@@ -158,3 +158,203 @@ describe('entradas invalidas', () => {
     }
   });
 });
+// ============================================================
+// Casos agregados para el issue #1601
+// Tolerancias, tamaños de paso, órdenes de convergencia,
+// errores relativos y detección de no convergencia / divergencia.
+// ============================================================
+
+// --- Utilidades de generación de datos ---------------------------------
+
+// Malla equiespaciada de n puntos en [0, 1] con paso h = 1/(n-1)
+const mallaEquiespaciada = (n) => Array.from({ length: n }, (_, i) => i / (n - 1));
+
+// Serie alternante a_k = 1 + (-1)^k / k  ->  converge a 1 con orden O(1/n)
+const serieAlternante = (n) => Array.from({ length: n }, (_, i) => 1 + (-1) ** (i + 1) / (i + 1));
+
+// Error relativo entre el valor obtenido y el esperado
+const errorRelativo = (obtenido, esperado) => Math.abs(obtenido / esperado - 1);
+
+describe('tolerancias y errores relativos', () => {
+  test('la media respeta una tolerancia estricta con decimales periodicos', () => {
+    // 0.1 + 0.2 + 0.3 no es exacto en punto flotante: se exige tolerancia, no igualdad
+    expect(media([0.1, 0.2, 0.3])).toBeCloseTo(0.2, 15);
+  });
+
+  test('la varianza mantiene el error relativo acotado al escalar los datos', () => {
+    const base = [1, 2, 3, 4, 5];
+    const escalas = [1e-6, 1e-3, 1, 1e3, 1e6];
+
+    for (const k of escalas) {
+      const datos = base.map((x) => x * k);
+      // Var(kX) = k^2 Var(X), con Var(base) = 2.5
+      expect(errorRelativo(varianza(datos), 2.5 * k ** 2)).toBeLessThan(1e-12);
+    }
+  });
+
+  test('la varianza es invariante a traslaciones grandes', () => {
+    const base = [1, 2, 3, 4, 5];
+
+    for (const c of [1e2, 1e4, 1e6]) {
+      expect(varianza(base.map((x) => x + c))).toBeCloseTo(2.5, 9);
+      expect(varianza(base.map((x) => x + c), true)).toBeCloseTo(2, 9);
+    }
+  });
+
+  test('la desviacion estandar al cuadrado reproduce la varianza dentro de tolerancia', () => {
+    const conjuntos = [
+      [2, 4, 4, 4, 5, 5, 7, 9],
+      [-3, -1, 0, 1, 3],
+      [0.25, 0.5, 0.75, 1],
+    ];
+
+    for (const datos of conjuntos) {
+      expect(desviacionEstandar(datos) ** 2).toBeCloseTo(varianza(datos), 10);
+      expect(desviacionEstandar(datos, true) ** 2).toBeCloseTo(varianza(datos, true), 10);
+    }
+  });
+});
+
+describe('tamanos de paso en mallas equiespaciadas', () => {
+  test('la media es exactamente el centro de la malla para distintos pasos', () => {
+    for (const n of [3, 5, 9, 17, 33]) {
+      expect(media(mallaEquiespaciada(n))).toBeCloseTo(0.5, 12);
+    }
+  });
+
+  test('la varianza poblacional sigue la formula cerrada (n+1)/(12(n-1))', () => {
+    for (const n of [3, 5, 9, 17, 33]) {
+      const esperado = (n + 1) / (12 * (n - 1));
+      expect(varianza(mallaEquiespaciada(n), true)).toBeCloseTo(esperado, 12);
+    }
+  });
+
+  test('la varianza muestral sigue la formula n(n+1)/(12(n-1)^2)', () => {
+    for (const n of [3, 5, 9, 17, 33]) {
+      const esperado = (n * (n + 1)) / (12 * (n - 1) ** 2);
+      expect(varianza(mallaEquiespaciada(n))).toBeCloseTo(esperado, 12);
+    }
+  });
+
+  test('al refinar el paso la varianza poblacional tiende a 1/12', () => {
+    const errores = [5, 50, 500, 5000].map((n) =>
+      Math.abs(varianza(mallaEquiespaciada(n), true) - 1 / 12)
+    );
+
+    for (let i = 1; i < errores.length; i += 1) {
+      expect(errores[i]).toBeLessThan(errores[i - 1]);
+    }
+    expect(errores[errores.length - 1]).toBeLessThan(1e-4);
+  });
+});
+
+describe('orden de convergencia', () => {
+  test('la media de la serie alternante converge a 1 bajo tolerancias crecientes', () => {
+    const casos = [
+      [10, 1e-1],
+      [100, 1e-2],
+      [1000, 1e-3],
+      [10000, 1e-4],
+    ];
+
+    for (const [n, tolerancia] of casos) {
+      expect(Math.abs(media(serieAlternante(n)) - 1)).toBeLessThan(tolerancia);
+    }
+  });
+
+  test('el error decrece con orden aproximado 1 al multiplicar n por 10', () => {
+    const error = (n) => Math.abs(media(serieAlternante(n)) - 1);
+    const razones = [
+      error(100) / error(1000),
+      error(1000) / error(10000),
+    ];
+
+    for (const razon of razones) {
+      expect(razon).toBeGreaterThan(8);
+      expect(razon).toBeLessThan(12);
+    }
+  });
+
+  test('los errores sucesivos forman una sucesion estrictamente decreciente', () => {
+    const errores = [10, 100, 1000, 10000].map((n) => Math.abs(media(serieAlternante(n)) - 1));
+
+    for (let i = 1; i < errores.length; i += 1) {
+      expect(errores[i]).toBeLessThan(errores[i - 1]);
+    }
+  });
+
+  test('la dispersion de la serie tiende a 0 al aumentar n', () => {
+    const d10 = desviacionEstandar(serieAlternante(10));
+    const d1000 = desviacionEstandar(serieAlternante(1000));
+
+    expect(d1000).toBeLessThan(d10);
+    expect(d1000).toBeLessThan(5e-2);
+  });
+});
+
+describe('deteccion de no convergencia y divergencia', () => {
+  const divergentes = [
+    ['division por cero', [1, 2, 1 / 0]],
+    ['division negativa por cero', [1, 2, -1 / 0]],
+    ['indeterminacion 0/0', [1, 2, 0 / 0]],
+    ['logaritmo de cero', [1, Math.log(0)]],
+    ['desbordamiento por exponencial', [1, Math.exp(1000)]],
+  ];
+
+  test.each(divergentes)('rechaza una serie con %s', (_nombre, datos) => {
+    expect(() => media(datos)).toThrow('Todos los elementos deben ser números finitos');
+    expect(() => varianza(datos)).toThrow('Todos los elementos deben ser números finitos');
+    expect(() => desviacionEstandar(datos)).toThrow('Todos los elementos deben ser números finitos');
+    expect(() => mediana(datos)).toThrow('Todos los elementos deben ser números finitos');
+    expect(() => moda(datos)).toThrow('Todos los elementos deben ser números finitos');
+    expect(() => rangoIntercuartilico(datos)).toThrow('Todos los elementos deben ser números finitos');
+  });
+
+  test('detecta la divergencia de la sucesion 1/(n - k) en el punto singular', () => {
+    const sucesion = Array.from({ length: 5 }, (_, i) => 1 / (2 - i));
+
+    expect(sucesion.some((x) => !Number.isFinite(x))).toBe(true);
+    expect(() => media(sucesion)).toThrow('Todos los elementos deben ser números finitos');
+  });
+
+  test('una muestra de un solo paso no permite estimar la varianza muestral', () => {
+    expect(() => varianza([0.5])).toThrow(
+      'Se necesitan al menos 2 datos para calcular la varianza muestral'
+    );
+    expect(varianza([0.5], true)).toBe(0);
+  });
+
+  test('una sucesion estacionaria converge con dispersion nula', () => {
+    const estacionaria = Array.from({ length: 50 }, () => 2.5);
+
+    expect(media(estacionaria)).toBeCloseTo(2.5, 12);
+    expect(varianza(estacionaria)).toBeCloseTo(0, 12);
+    expect(desviacionEstandar(estacionaria)).toBeCloseTo(0, 12);
+    expect(rangoIntercuartilico(estacionaria)).toBe(0);
+  });
+});
+
+describe('estabilidad frente a valores atipicos', () => {
+  test('la mediana es estable mientras la media se desplaza', () => {
+    const conAtipico = [1, 2, 3, 4, 1000];
+
+    expect(mediana(conAtipico)).toBe(3);
+    expect(media(conAtipico)).toBeCloseTo(202, 12);
+  });
+
+  test('el rango intercuartilico es invariante a traslaciones', () => {
+    const base = [1, 2, 3, 4, 5, 6, 7];
+
+    for (const c of [100, -100, 1e6]) {
+      expect(rangoIntercuartilico(base.map((x) => x + c))).toBeCloseTo(4, 9);
+    }
+  });
+
+  test('el rango intercuartilico escala linealmente con los datos', () => {
+    const base = [1, 2, 3, 4, 5, 6, 7];
+
+    for (const k of [2, 10, 0.5]) {
+      expect(rangoIntercuartilico(base.map((x) => x * k))).toBeCloseTo(4 * k, 9);
+    }
+  });
+});
