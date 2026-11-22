@@ -89,9 +89,9 @@ function validarBooleano(valor, nombre) {
 function validarMaxWorkers(maxWorkers) {
   if (maxWorkers === undefined) return;
 
-  if (!Number.isInteger(maxWorkers) || maxWorkers <= 0) {
+  if (!Number.isInteger(maxWorkers) || maxWorkers < 1) {
     throw new ErrorParametros(
-      `ChuspaNumeric.${METODO}: 'maxWorkers' debe ser un entero mayor a cero cuando se especifica. Se recibió: ${describir(maxWorkers)}.`
+      `ChuspaNumeric.${METODO}: 'maxWorkers' debe ser un entero mayor o igual a 1. Se recibió: ${describir(maxWorkers)}.`
     );
   }
 }
@@ -356,11 +356,12 @@ async function ejecutarEnParalelo({
  * @param {number} [opciones.tolerancia=1e-6] - Tolerancia de bisección (finita, mayor a cero).
  * @param {number} [opciones.maxIter=100] - Iteraciones máximas por subintervalo (entero positivo).
  * @param {boolean} [opciones.paralelo=false] - Activa Worker Threads.
- * @param {number} [opciones.maxWorkers] - Número máximo de workers (entero positivo).
+ * @param {number} [opciones.maxWorkers] - Número máximo de workers (entero mayor o igual a 1). Solo se valida con `paralelo: true`.
  * @param {boolean} [opciones.benchmark=false] - Mide secuencial vs paralelo.
  * @returns {Object|Promise<Object>} Resultado del contrato ChuspaNumeric. Con `paralelo:true` retorna Promise.
  * @throws {ErrorParametros} Si `opciones` no es un objeto, o algún parámetro tiene tipo/valor inválido,
- *   o `f` devuelve un valor no finito.
+ *   o `f` devuelve un valor no finito. Con `paralelo: true`, un `maxWorkers` inválido rechaza la promesa
+ *   con `ErrorParametros` en lugar de lanzarlo de forma síncrona.
  * @throws {ErrorDivergencia} Si alguna raíz calculada no es finita.
  */
 export function buscarTodasLasRaices(opciones) {
@@ -385,7 +386,6 @@ export function buscarTodasLasRaices(opciones) {
   validarIteraciones(maxIter);
   validarBooleano(paralelo, 'paralelo');
   validarBooleano(benchmark, 'benchmark');
-  validarMaxWorkers(maxWorkers);
 
   const { tareas, raicesExactas } = construirSubintervalos(f, inicio, fin, paso);
 
@@ -408,6 +408,9 @@ export function buscarTodasLasRaices(opciones) {
   }
 
   return (async () => {
+    // Dentro del async: un maxWorkers inválido rechaza la promesa (no lanza de forma síncrona).
+    validarMaxWorkers(maxWorkers);
+
     let benchmarkInfo = null;
 
     if (benchmark) {
