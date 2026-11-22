@@ -62,7 +62,7 @@ function validarVectorLocal(valor, n, nombre) {
   }
   if (valor.length !== n) {
     throw new ErrorParametros(
-      `ChuspaNumeric.${METODO}: dimensiones incompatibles, "${nombre}" tiene longitud ${valor.length} pero "A" es ${n}×${n}.`
+      `ChuspaNumeric.${METODO}: dimensiones incompatibles, el vector debe tener longitud ${n} (igual al tamaño de "A"), pero "${nombre}" tiene longitud ${valor.length}.`
     );
   }
   for (let i = 0; i < n; i++) {
