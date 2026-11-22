@@ -2,13 +2,17 @@ import { crearResultado } from '../core/contrato.js';
 import { ErrorParametros } from '../core/errores.js';
 
 /**
- * Calcula la interpolación por trazadores cúbicos (splines cúbicos naturales).
+ * Valida que los parámetros recibidos por splines sean utilizables.
  *
- * @param {Object} params
- * @param {Array<Array<number>>} params.puntos - Array de pares [[xi, yi], ...]
- * @param {number} params.x - El punto a evaluar
- * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric
- * @throws {ErrorParametros} Si los parámetros son inválidos o los cálculos no son finitos
+ * Comprueba que params sea un objeto con 'puntos' y 'x', que 'puntos' tenga al
+ * menos tres pares [xi, yi] de números finitos y que los valores de x estén en
+ * orden estrictamente creciente.
+ *
+ * @param {Object} params - Parámetros a validar.
+ * @param {Array<Array<number>>} params.puntos - Array de pares [[xi, yi], ...].
+ * @param {number} params.x - El punto a evaluar.
+ * @returns {{puntos: Array<Array<number>>, x: number}} Los parámetros ya validados.
+ * @throws {ErrorParametros} Si params no es un objeto, si 'puntos' no es un array de al menos tres pares, si algún punto no tiene exactamente dos coordenadas finitas, si los valores de x no son estrictamente crecientes o si 'x' no es un número finito.
  */
 function validarParametros(params) {
     if (!params || typeof params !== 'object' || Array.isArray(params)) {
@@ -42,12 +46,37 @@ function validarParametros(params) {
     return { puntos, x };
 }
 
+/**
+ * Verifica que el punto a evaluar caiga dentro del rango cubierto por los puntos.
+ *
+ * @param {number} x - Punto a evaluar.
+ * @param {number} xMin - Abscisa del primer punto.
+ * @param {number} xMax - Abscisa del último punto.
+ * @returns {void} No devuelve ningún valor.
+ * @throws {ErrorParametros} Si x queda fuera del intervalo [xMin, xMax].
+ */
 function validarRango(x, xMin, xMax) {
     if (x < xMin || x > xMax) {
         throw new ErrorParametros(`El valor x (${x}) a evaluar está fuera del rango de los puntos [${xMin}, ${xMax}].`);
     }
 }
 
+/**
+ * Calcula la interpolación por trazadores cúbicos (splines cúbicos naturales).
+ *
+ * Construye los coeficientes de cada tramo resolviendo el sistema tridiagonal de
+ * los splines naturales y evalúa el trazador en el punto solicitado.
+ *
+ * @param {Object} params - Parámetros del método.
+ * @param {Array<Array<number>>} params.puntos - Array de pares [[xi, yi], ...] con al menos tres puntos y abscisas en orden estrictamente creciente.
+ * @param {number} params.x - El punto a evaluar, dentro del rango de las abscisas.
+ * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric, con el valor interpolado en 'resultado' y los coeficientes de cada tramo en 'iteraciones'.
+ * @throws {ErrorParametros} Si los parámetros son inválidos, si x queda fuera del rango de los puntos o si los cálculos producen valores no finitos.
+ *
+ * @example
+ * const r = splines({ puntos: [[0, 0], [1, 1], [2, 8]], x: 1.5 });
+ * // r.resultado → valor del trazador cúbico natural en x = 1.5
+ */
 export function splines(params) {
     const { puntos, x } = validarParametros(params);
 
