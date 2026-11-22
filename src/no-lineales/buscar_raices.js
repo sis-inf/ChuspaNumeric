@@ -1,12 +1,8 @@
-import { crearResultado } from '../core/contrato.js';
-import { ErrorParametros } from '../core/errores.js';
-import {
-  validarFuncion,
-  validarIntervalo,
-  validarTolerancia,
-  validarIteraciones,
-} from '../utils/validaciones.js';
+import { crearResultado, medirTiempo } from '../core/contrato.js';
+import { ErrorParametros, ErrorDivergencia } from '../core/errores.js';
 import { ejecutarParalelo } from '../utils/ejecutar_paralelo.js';
+
+const METODO = 'buscarTodasLasRaices';
 
 function ahora() {
   return globalThis.performance && typeof globalThis.performance.now === 'function'
@@ -14,10 +10,88 @@ function ahora() {
     : Date.now();
 }
 
+function describir(valor) {
+  if (typeof valor === 'string') return `"${valor}" (string)`;
+  if (valor === null) return 'null';
+  if (Array.isArray(valor)) return 'array';
+  if (typeof valor === 'object') return 'object';
+  if (typeof valor === 'function') return 'function';
+  return `${String(valor)} (${typeof valor})`;
+}
+
+function validarOpciones(opciones) {
+  if (typeof opciones !== 'object' || opciones === null || Array.isArray(opciones)) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: se esperaba un objeto de opciones { f, inicio, fin, paso, ... }. Se recibió: ${describir(opciones)}.`
+    );
+  }
+}
+
+function validarFuncionLocal(f) {
+  if (typeof f !== 'function') {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: 'f' debe ser una función. Se recibió: ${describir(f)}.`
+    );
+  }
+}
+
+function validarNumeroFinito(valor, nombre) {
+  if (typeof valor !== 'number' || !Number.isFinite(valor)) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: '${nombre}' debe ser un número finito. Se recibió: ${describir(valor)}.`
+    );
+  }
+}
+
+function validarIntervaloLocal(inicio, fin) {
+  validarNumeroFinito(inicio, 'inicio');
+  validarNumeroFinito(fin, 'fin');
+
+  if (inicio >= fin) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: el intervalo es inválido, 'inicio' debe ser menor que 'fin'. Se recibió: inicio=${inicio}, fin=${fin}.`
+    );
+  }
+}
+
 function validarPaso(paso) {
   if (typeof paso !== 'number' || !Number.isFinite(paso) || paso <= 0) {
     throw new ErrorParametros(
-      `ChuspaNumeric.buscarTodasLasRaices: 'paso' debe ser un número finito mayor a cero. Se recibió: ${paso}.`
+      `ChuspaNumeric.${METODO}: 'paso' debe ser un número finito mayor a cero. Se recibió: ${describir(paso)}.`
+    );
+  }
+}
+
+function validarTolerancia(tolerancia) {
+  if (typeof tolerancia !== 'number' || !Number.isFinite(tolerancia) || tolerancia <= 0) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: 'tolerancia' debe ser un número finito mayor a cero. Se recibió: ${describir(tolerancia)}.`
+    );
+  }
+}
+
+function validarIteraciones(maxIter) {
+  if (!Number.isInteger(maxIter) || maxIter <= 0) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: 'maxIter' debe ser un entero mayor a cero. Se recibió: ${describir(maxIter)}.`
+    );
+  }
+}
+
+function validarBooleano(valor, nombre) {
+  if (typeof valor !== 'boolean') {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: '${nombre}' debe ser un booleano. Se recibió: ${describir(valor)}.`
+    );
+  }
+}
+
+function validarMaxWorkers(maxWorkers) {
+  if (maxWorkers === undefined) return;
+
+  if (!Number.isInteger(maxWorkers) || maxWorkers < 1) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: 'maxWorkers' debe ser un entero mayor o igual a 1. Se recibió: ${describir(maxWorkers)}.`
     );
   }
 }
@@ -25,7 +99,7 @@ function validarPaso(paso) {
 function validarValorFuncion(valor, x) {
   if (typeof valor !== 'number' || !Number.isFinite(valor)) {
     throw new ErrorParametros(
-      `ChuspaNumeric.buscarTodasLasRaices: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
+      `ChuspaNumeric.${METODO}: la función debe devolver un número finito. En x=${x} devolvió ${valor}.`
     );
   }
 }
@@ -158,7 +232,7 @@ function ordenarResultados(resultados) {
   return resultados.slice().sort((a, b) => a.raiz - b.raiz);
 }
 
-function crearRespuesta({
+function finalizar({
   resultados,
   inicio,
   fin,
@@ -167,11 +241,17 @@ function crearRespuesta({
   maxIter,
   paralelo,
   maxWorkers,
-  tiempoMs,
+  tiempo_ms,
   benchmark = null
 }) {
   const ordenados = ordenarResultados(resultados);
   const raices = ordenados.map((item) => item.raiz);
+
+  if (!raices.every((r) => Number.isFinite(r))) {
+    throw new ErrorDivergencia(
+      `ChuspaNumeric.${METODO}: se obtuvo una raíz no finita (NaN o Infinity); el método divergió.`
+    );
+  }
 
   return crearResultado({
     resultado: raices,
@@ -179,7 +259,7 @@ function crearRespuesta({
     convergio: ordenados.every((item) => item.convergio),
     mensaje: `Se encontraron ${raices.length} raíz(es) en el intervalo [${inicio}, ${fin}].`,
     meta: {
-      metodo: 'buscarTodasLasRaices',
+      metodo: METODO,
       parametros: {
         inicio,
         fin,
@@ -189,7 +269,7 @@ function crearRespuesta({
         paralelo,
         maxWorkers
       },
-      tiempo_ms: tiempoMs,
+      tiempo_ms,
       benchmark
     }
   });
@@ -268,43 +348,53 @@ async function ejecutarEnParalelo({
  * El campo `meta.benchmark` reporta `secuencial_ms`, `paralelo_ms` y
  * `factorMejora` medidos sobre el mismo conjunto de subintervalos.
  *
- * @param {Object} params
- * @param {Function} params.f - Función continua a evaluar.
- * @param {number} params.inicio - Extremo inferior del intervalo de búsqueda.
- * @param {number} params.fin - Extremo superior del intervalo de búsqueda.
- * @param {number} params.paso - Tamaño de cada subintervalo.
- * @param {number} [params.tolerancia=1e-6] - Tolerancia de bisección.
- * @param {number} [params.maxIter=100] - Iteraciones máximas por subintervalo.
- * @param {boolean} [params.paralelo=false] - Activa Worker Threads.
- * @param {number} [params.maxWorkers] - Número máximo de workers.
- * @param {boolean} [params.benchmark=false] - Mide secuencial vs paralelo.
+ * @param {Object} opciones
+ * @param {Function} opciones.f - Función continua a evaluar.
+ * @param {number} opciones.inicio - Extremo inferior del intervalo de búsqueda (finito).
+ * @param {number} opciones.fin - Extremo superior del intervalo de búsqueda (finito, mayor que `inicio`).
+ * @param {number} opciones.paso - Tamaño de cada subintervalo (finito, mayor a cero).
+ * @param {number} [opciones.tolerancia=1e-6] - Tolerancia de bisección (finita, mayor a cero).
+ * @param {number} [opciones.maxIter=100] - Iteraciones máximas por subintervalo (entero positivo).
+ * @param {boolean} [opciones.paralelo=false] - Activa Worker Threads.
+ * @param {number} [opciones.maxWorkers] - Número máximo de workers (entero mayor o igual a 1). Solo se valida con `paralelo: true`.
+ * @param {boolean} [opciones.benchmark=false] - Mide secuencial vs paralelo.
  * @returns {Object|Promise<Object>} Resultado del contrato ChuspaNumeric. Con `paralelo:true` retorna Promise.
+ * @throws {ErrorParametros} Si `opciones` no es un objeto, o algún parámetro tiene tipo/valor inválido,
+ *   o `f` devuelve un valor no finito. Con `paralelo: true`, un `maxWorkers` inválido rechaza la promesa
+ *   con `ErrorParametros` en lugar de lanzarlo de forma síncrona.
+ * @throws {ErrorDivergencia} Si alguna raíz calculada no es finita.
  */
-export function buscarTodasLasRaices({
-  f,
-  inicio,
-  fin,
-  paso,
-  tolerancia = 1e-6,
-  maxIter = 100,
-  paralelo = false,
-  maxWorkers,
-  benchmark = false
-}) {
-  validarFuncion(f, 'f');
-  validarIntervalo(inicio, fin);
+export function buscarTodasLasRaices(opciones) {
+  validarOpciones(opciones);
+
+  const {
+    f,
+    inicio,
+    fin,
+    paso,
+    tolerancia = 1e-6,
+    maxIter = 100,
+    paralelo = false,
+    maxWorkers,
+    benchmark = false
+  } = opciones;
+
+  validarFuncionLocal(f);
+  validarIntervaloLocal(inicio, fin);
   validarPaso(paso);
   validarTolerancia(tolerancia);
   validarIteraciones(maxIter);
+  validarBooleano(paralelo, 'paralelo');
+  validarBooleano(benchmark, 'benchmark');
 
   const { tareas, raicesExactas } = construirSubintervalos(f, inicio, fin, paso);
 
   if (!paralelo) {
-    const inicioTiempo = ahora();
-    const resultados = ejecutarSecuencial({ f, tareas, raicesExactas, tolerancia, maxIter });
-    const tiempoMs = ahora() - inicioTiempo;
+    const { valor: resultados, tiempo_ms } = medirTiempo(() =>
+      ejecutarSecuencial({ f, tareas, raicesExactas, tolerancia, maxIter })
+    );
 
-    return crearRespuesta({
+    return finalizar({
       resultados,
       inicio,
       fin,
@@ -313,17 +403,20 @@ export function buscarTodasLasRaices({
       maxIter,
       paralelo,
       maxWorkers,
-      tiempoMs
+      tiempo_ms
     });
   }
 
   return (async () => {
+    // Dentro del async: un maxWorkers inválido rechaza la promesa (no lanza de forma síncrona).
+    validarMaxWorkers(maxWorkers);
+
     let benchmarkInfo = null;
 
     if (benchmark) {
-      const inicioSecuencial = ahora();
-      ejecutarSecuencial({ f, tareas, raicesExactas, tolerancia, maxIter });
-      const secuencialMs = ahora() - inicioSecuencial;
+      const { tiempo_ms: secuencialMs } = medirTiempo(() =>
+        ejecutarSecuencial({ f, tareas, raicesExactas, tolerancia, maxIter })
+      );
 
       benchmarkInfo = {
         secuencial_ms: secuencialMs,
@@ -332,6 +425,7 @@ export function buscarTodasLasRaices({
       };
     }
 
+    // El algoritmo paralelo es asíncrono: medirTiempo es síncrono, por eso se mide con ahora().
     const inicioParalelo = ahora();
     const resultados = await ejecutarEnParalelo({
       f,
@@ -349,7 +443,7 @@ export function buscarTodasLasRaices({
         paraleloMs > 0 ? benchmarkInfo.secuencial_ms / paraleloMs : null;
     }
 
-    return crearRespuesta({
+    return finalizar({
       resultados,
       inicio,
       fin,
@@ -358,7 +452,7 @@ export function buscarTodasLasRaices({
       maxIter,
       paralelo,
       maxWorkers,
-      tiempoMs: paraleloMs,
+      tiempo_ms: paraleloMs,
       benchmark: benchmarkInfo
     });
   })();
