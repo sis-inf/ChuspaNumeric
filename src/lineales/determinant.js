@@ -1,11 +1,7 @@
 // DETERMINANTES 2x2 Y 3x3
 
 import { crearResultado, medirTiempo } from "../core/contrato.js";
-import {
-  ErrorParametros,
-  ErrorTamano,
-  ErrorDivergencia,
-} from "../core/errores.js";
+import { ErrorParametros, ErrorDivergencia } from "../core/errores.js";
 
 function validarMatrizCuadradaN(matriz, n, funcion) {
   const p = `ChuspaNumeric.${funcion}`;
@@ -22,16 +18,19 @@ function validarMatrizCuadradaN(matriz, n, funcion) {
     }
   }
 
-  if (matriz.length !== n) {
-    throw new ErrorTamano(
-      `${p}: la matriz debe ser ${n}x${n}. Tiene ${matriz.length} filas.`
+  const filas = matriz.length;
+  const columnas = matriz[0].length;
+
+  if (filas !== n) {
+    throw new ErrorParametros(
+      `${p}: dimensión incorrecta. Se esperaba una matriz ${n}x${n} y se recibió ${filas}x${columnas}.`
     );
   }
 
   for (let i = 0; i < n; i++) {
     if (matriz[i].length !== n) {
-      throw new ErrorTamano(
-        `${p}: la matriz debe ser ${n}x${n}. La fila ${i} tiene ${matriz[i].length} columnas.`
+      throw new ErrorParametros(
+        `${p}: dimensión incorrecta. Se esperaba una matriz ${n}x${n}, pero la fila ${i} tiene ${matriz[i].length} columnas (se esperaban ${n}).`
       );
     }
     for (let j = 0; j < n; j++) {
@@ -73,11 +72,12 @@ function finalizar(funcion, metodo, dimension, calculo) {
 /**
  * Calcula el determinante de una matriz 2x2.
  *
+ * El valor del determinante se obtiene en la propiedad `resultado` del objeto
+ * devuelto (antes la función devolvía directamente el número).
+ *
  * @param {number[][]} m Matriz 2x2 de números finitos.
- * @returns {Object} Resultado según el contrato de ChuspaNumeric
- *                   (`resultado` es el determinante).
- * @throws {ErrorParametros} Si m no es una matriz o contiene valores no finitos.
- * @throws {ErrorTamano} Si m no es 2x2.
+ * @returns {Object} Resultado según el contrato de ChuspaNumeric.
+ * @throws {ErrorParametros} Si m no es una matriz, no es 2x2 o contiene valores no finitos.
  * @throws {ErrorDivergencia} Si el resultado no es finito.
  */
 export function det2x2(m) {
@@ -93,11 +93,12 @@ export function det2x2(m) {
 /**
  * Calcula el determinante de una matriz 3x3 (regla de Sarrus / cofactores).
  *
+ * El valor del determinante se obtiene en la propiedad `resultado` del objeto
+ * devuelto (antes la función devolvía directamente el número).
+ *
  * @param {number[][]} m Matriz 3x3 de números finitos.
- * @returns {Object} Resultado según el contrato de ChuspaNumeric
- *                   (`resultado` es el determinante).
- * @throws {ErrorParametros} Si m no es una matriz o contiene valores no finitos.
- * @throws {ErrorTamano} Si m no es 3x3.
+ * @returns {Object} Resultado según el contrato de ChuspaNumeric.
+ * @throws {ErrorParametros} Si m no es una matriz, no es 3x3 o contiene valores no finitos.
  * @throws {ErrorDivergencia} Si el resultado no es finito.
  */
 export function det3x3(m) {
