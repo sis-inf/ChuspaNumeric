@@ -78,27 +78,28 @@ Métodos disponibles:
   newtonRaphson
 
 Opciones generales:
+  --help          Muestra esta ayuda
   --grafico       Muestra un gráfico ASCII del error por iteración
 
 Opciones para biseccion:
   --f             Función, ejemplo: "x^2-4"
   --a             Extremo izquierdo
   --b             Extremo derecho
-  --tolerancia    Tolerancia opcional
+  --tol           Tolerancia opcional (también --tolerancia)
   --maxIter       Máximo de iteraciones opcional
 
 Ejemplo:
-  chuspanumeric biseccion --f "x^2-4" --a 0 --b 3 --grafico
+  chuspanumeric biseccion --f "x^2-4" --a 0 --b 3 --tol 0.0001
 
 Opciones para newtonRaphson:
   --f             Función, ejemplo: "x^2-4"
   --df            Derivada, ejemplo: "2*x"
   --x0            Valor inicial
-  --tolerancia    Tolerancia opcional
+  --tol           Tolerancia opcional (también --tolerancia)
   --maxIter       Máximo de iteraciones opcional
 
 Ejemplo:
-  chuspanumeric newtonRaphson --f "x^2-4" --df "2*x" --x0 3 --grafico
+  chuspanumeric newtonRaphson --f "x^2-4" --df "2*x" --x0 3 --tol 0.0001
 `);
 }
 
@@ -126,13 +127,15 @@ try {
         throw new Error('Debe proporcionar --f, --a y --b.');
       }
 
+      const tolerancia = args.tol ?? args.tolerancia;
+
       const resultado = biseccion({
         f: parseFunction(args.f, 'f'),
         a: parseNumber(args.a, 'a'),
         b: parseNumber(args.b, 'b'),
         tolerancia:
-          args.tolerancia !== undefined
-            ? parseNumber(args.tolerancia, 'tolerancia')
+          tolerancia !== undefined
+            ? parseNumber(tolerancia, 'tol')
             : undefined,
         maxIter:
           args.maxIter !== undefined
@@ -157,6 +160,7 @@ try {
       }
 
       const derivada = parseFunction(args.df, 'df');
+      const tolerancia = args.tol ?? args.tolerancia;
 
       const resultado = newtonRaphson({
         f: parseFunction(args.f, 'f'),
@@ -166,8 +170,8 @@ try {
         x0: parseNumber(x0, 'x0'),
         xInicial: parseNumber(x0, 'x0'),
         tolerancia:
-          args.tolerancia !== undefined
-            ? parseNumber(args.tolerancia, 'tolerancia')
+          tolerancia !== undefined
+            ? parseNumber(tolerancia, 'tol')
             : undefined,
         maxIter:
           args.maxIter !== undefined
