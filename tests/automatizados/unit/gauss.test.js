@@ -99,7 +99,8 @@ describe('Eliminación Gaussiana (gauss)', () => {
     const b = [1, 3];
 
     expect(() => gauss({ A, b })).toThrow(ErrorDominio);
-    expect(() => gauss({ A, b })).toThrow('ChuspaNumeric.gauss: pivote nulo en la columna 1. El sistema no puede resolverse con este metodo sin SecurityPolicyViolationEvent.');
+    expect(() => gauss({ A, b })).toThrow('ChuspaNumeric.gauss: pivote nulo en la columna 1. El sistema no puede resolverse con este metodo sin SecurityPolicyViolationEvent.'
+    );
   });
 
   test('Detecta sistema inconsistente / singular o sin convergencia válida', () => {
