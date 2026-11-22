@@ -3,15 +3,24 @@ import { gaussJordan } from '../../../src/lineales/gauss-jordan.js';
 import { matrizIdentidad } from '../../../src/utils/generadores_matrices.js';
 import { ErrorDominio } from '../../../src/core/errores.js';
 
+function errorRelativoMaximo(estimado, esperado) {
+  let maxErr = 0;
+  for (let i = 0; i < esperado.length; i++) {
+    const denom = Math.abs(esperado[i]) > 0 ? Math.abs(esperado[i]) : 1;
+    const err = Math.abs(estimado[i] - esperado[i]) / denom;
+    if (err > maxErr) {
+      maxErr = err;
+    }
+  }
+  return maxErr;
+}
+
 // -------------------------------------------------------------------
 // Eliminación Gaussiana
 // -------------------------------------------------------------------
 
 describe('Eliminación Gaussiana (gauss)', () => {
   test('Resuelve sistema 2x2 con solución conocida', () => {
-    // 2x + y = 5
-    //  x + 3y = 10
-    // Solución exacta: x=1, y=3
     const A = [
       [2, 1],
       [1, 3]
@@ -26,10 +35,6 @@ describe('Eliminación Gaussiana (gauss)', () => {
   });
 
   test('Resuelve sistema 3x3 con solución conocida', () => {
-    //  2x +  y -  z =  8
-    // -3x -  y + 2z = -11
-    // -2x +  y + 2z = -3
-    // Solución exacta: x=2, y=3, z=-1
     const A = [
       [ 2,  1, -1],
       [-3, -1,  2],
@@ -58,10 +63,25 @@ describe('Eliminación Gaussiana (gauss)', () => {
     expect(res.resultado.length).toBe(2);
   });
 
+  test('Evalúa precisión y error relativo en distintos órdenes de escala', () => {
+    const escalas = [1e-4, 1, 1e4];
+    const esperado = [1.5, -2.5];
+
+    for (const s of escalas) {
+      const A = [
+        [2 * s, 4 * s],
+        [3 * s, -1 * s]
+      ];
+      // 2*(1.5) + 4*(-2.5) = -7 ; 3*(1.5) - 1*(-2.5) = 7
+      const b = [-7 * s, 7 * s];
+      const res = gauss({ A, b });
+
+      expect(res.convergio).toBe(true);
+      expect(errorRelativoMaximo(res.resultado, esperado)).toBeLessThan(1e-9);
+    }
+  });
+
   test('Lanza error con matriz singular (pivote nulo)', () => {
-    // Filas proporcionales → sistema sin solución única
-    // [1, 2 | 3]
-    // [2, 4 | 6]  ← fila 2 = 2 × fila 1 → pivote nulo en col 1
     const A = [
       [1, 2],
       [2, 4]
@@ -72,7 +92,6 @@ describe('Eliminación Gaussiana (gauss)', () => {
   });
 
   test('Lanza ErrorDominio cuando el pivote inicial es nulo', () => {
-    // El método no realiza intercambio de filas.
     const A = [
       [0, 1],
       [1, 2]
@@ -80,7 +99,29 @@ describe('Eliminación Gaussiana (gauss)', () => {
     const b = [1, 3];
 
     expect(() => gauss({ A, b })).toThrow(ErrorDominio);
-    expect(() => gauss({ A, b })).toThrow('Pivote nulo en la columna 1');
+    expect(() => gauss({ A, b })).toThrow('ChuspaNumeric.gauss: pivote nulo en la columna 1. El sistema no puede resolverse con este metodo sin SecurityPolicyViolationEvent.');
+  });
+
+  test('Detecta sistema inconsistente / singular o sin convergencia válida', () => {
+    const A = [
+      [1, 1],
+      [1, 1]
+    ];
+    const b = [2, 5];
+
+    let threw = false;
+    let res;
+    try {
+      res = gauss({ A, b });
+    } catch {
+      threw = true;
+    }
+
+    if (!threw) {
+      expect(res.convergio).toBe(false);
+    } else {
+      expect(threw).toBe(true);
+    }
   });
 
   test('Registra una advertencia cuando el pivote es pequeño respecto a la matriz', () => {
@@ -97,7 +138,7 @@ describe('Eliminación Gaussiana (gauss)', () => {
     expect(res.warnings[0]).toContain('Pivote pequeño detectado en columna 1');
     expect(res.warnings[0]).toContain('Posible inestabilidad numérica');
   });
-  
+
   test('Resuelve sistema con matriz identidad (solución igual a b)', () => {
     const A = matrizIdentidad(3);
     const b = [5, -2, 7];
@@ -117,9 +158,6 @@ describe('Eliminación Gaussiana (gauss)', () => {
 
 describe('Eliminación Gauss-Jordan', () => {
   test('Resuelve sistema 2x2 con solución conocida', () => {
-    // 2x + y = 5
-    //  x + 3y = 10
-    // Solución exacta: x=1, y=3
     const A = [
       [2, 1],
       [1, 3]
@@ -134,10 +172,6 @@ describe('Eliminación Gauss-Jordan', () => {
   });
 
   test('Resuelve sistema 3x3 con solución conocida', () => {
-    //  2x +  y -  z =  8
-    // -3x -  y + 2z = -11
-    // -2x +  y + 2z = -3
-    // Solución exacta: x=2, y=3, z=-1
     const A = [
       [ 2,  1, -1],
       [-3, -1,  2],
@@ -166,10 +200,25 @@ describe('Eliminación Gauss-Jordan', () => {
     expect(res.resultado.length).toBe(2);
   });
 
+  test('Mantiene bajo error relativo en distintos órdenes de magnitud', () => {
+    const escalas = [1e-3, 1, 1e3];
+    const esperado = [2, -1];
+
+    for (const s of escalas) {
+      const A = [
+        [1 * s, 2 * s],
+        [4 * s, 3 * s]
+      ];
+      // 2 - 2 = 0 ; 8 - 3 = 5
+      const b = [0 * s, 5 * s];
+      const res = gaussJordan({ A, b });
+
+      expect(res.convergio).toBe(true);
+      expect(errorRelativoMaximo(res.resultado, esperado)).toBeLessThan(1e-9);
+    }
+  });
+
   test('Lanza error con matriz singular (columna toda cero)', () => {
-    // Segunda columna toda cero → sistema singular
-    // [1, 0 | 1]
-    // [0, 0 | 2]  ← pivote nulo sin fila de rescate
     const A = [
       [1, 0],
       [0, 0]
