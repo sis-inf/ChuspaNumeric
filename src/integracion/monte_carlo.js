@@ -44,6 +44,7 @@ import {
 
 const METODO = 'integracionMonteCarlo';
 const PREFIJO = `ChuspaNumeric.${METODO}:`;
+const N_MUESTRAS_POR_DEFECTO = 10000;
 
 // ---------------------------------------------------------------------------
 // PRNG con semilla (mulberry32)
@@ -111,14 +112,6 @@ function validarParametros1D(f, a, b, n) {
 }
 
 /**
- * Valida los parámetros de integración multidimensional.
- *
- * @param {*} opciones - Objeto de opciones.
- * @returns {number} Número de dimensiones.
- * @throws {ErrorParametros}
- */
-
-/**
  * Valida que un valor sea un número finito.
  *
  * @param {*} valor
@@ -183,7 +176,39 @@ function validarLimitesMC(inferiores, superiores) {
 }
 
 /**
+ * Valida el número de muestras (ya con su valor por defecto aplicado).
+ *
+ * @param {*} nMuestras
+ * @throws {ErrorParametros}
+ */
+function validarNMuestrasMC(nMuestras) {
+  if (!Number.isInteger(nMuestras) || nMuestras < 1) {
+    throw new ErrorParametros(
+      `${PREFIJO} "nMuestras" debe ser un entero positivo. Se recibió: ${nMuestras}.`
+    );
+  }
+}
+
+/**
+ * Valida la semilla del PRNG. `null` (ya normalizado desde `undefined`)
+ * significa "usar Math.random()"; cualquier otro valor debe ser un número finito.
+ *
+ * @param {*} semilla
+ * @throws {ErrorParametros}
+ */
+function validarSemillaMC(semilla) {
+  if (semilla === null) return;
+  if (typeof semilla !== 'number' || !Number.isFinite(semilla)) {
+    throw new ErrorParametros(
+      `${PREFIJO} "semilla" debe ser null o un número finito. Se recibió: ${semilla}.`
+    );
+  }
+}
+
+/**
  * Valida los parámetros de integración multidimensional.
+ * Aplica los mismos valores por defecto que la función de integración
+ * (nMuestras = 10000, semilla = null), de modo que omitirlos es válido.
  *
  * @param {*} opciones - Objeto de opciones.
  * @returns {number} Número de dimensiones.
@@ -192,7 +217,13 @@ function validarLimitesMC(inferiores, superiores) {
 function validarParametrosMonteCarlo(opciones) {
   validarObjetoOpcionesMC(opciones);
 
-  const { f, limitesInferiores, limitesSuperiores, nMuestras } = opciones;
+  const {
+    f,
+    limitesInferiores,
+    limitesSuperiores,
+    nMuestras = N_MUESTRAS_POR_DEFECTO,
+    semilla = null,
+  } = opciones;
 
   if (typeof f !== 'function') {
     throw new ErrorParametros(
@@ -213,12 +244,8 @@ function validarParametrosMonteCarlo(opciones) {
   }
 
   validarLimitesMC(limitesInferiores, limitesSuperiores);
-
-  if (!Number.isInteger(nMuestras) || nMuestras < 1) {
-    throw new ErrorParametros(
-      `${PREFIJO} "nMuestras" debe ser un entero positivo. Se recibió: ${nMuestras}.`
-    );
-  }
+  validarNMuestrasMC(nMuestras);
+  validarSemillaMC(semilla);
 
   return d;
 }
@@ -303,7 +330,7 @@ function finalizar({
  * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito.
  * @throws {ErrorDivergencia} Si la estimación no es finita.
  */
-function integracionMonteCarlo1D(f, a, b, n = 10000) {
+function integracionMonteCarlo1D(f, a, b, n = N_MUESTRAS_POR_DEFECTO) {
   validarParametros1D(f, a, b, n);
 
   const { valor: calculo, tiempo_ms } = medirTiempo(() => {
@@ -373,10 +400,11 @@ function integracionMonteCarlo1D(f, a, b, n = 10000) {
  * @param {number[]} params.limitesInferiores - Límite inferior de cada dimensión.
  * @param {number[]} params.limitesSuperiores - Límite superior de cada
  *   dimensión. Cada bᵢ debe ser > aᵢ.
- * @param {number}   [params.nMuestras=10000] - Número de puntos aleatorios.
+ * @param {number}   [params.nMuestras=10000] - Número de puntos aleatorios
+ *   (entero positivo). Si se omite, se usa 10000.
  * @param {number|null} [params.semilla=null] - Semilla del PRNG. Si es `null`
- *   usa `Math.random()` (no reproducible); si es un número, usa el PRNG
- *   interno determinista.
+ *   o se omite, usa `Math.random()` (no reproducible); si es un número
+ *   finito, usa el PRNG interno determinista.
  *
  * @returns {Object} Objeto de resultado según el contrato de ChuspaNumeric:
  *   - `resultado`: estimación de la integral (number).
@@ -388,7 +416,8 @@ function integracionMonteCarlo1D(f, a, b, n = 10000) {
  *
  * @throws {ErrorParametros} Si las opciones no son un objeto, f no es función,
  *   los límites son inconsistentes o no finitos, algún límite superior ≤
- *   inferior, o nMuestras no es un entero positivo.
+ *   inferior, nMuestras no es un entero positivo, o semilla no es null ni un
+ *   número finito.
  * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito.
  * @throws {ErrorDivergencia} Si la estimación no es finita.
  */
@@ -398,7 +427,7 @@ function integracionMonteCarloMultidimensional(opciones) {
     f,
     limitesInferiores,
     limitesSuperiores,
-    nMuestras = 10000,
+    nMuestras = N_MUESTRAS_POR_DEFECTO,
     semilla = null,
   } = opciones;
 
@@ -482,12 +511,11 @@ function integracionMonteCarloMultidimensional(opciones) {
  * const r1 = integracionMonteCarlo(x => x * x, 0, 1, 100000);
  * console.log(r1.resultado, r1.valor, r1.errorEstandar);
  *
- * // 3D: ∫₀¹∫₀¹∫₀¹ (x+y+z) = 1.5
+ * // 3D: ∫₀¹∫₀¹∫₀¹ (x+y+z) = 1.5 (nMuestras omitido: usa 10000)
  * const r3 = integracionMonteCarlo({
  *   f: ([x, y, z]) => x + y + z,
  *   limitesInferiores: [0, 0, 0],
  *   limitesSuperiores: [1, 1, 1],
- *   nMuestras: 100000,
  *   semilla: 42,
  * });
  * console.log(r3.resultado);
