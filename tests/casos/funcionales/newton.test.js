@@ -34,4 +34,94 @@ describe('newton-raphson', () => {
     expect(res.convergio).toBe(true);
     expect(res.resultado).toBeCloseTo(3, 4);
   });
+
+  describe('Precisión y órdenes de convergencia', () => {
+      test('reduce el error relativo con tolerancias más estrictas', () => {
+      const raizExacta = Math.sqrt(2);
+      const tolerancias = [1e-2, 1e-4, 1e-8];
+      const erroresRelativos = [];
+
+      tolerancias.forEach(tolerancia => {
+        const res = newtonRaphson({
+          f,
+          df,
+          x0: 1,
+          tolerancia
+        });
+
+        const errorRelativo =
+          Math.abs(res.resultado - raizExacta) / Math.abs(raizExacta);
+
+        expect(res.convergio).toBe(true);
+        erroresRelativos.push(errorRelativo);
+      });
+
+      expect(erroresRelativos[1]).toBeLessThan(erroresRelativos[0]);
+      expect(erroresRelativos[2]).toBeLessThan(erroresRelativos[1]);
+    });
+
+    test('presenta convergencia cuadrática para una raíz simple', () => {
+      const raizExacta = Math.sqrt(2);
+
+      const res = newtonRaphson({
+        f,
+        df,
+        x0: 1,
+        tolerancia: 1e-12
+      });
+
+      const errores = res.iteraciones.map(iteracion =>
+        Math.abs(iteracion.x - raizExacta)
+      );
+
+      expect(res.convergio).toBe(true);
+      expect(errores.length).toBeGreaterThan(2);
+
+      // En convergencia cuadrática, el error disminuye aproximadamente
+      // en proporción al cuadrado del error de la iteración anterior.
+      expect(errores[2]).toBeLessThan(errores[1] ** 2);
+    });
+
+    test('presenta convergencia lineal para una raíz múltiple', () => {
+      const fMultiple = x => (x - 2) ** 2;
+      const dfMultiple = x => 2 * (x - 2);
+
+      const res = newtonRaphson({
+        f: fMultiple,
+        df: dfMultiple,
+        x0: 3,
+        tolerancia: 1e-8
+      });
+
+      const errores = res.iteraciones.map(iteracion =>
+        Math.abs(iteracion.x - 2)
+      );
+
+      const razonConvergencia =
+        errores[errores.length - 1] / errores[errores.length - 2];
+
+      expect(res.convergio).toBe(true);
+      expect(razonConvergencia).toBeCloseTo(0.5, 6);
+    });
+
+    test('detecta resultados no finitos durante las iteraciones', () => {
+      expect(() => {
+        newtonRaphson({
+          f: () => Infinity,
+          df: () => 1,
+          x0: 1
+        });
+      }).toThrow();
+    });
+
+    test('detecta una derivada nula durante el cálculo', () => {
+      expect(() => {
+        newtonRaphson({
+          f: x => x ** 2 + 1,
+          df: x => 2 * x,
+          x0: 0
+        });
+      }).toThrow(/derivada es cero/i);
+    });
+  });
 });
