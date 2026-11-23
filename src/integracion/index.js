@@ -1,10 +1,18 @@
 /**
- * Índice de métodos de integración numérica.
+ * Índice (barrel) de métodos de integración numérica.
  *
  * Re-exporta los métodos de integración numérica de esta carpeta:
  * trapecio, Simpson (1/3, 3/8, compuesto y adaptativo), Romberg,
  * Gauss-Legendre, derivada numérica e integración Monte Carlo con error
  * estándar (issue #659).
+ *
+ * Este módulo NO define funciones propias: no recibe parámetros, no valida
+ * entradas y no retorna resultados. La validación de parámetros
+ * (ErrorParametros) y el contrato de retorno (crearResultado) se aplican en
+ * cada módulo re-exportado, no en este índice (issue #1526).
+ *
+ * Nota: `punto_medio.js` no se re-exporta aquí; `src/index.js` lo importa
+ * directamente desde su archivo.
  */
 export { integracionMonteCarlo } from './monte_carlo.js';
 export { trapecio } from './trapecio.js';
