@@ -75,14 +75,16 @@ function validarToleranciaLocal(tolerancia) {
 }
 
 /**
- * Verifica que la profundidad máxima sea un entero >= 0.
- * @param {*} maxProfundidad - Valor a verificar.
+ * Verifica que una profundidad máxima sea un entero >= 0.
+ * Se usa tanto para 'profundidadMaxima' como para su alias 'maxProfundidad'.
+ * @param {*} valor - Valor a verificar.
+ * @param {string} nombre - Nombre del parámetro (para el mensaje de error).
  * @throws {ErrorParametros} Si no es un entero mayor o igual a 0.
  */
-function validarProfundidadMaxima(maxProfundidad) {
-    if (!Number.isInteger(maxProfundidad) || maxProfundidad < 0) {
+function validarProfundidadMaxima(valor, nombre) {
+    if (!Number.isInteger(valor) || valor < 0) {
         throw new ErrorParametros(
-            `${PREFIJO} 'maxProfundidad' debe ser un entero mayor o igual a 0. Se recibió: ${maxProfundidad}.`
+            `${PREFIJO} '${nombre}' debe ser un entero mayor o igual a 0. Se recibió: ${valor}.`
         );
     }
 }
@@ -141,6 +143,7 @@ function ejecutarAlgoritmo({ f, a, b, tolerancia, maxProfundidad }) {
         const errorEstimado = Math.abs(diferencia) / 15;
         const aceptado = Math.abs(diferencia) <= 15 * toleranciaLocal;
         const alcanzoProfundidadMaxima = profundidad >= maxProfundidad;
+        const terminoPorProfundidad = !aceptado && alcanzoProfundidadMaxima;
 
         iteraciones.push({
             profundidad,
@@ -152,7 +155,8 @@ function ejecutarAlgoritmo({ f, a, b, tolerancia, maxProfundidad }) {
             simpsonDerecho: aproximacionDerecha,
             errorEstimado,
             tolerancia: toleranciaLocal,
-            aceptado: aceptado || alcanzoProfundidadMaxima
+            aceptado,
+            terminoPorProfundidad
         });
 
         if (aceptado) {
@@ -257,12 +261,15 @@ function finalizar({ resultado, iteraciones, warnings, evaluaciones, a, b, toler
  * @param {number} [opciones.tolerancia=1e-6] - Tolerancia de error aceptada (finita y > 0).
  * @param {number} [opciones.profundidadMaxima=20] - Profundidad máxima de recursión (entero >= 0).
  * @param {number} [opciones.maxProfundidad] - Alias de profundidadMaxima, se mantiene por compatibilidad.
+ *   Si se indican ambos, los dos se validan y maxProfundidad tiene prioridad.
  * @returns {Object} Objeto de crearResultado (contrato.js). `iteraciones` es un arreglo con un
  *   registro por subintervalo evaluado: { profundidad, a, b, medio, simpsonCompleto,
- *   simpsonIzquierdo, simpsonDerecho, errorEstimado, tolerancia, aceptado }.
+ *   simpsonIzquierdo, simpsonDerecho, errorEstimado, tolerancia, aceptado, terminoPorProfundidad }.
+ *   `aceptado` es true solo si el subintervalo cumplió la tolerancia; `terminoPorProfundidad` es true
+ *   si se detuvo por alcanzar la profundidad máxima sin cumplirla.
  *   `convergio` es false si se alcanzó la profundidad máxima (se agregan `warnings`).
- * @throws {ErrorParametros} Si las opciones, f, a, b, tolerancia o maxProfundidad no son válidos,
- *   o si f devuelve un valor no numérico o no finito.
+ * @throws {ErrorParametros} Si las opciones, f, a, b, tolerancia, profundidadMaxima o maxProfundidad
+ *   no son válidos, o si f devuelve un valor no numérico o no finito.
  * @throws {ErrorDivergencia} Si el resultado final no es finito.
  */
 export function simpsonAdaptativo(opciones) {
@@ -280,7 +287,8 @@ export function simpsonAdaptativo(opciones) {
     validarFuncionLocal(f);
     validarLimites(a, b);
     validarToleranciaLocal(tolerancia);
-    validarProfundidadMaxima(maxProfundidad);
+    validarProfundidadMaxima(profundidadMaxima, 'profundidadMaxima');
+    validarProfundidadMaxima(maxProfundidad, 'maxProfundidad');
 
     const { valor: calculo, tiempo_ms } = medirTiempo(() =>
         ejecutarAlgoritmo({ f, a, b, tolerancia, maxProfundidad })
