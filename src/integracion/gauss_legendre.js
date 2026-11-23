@@ -12,17 +12,7 @@ function validarNumeroFinito(valor, nombre) {
   }
 }
 
-function validarEntradas(opciones) {
-  if (opciones === null || typeof opciones !== "object" || Array.isArray(opciones)) {
-    throw new ErrorParametros(
-      `ChuspaNumeric.${METODO}: se esperaba un objeto de opciones { f, a, b, puntos }, se recibió ${
-        opciones === null ? "null" : Array.isArray(opciones) ? "array" : typeof opciones
-      }`
-    );
-  }
-
-  const { f, a, b, puntos } = opciones;
-
+function validarEntradas(f, a, b, puntos) {
   if (typeof f !== "function") {
     throw new ErrorParametros(
       `ChuspaNumeric.${METODO}: 'f' debe ser una función, se recibió ${typeof f}`
@@ -76,7 +66,7 @@ function obtenerNodosYPesos(puntos) {
   return { nodos, pesos };
 }
 
-function finalizar({ resultado, puntos, a, b, tiempo_ms }) {
+function finalizar({ resultado, iteraciones, puntos, a, b, tiempo_ms }) {
   if (!Number.isFinite(resultado)) {
     throw new ErrorDivergencia(
       `ChuspaNumeric.${METODO}: el resultado de la integral no es finito (${resultado})`
@@ -85,7 +75,7 @@ function finalizar({ resultado, puntos, a, b, tiempo_ms }) {
 
   return crearResultado({
     resultado,
-    iteraciones: puntos,
+    iteraciones,
     convergio: true,
     mensaje: `Integral aproximada con cuadratura de Gauss-Legendre de ${puntos} puntos`,
     meta: {
@@ -99,23 +89,23 @@ function finalizar({ resultado, puntos, a, b, tiempo_ms }) {
 /**
  * Aproxima la integral de f en [a, b] con cuadratura de Gauss-Legendre.
  *
- * @param {Object} opciones
- * @param {Function} opciones.f - Función a integrar (recibe un número y devuelve un número finito).
- * @param {number} opciones.a - Límite inferior (finito).
- * @param {number} opciones.b - Límite superior (finito).
- * @param {number} opciones.puntos - Número de nodos: 2, 3, 4 o 5.
- * @returns {Object} Resultado estructurado creado con crearResultado.
- * @throws {ErrorParametros} Si opciones, f, a, b o puntos no son válidos.
+ * @param {Function} f - Función a integrar (recibe un número y devuelve un número finito).
+ * @param {number} a - Límite inferior (finito).
+ * @param {number} b - Límite superior (finito).
+ * @param {number} puntos - Número de nodos: 2, 3, 4 o 5.
+ * @returns {Object} Resultado estructurado creado con crearResultado. `iteraciones` es un
+ *   arreglo con un registro por nodo: { nodo, peso, x, fx, aporte }.
+ * @throws {ErrorParametros} Si f, a, b o puntos no son válidos.
  * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito en algún nodo.
  * @throws {ErrorDivergencia} Si el resultado final no es finito.
  */
-function gaussLegendre(opciones) {
-  validarEntradas(opciones);
-  const { f, a, b, puntos } = opciones;
+function gaussLegendre(f, a, b, puntos) {
+  validarEntradas(f, a, b, puntos);
 
   const { valor: calculo, tiempo_ms } = medirTiempo(() => {
     const { nodos, pesos } = obtenerNodosYPesos(puntos);
 
+    const iteraciones = [];
     let suma = 0;
 
     for (let i = 0; i < nodos.length; i++) {
@@ -128,13 +118,22 @@ function gaussLegendre(opciones) {
         );
       }
 
-      suma += pesos[i] * fx;
+      const aporte = pesos[i] * fx;
+      suma += aporte;
+      iteraciones.push({ nodo: nodos[i], peso: pesos[i], x, fx, aporte });
     }
 
-    return { resultado: ((b - a) / 2) * suma };
+    return { resultado: ((b - a) / 2) * suma, iteraciones };
   });
 
-  return finalizar({ resultado: calculo.resultado, puntos, a, b, tiempo_ms });
+  return finalizar({
+    resultado: calculo.resultado,
+    iteraciones: calculo.iteraciones,
+    puntos,
+    a,
+    b,
+    tiempo_ms,
+  });
 }
 
 export default gaussLegendre;
