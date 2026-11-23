@@ -1,86 +1,4 @@
 /**
- * Módulo de integración numérica por el método de Monte Carlo.
- *
- * Utiliza muestreo aleatorio para estimar integrales definidas.
- * Incluye reporte del error estándar estimado usando utilidades estadísticas.
- */
-
-import { media, desviacionEstandar } from '../utils/estadistica.js';
-
-/**
- * Realiza integración numérica por el método de Monte Carlo.
- *
- * Estima la integral de una función f en el intervalo [a, b] generando
- * puntos aleatorios uniformemente distribuidos y evaluando la función.
- *
- * @param {Function} f - Función a integrar. Recibe un número y devuelve un número.
- * @param {number} a - Límite inferior de integración
- * @param {number} b - Límite superior de integración
- * @param {number} [n=10000] - Número de muestras aleatorias (minimo 2)
- * @returns {Object} Resultado con la estimación de la integral y error estándar
- * @returns {number} resultado.valor - Estimación de la integral
- * @returns {number} resultado.errorEstandar - Error estándar estimado de la aproximación
- * @returns {number} resultado.n - Número de muestras utilizadas
- * @returns {number} resultado.intervaloA - Límite inferior del intervalo
- * @returns {number} resultado.intervaloB - Límite superior del intervalo
- *
- * @example
- * // Integrar f(x) = x^2 en [0, 1]
- * // Resultado teórico: 1/3 ≈ 0.333...
- * const resultado = integracionMonteCarlo(x => x * x, 0, 1, 100000);
- * console.log(resultado.valor); // ≈ 0.333
- * console.log(resultado.errorEstandar); // Error estándar estimado
- */
-function integracionMonteCarlo1D(f, a, b, n = 10000) {
-  // Validaciones
-  if (typeof f !== 'function') {
-    throw new Error('El primer argumento debe ser una función');
-  }
-  if (typeof a !== 'number' || typeof b !== 'number') {
-    throw new Error('Los límites de integración deben ser números');
-  }
-  if (a >= b) {
-    throw new Error('El límite inferior debe ser menor que el superior');
-  }
-  if (!Number.isInteger(n) || n < 2) {
-    throw new Error('El número de muestras debe ser un entero mayor o igual a 2');
-  }
-
-  const muestras = [];
-  const ancho = b - a;
-
-  // Generar muestras y evaluar función
-  for (let i = 0; i < n; i++) {
-    const x = a + Math.random() * ancho;
-    const fx = f(x);
-
-    if (typeof fx !== 'number' || !isFinite(fx)) {
-      throw new Error(`La función devolvió un valor no numérico o infinito para x=${x}`);
-    }
-
-    muestras.push(fx);
-  }
-
-  // Calcular estadísticos usando las utilidades del issue #659
-  const mediaMuestral = media(muestras);
-  const desviacionMuestral = desviacionEstandar(muestras, false); // muestral
-
-  // Error estándar de la media: s / sqrt(n)
-  const errorEstandar = desviacionMuestral / Math.sqrt(n);
-
-  // La integral estimada es la media de f(x) multiplicada por el ancho del intervalo
-  const valorIntegral = mediaMuestral * ancho;
-  const errorEstandarIntegral = errorEstandar * ancho;
-
-  return {
-    valor: valorIntegral,
-    errorEstandar: errorEstandarIntegral,
-    n: n,
-    intervaloA: a,
-    intervaloB: b
-  };
-}
-/**
  * @file monte_carlo.js
  * @description Integración numérica por el método de Monte Carlo.
  *
@@ -116,8 +34,16 @@ function integracionMonteCarlo1D(f, a, b, n = 10000) {
  * entorno JavaScript, sin depender de Math.random().
  */
 
-import { crearResultado } from '../core/contrato.js';
-import { ErrorParametros } from '../core/errores.js';
+import { media, desviacionEstandar } from '../utils/estadistica.js';
+import { crearResultado, medirTiempo } from '../core/contrato.js';
+import {
+  ErrorParametros,
+  ErrorDominio,
+  ErrorDivergencia,
+} from '../core/errores.js';
+
+const METODO = 'integracionMonteCarlo';
+const PREFIJO = `ChuspaNumeric.${METODO}:`;
 
 // ---------------------------------------------------------------------------
 // PRNG con semilla (mulberry32)
@@ -143,179 +69,194 @@ function crearPRNG(semilla) {
 }
 
 // ---------------------------------------------------------------------------
-// Integración Monte Carlo
+// Validadores locales
 // ---------------------------------------------------------------------------
 
 /**
- * Estima la integral de f sobre un hipercubo d-dimensional
- * [a₁,b₁] × [a₂,b₂] × ... × [aₐ,bₐ] mediante muestreo aleatorio uniforme.
+ * Valida los parámetros de la forma 1D posicional (f, a, b, n).
+ * Se conservan las mismas reglas y textos de error que tenía el original.
  *
- * La estimación es:
- *   ∫f dx ≈ Volumen × (1/N) × Σ f(xᵢ)
- *
- * donde xᵢ son N puntos aleatorios uniformes en el dominio.
- *
- * @param {Object}   params
- * @param {Function} params.f - Función a integrar. Recibe un array de d
- *   coordenadas `[x₁, x₂, ..., xₐ]` y devuelve un número. Para integrales
- *   1D, recibe `[x]` (array de un elemento).
- * @param {number[]} params.limitesInferiores - Array de d valores `[a₁, ..., aₐ]`
- *   con el límite inferior de cada dimensión.
- * @param {number[]} params.limitesSuperiores - Array de d valores `[b₁, ..., bₐ]`
- *   con el límite superior de cada dimensión. Cada bᵢ debe ser > aᵢ.
- * @param {number}   [params.nMuestras=10000] - Número de puntos aleatorios a
- *   generar. La precisión mejora aproximadamente como 1/√nMuestras.
- * @param {number|null} [params.semilla=null] - Semilla para el PRNG. Si es
- *   `null`, usa `Math.random()` (no reproducible). Si es un número, usa el
- *   PRNG interno determinista (reproducible).
- *
- * @returns {Object} Objeto de resultado uniforme según el contrato de ChuspaNumeric:
- *   - `resultado`: estimación de la integral (number).
- *   - `iteraciones`: array con un único elemento que contiene la estimación,
- *     el error estándar estimado y el volumen del dominio.
- *   - `convergio`: siempre `true` (Monte Carlo no tiene criterio de convergencia
- *     iterativo — se ejecuta exactamente nMuestras veces).
- *   - `mensaje`: descripción con la estimación, el error estándar y las
- *     dimensiones del dominio.
- *   - `meta.metodo`: `'monte-carlo'`.
- *
- * @throws {ErrorParametros} Si f no es una función, los límites tienen
- *   dimensiones inconsistentes, algún límite superior ≤ inferior, o nMuestras
- *   no es un entero positivo.
- *
- * @example
- * import { integracionMonteCarlo } from 'chuspanumeric/src/integracion/monte_carlo.js';
- *
- * // Integral 1D: ∫₀¹ x² dx = 1/3 ≈ 0.333...
- * const r1 = integracionMonteCarlo({
- *   f: ([x]) => x ** 2,
- *   limitesInferiores: [0],
- *   limitesSuperiores: [1],
- *   nMuestras: 100000,
- *   semilla: 42,
- * });
- * console.log(r1.resultado); // ≈ 0.333
- *
- * // Integral 3D: ∫₀¹∫₀¹∫₀¹ (x+y+z) dxdydz = 3/2 = 1.5
- * const r3 = integracionMonteCarlo({
- *   f: ([x, y, z]) => x + y + z,
- *   limitesInferiores: [0, 0, 0],
- *   limitesSuperiores: [1, 1, 1],
- *   nMuestras: 100000,
- *   semilla: 42,
- * });
- * console.log(r3.resultado); // ≈ 1.5
+ * @param {*} f
+ * @param {*} a
+ * @param {*} b
+ * @param {*} n
+ * @throws {ErrorParametros}
  */
-/**
- * Valida los parámetros de integración multidimensional.
- * @param {Function} f - Función a integrar.
- * @param {number[]} limitesInferiores - Límites inferiores.
- * @param {number[]} limitesSuperiores - Límites superiores.
- * @param {number} nMuestras - Cantidad de muestras.
- * @returns {number} Número de dimensiones.
- */
-function validarParametrosMonteCarlo(f, limitesInferiores, limitesSuperiores, nMuestras) {
-  // --- Validación ---
+function validarParametros1D(f, a, b, n) {
   if (typeof f !== 'function') {
     throw new ErrorParametros(
-      'ChuspaNumeric.integracionMonteCarlo: "f" debe ser una función que recibe un array de coordenadas.'
+      `${PREFIJO} El primer argumento debe ser una función. Se recibió: ${typeof f}.`
+    );
+  }
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw new ErrorParametros(
+      `${PREFIJO} Los límites de integración deben ser números. Se recibió: a=${a}, b=${b}.`
+    );
+  }
+  if (!Number.isFinite(a) || !Number.isFinite(b)) {
+    throw new ErrorParametros(
+      `${PREFIJO} Los límites de integración deben ser números finitos. Se recibió: a=${a}, b=${b}.`
+    );
+  }
+  if (a >= b) {
+    throw new ErrorParametros(
+      `${PREFIJO} El límite inferior debe ser menor que el superior. Se recibió: a=${a}, b=${b}.`
+    );
+  }
+  if (!Number.isInteger(n) || n < 2) {
+    throw new ErrorParametros(
+      `${PREFIJO} El número de muestras debe ser un entero mayor o igual a 2. Se recibió: ${n}.`
+    );
+  }
+}
+
+/**
+ * Valida los parámetros de integración multidimensional.
+ *
+ * @param {*} opciones - Objeto de opciones.
+ * @returns {number} Número de dimensiones.
+ * @throws {ErrorParametros}
+ */
+
+/**
+ * Valida que un valor sea un número finito.
+ *
+ * @param {*} valor
+ * @param {string} nombre - Nombre descriptivo para el mensaje.
+ * @throws {ErrorParametros}
+ */
+function validarNumeroFinitoMC(valor, nombre) {
+  if (typeof valor !== 'number' || !Number.isFinite(valor)) {
+    throw new ErrorParametros(`${PREFIJO} ${nombre} = ${valor} no es un número finito.`);
+  }
+}
+
+/**
+ * Valida que un valor sea un arreglo no vacío.
+ *
+ * @param {*} valor
+ * @param {string} nombre
+ * @throws {ErrorParametros}
+ */
+function validarArregloNoVacioMC(valor, nombre) {
+  if (!Array.isArray(valor) || valor.length === 0) {
+    throw new ErrorParametros(`${PREFIJO} "${nombre}" debe ser un array no vacío.`);
+  }
+}
+
+/**
+ * Valida que opciones sea un objeto plano (no null, no arreglo).
+ *
+ * @param {*} opciones
+ * @throws {ErrorParametros}
+ */
+function validarObjetoOpcionesMC(opciones) {
+  if (opciones !== null && typeof opciones === 'object' && !Array.isArray(opciones)) {
+    return;
+  }
+  let recibido = typeof opciones;
+  if (opciones === null) recibido = 'null';
+  else if (Array.isArray(opciones)) recibido = 'array';
+  throw new ErrorParametros(
+    `${PREFIJO} se esperaba un objeto de opciones { f, limitesInferiores, limitesSuperiores, nMuestras, semilla }. Se recibió: ${recibido}.`
+  );
+}
+
+/**
+ * Valida los pares de límites de cada dimensión.
+ *
+ * @param {number[]} inferiores
+ * @param {number[]} superiores
+ * @throws {ErrorParametros}
+ */
+function validarLimitesMC(inferiores, superiores) {
+  for (let i = 0; i < inferiores.length; i++) {
+    validarNumeroFinitoMC(inferiores[i], `limitesInferiores[${i}]`);
+    validarNumeroFinitoMC(superiores[i], `limitesSuperiores[${i}]`);
+    if (superiores[i] <= inferiores[i]) {
+      throw new ErrorParametros(
+        `${PREFIJO} limitesSuperiores[${i}] (${superiores[i]}) ` +
+          `debe ser mayor que limitesInferiores[${i}] (${inferiores[i]}).`
+      );
+    }
+  }
+}
+
+/**
+ * Valida los parámetros de integración multidimensional.
+ *
+ * @param {*} opciones - Objeto de opciones.
+ * @returns {number} Número de dimensiones.
+ * @throws {ErrorParametros}
+ */
+function validarParametrosMonteCarlo(opciones) {
+  validarObjetoOpcionesMC(opciones);
+
+  const { f, limitesInferiores, limitesSuperiores, nMuestras } = opciones;
+
+  if (typeof f !== 'function') {
+    throw new ErrorParametros(
+      `${PREFIJO} "f" debe ser una función que recibe un array de coordenadas.`
     );
   }
 
-  if (!Array.isArray(limitesInferiores) || limitesInferiores.length === 0) {
-    throw new ErrorParametros(
-      'ChuspaNumeric.integracionMonteCarlo: "limitesInferiores" debe ser un array no vacío.'
-    );
-  }
-
-  if (!Array.isArray(limitesSuperiores) || limitesSuperiores.length === 0) {
-    throw new ErrorParametros(
-      'ChuspaNumeric.integracionMonteCarlo: "limitesSuperiores" debe ser un array no vacío.'
-    );
-  }
+  validarArregloNoVacioMC(limitesInferiores, 'limitesInferiores');
+  validarArregloNoVacioMC(limitesSuperiores, 'limitesSuperiores');
 
   const d = limitesInferiores.length;
 
   if (limitesSuperiores.length !== d) {
     throw new ErrorParametros(
-      `ChuspaNumeric.integracionMonteCarlo: "limitesInferiores" (longitud ${d}) y ` +
-      `"limitesSuperiores" (longitud ${limitesSuperiores.length}) deben tener la misma longitud.`
+      `${PREFIJO} "limitesSuperiores" debe tener la misma longitud que "limitesInferiores" ` +
+        `(esperada: ${d}, recibida: ${limitesSuperiores.length}).`
     );
   }
 
-  for (let i = 0; i < d; i++) {
-    if (typeof limitesInferiores[i] !== 'number' || !isFinite(limitesInferiores[i])) {
-      throw new ErrorParametros(
-        `ChuspaNumeric.integracionMonteCarlo: limitesInferiores[${i}] = ${limitesInferiores[i]} no es un número finito.`
-      );
-    }
-    if (typeof limitesSuperiores[i] !== 'number' || !isFinite(limitesSuperiores[i])) {
-      throw new ErrorParametros(
-        `ChuspaNumeric.integracionMonteCarlo: limitesSuperiores[${i}] = ${limitesSuperiores[i]} no es un número finito.`
-      );
-    }
-    if (limitesSuperiores[i] <= limitesInferiores[i]) {
-      throw new ErrorParametros(
-        `ChuspaNumeric.integracionMonteCarlo: limitesSuperiores[${i}] (${limitesSuperiores[i]}) ` +
-        `debe ser mayor que limitesInferiores[${i}] (${limitesInferiores[i]}).`
-      );
-    }
-  }
+  validarLimitesMC(limitesInferiores, limitesSuperiores);
 
   if (!Number.isInteger(nMuestras) || nMuestras < 1) {
     throw new ErrorParametros(
-      `ChuspaNumeric.integracionMonteCarlo: "nMuestras" debe ser un entero positivo. Se recibió: ${nMuestras}.`
+      `${PREFIJO} "nMuestras" debe ser un entero positivo. Se recibió: ${nMuestras}.`
     );
   }
 
   return d;
 }
 
-function integracionMonteCarloMultidimensional({
-  f,
-  limitesInferiores,
-  limitesSuperiores,
-  nMuestras = 10000,
-  semilla = null,
+// ---------------------------------------------------------------------------
+// Cierre común
+// ---------------------------------------------------------------------------
+
+/**
+ * Verifica finitud del resultado y arma el objeto de contrato.
+ *
+ * @param {Object} datos
+ * @param {number} datos.estimacion
+ * @param {number} datos.errorEstandar
+ * @param {number} datos.volumen
+ * @param {number} datos.mediaF
+ * @param {number} datos.nMuestras
+ * @param {number} datos.d
+ * @param {number|null} datos.semilla
+ * @param {number} datos.tiempo_ms
+ * @returns {Object} Resultado de `crearResultado`.
+ * @throws {ErrorDivergencia} Si la estimación o el error no son finitos.
+ */
+function finalizar({
+  estimacion,
+  errorEstandar,
+  volumen,
+  mediaF,
+  nMuestras,
+  d,
+  semilla,
+  tiempo_ms,
 }) {
-  const d = validarParametrosMonteCarlo(
-    f, limitesInferiores, limitesSuperiores, nMuestras
-  );
-
-  // --- Configurar PRNG ---
-  const aleatorio = semilla !== null
-    ? crearPRNG(semilla)
-    : () => Math.random();
-
-  // Longitudes de cada dimensión: bᵢ - aᵢ
-  const longitudes = limitesSuperiores.map((b, i) => b - limitesInferiores[i]);
-
-  // Volumen del hipercubo de integración
-  const volumen = longitudes.reduce((acc, l) => acc * l, 1);
-
-  // --- Muestreo Monte Carlo ---
-  let suma = 0;
-  let sumaCuadrados = 0;
-  const punto = new Array(d);
-
-  for (let k = 0; k < nMuestras; k++) {
-    // Generar punto aleatorio uniforme en el dominio
-    for (let i = 0; i < d; i++) {
-      punto[i] = limitesInferiores[i] + aleatorio() * longitudes[i];
-    }
-
-    const valor = f(punto);
-    suma += valor;
-    sumaCuadrados += valor * valor;
+  if (!Number.isFinite(estimacion) || !Number.isFinite(errorEstandar)) {
+    throw new ErrorDivergencia(
+      `${PREFIJO} la estimación no es finita (estimación=${estimacion}, error estándar=${errorEstandar}).`
+    );
   }
-
-  // Estimación de la integral: Volumen × media de f
-  const mediaF = suma / nMuestras;
-  const estimacion = volumen * mediaF;
-
-  // Error estándar estimado: Volumen × std(f) / √N
-  const varianzaF = sumaCuadrados / nMuestras - mediaF * mediaF;
-  const errorEstandar = volumen * Math.sqrt(Math.max(0, varianzaF) / nMuestras);
 
   return crearResultado({
     resultado: estimacion,
@@ -339,21 +280,189 @@ function integracionMonteCarloMultidimensional({
     meta: {
       metodo: 'monte-carlo',
       parametros: { d, nMuestras, semilla, volumen },
-      tiempo_ms: 0,
+      tiempo_ms,
     },
   });
 }
 
+// ---------------------------------------------------------------------------
+// Forma 1D posicional
+// ---------------------------------------------------------------------------
+
+/**
+ * Integración Monte Carlo 1D (f, a, b, n).
+ *
+ * @param {Function} f - Función a integrar. Recibe un número y devuelve un número.
+ * @param {number} a - Límite inferior (finito).
+ * @param {number} b - Límite superior (finito, mayor que a).
+ * @param {number} [n=10000] - Número de muestras (entero, mínimo 2).
+ * @returns {Object} Objeto del contrato de ChuspaNumeric, más los campos
+ *   históricos `valor`, `errorEstandar`, `n`, `intervaloA` e `intervaloB`
+ *   para compatibilidad con los llamadores existentes.
+ * @throws {ErrorParametros} Si los parámetros no son válidos.
+ * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito.
+ * @throws {ErrorDivergencia} Si la estimación no es finita.
+ */
+function integracionMonteCarlo1D(f, a, b, n = 10000) {
+  validarParametros1D(f, a, b, n);
+
+  const { valor: calculo, tiempo_ms } = medirTiempo(() => {
+    const muestras = [];
+    const ancho = b - a;
+
+    for (let i = 0; i < n; i++) {
+      const x = a + Math.random() * ancho;
+      const fx = f(x);
+
+      if (typeof fx !== 'number' || !isFinite(fx)) {
+        throw new ErrorDominio(
+          `${PREFIJO} La función devolvió un valor no numérico o infinito para x=${x}.`
+        );
+      }
+
+      muestras.push(fx);
+    }
+
+    const mediaMuestral = media(muestras);
+    const desviacionMuestral = desviacionEstandar(muestras, false); // muestral
+
+    // Error estándar de la media: s / sqrt(n)
+    const errorEstandar = (desviacionMuestral / Math.sqrt(n)) * ancho;
+
+    return {
+      estimacion: mediaMuestral * ancho,
+      errorEstandar,
+      volumen: ancho,
+      mediaF: mediaMuestral,
+    };
+  });
+
+  const contrato = finalizar({
+    ...calculo,
+    nMuestras: n,
+    d: 1,
+    semilla: null,
+    tiempo_ms,
+  });
+
+  // Campos históricos de la interfaz 1D (compatibilidad con llamadores).
+  return {
+    ...contrato,
+    valor: calculo.estimacion,
+    errorEstandar: calculo.errorEstandar,
+    n,
+    intervaloA: a,
+    intervaloB: b,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Forma multidimensional (objeto de opciones)
+// ---------------------------------------------------------------------------
+
+/**
+ * Estima la integral de f sobre un hipercubo d-dimensional
+ * [a₁,b₁] × [a₂,b₂] × ... × [aₐ,bₐ] mediante muestreo aleatorio uniforme.
+ *
+ * La estimación es:
+ *   ∫f dx ≈ Volumen × (1/N) × Σ f(xᵢ)
+ *
+ * @param {Object}   params
+ * @param {Function} params.f - Función a integrar. Recibe un array de d
+ *   coordenadas `[x₁, ..., xₐ]` y devuelve un número. Para 1D recibe `[x]`.
+ * @param {number[]} params.limitesInferiores - Límite inferior de cada dimensión.
+ * @param {number[]} params.limitesSuperiores - Límite superior de cada
+ *   dimensión. Cada bᵢ debe ser > aᵢ.
+ * @param {number}   [params.nMuestras=10000] - Número de puntos aleatorios.
+ * @param {number|null} [params.semilla=null] - Semilla del PRNG. Si es `null`
+ *   usa `Math.random()` (no reproducible); si es un número, usa el PRNG
+ *   interno determinista.
+ *
+ * @returns {Object} Objeto de resultado según el contrato de ChuspaNumeric:
+ *   - `resultado`: estimación de la integral (number).
+ *   - `iteraciones`: arreglo con un único registro `{ n, estimacion,
+ *     errorEstandar, volumen, nMuestras, dimensiones, mediaF }`.
+ *   - `convergio`: siempre `true` (se ejecuta exactamente nMuestras veces).
+ *   - `mensaje`: descripción con estimación, error estándar y dimensión.
+ *   - `meta`: `{ metodo: 'monte-carlo', parametros, tiempo_ms }`.
+ *
+ * @throws {ErrorParametros} Si las opciones no son un objeto, f no es función,
+ *   los límites son inconsistentes o no finitos, algún límite superior ≤
+ *   inferior, o nMuestras no es un entero positivo.
+ * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito.
+ * @throws {ErrorDivergencia} Si la estimación no es finita.
+ */
+function integracionMonteCarloMultidimensional(opciones) {
+  const d = validarParametrosMonteCarlo(opciones);
+  const {
+    f,
+    limitesInferiores,
+    limitesSuperiores,
+    nMuestras = 10000,
+    semilla = null,
+  } = opciones;
+
+  const { valor: calculo, tiempo_ms } = medirTiempo(() => {
+    const aleatorio = semilla !== null ? crearPRNG(semilla) : () => Math.random();
+
+    // Longitudes de cada dimensión: bᵢ - aᵢ
+    const longitudes = limitesSuperiores.map((b, i) => b - limitesInferiores[i]);
+
+    // Volumen del hipercubo de integración
+    const volumen = longitudes.reduce((acc, l) => acc * l, 1);
+
+    let suma = 0;
+    let sumaCuadrados = 0;
+    const punto = new Array(d);
+
+    for (let k = 0; k < nMuestras; k++) {
+      for (let i = 0; i < d; i++) {
+        punto[i] = limitesInferiores[i] + aleatorio() * longitudes[i];
+      }
+
+      const valor = f(punto);
+
+      if (typeof valor !== 'number' || !Number.isFinite(valor)) {
+        throw new ErrorDominio(
+          `${PREFIJO} f devolvió un valor no numérico o no finito (${valor}) en el punto [${punto.join(', ')}].`
+        );
+      }
+
+      suma += valor;
+      sumaCuadrados += valor * valor;
+    }
+
+    const mediaF = suma / nMuestras;
+    const varianzaF = sumaCuadrados / nMuestras - mediaF * mediaF;
+
+    return {
+      estimacion: volumen * mediaF,
+      errorEstandar: volumen * Math.sqrt(Math.max(0, varianzaF) / nMuestras),
+      volumen,
+      mediaF,
+    };
+  });
+
+  return finalizar({ ...calculo, nMuestras, d, semilla, tiempo_ms });
+}
+
+// ---------------------------------------------------------------------------
+// API pública
+// ---------------------------------------------------------------------------
+
 /**
  * Integra mediante Monte Carlo conservando ambas interfaces públicas.
+ * Ambas devuelven el objeto del contrato de ChuspaNumeric
+ * (`resultado`, `iteraciones` [arreglo], `convergio`, `mensaje`, `meta`).
+ * La forma 1D añade además `valor`, `errorEstandar`, `n`, `intervaloA` e
+ * `intervaloB` por compatibilidad.
  *
  * @overload
  * @param {Function} f - Función unidimensional f(x).
  * @param {number} a - Límite inferior.
  * @param {number} b - Límite superior.
  * @param {number} [n=10000] - Número de muestras.
- * @returns {{valor: number, errorEstandar: number,
- *   n: number, intervaloA: number, intervaloB: number}}
+ * @returns {Object}
  *
  * @overload
  * @param {Object} params - Parámetros multidimensionales.
@@ -362,7 +471,26 @@ function integracionMonteCarloMultidimensional({
  * @param {number[]} params.limitesSuperiores
  * @param {number} [params.nMuestras=10000]
  * @param {number|null} [params.semilla=null]
- * @returns {Object} Resultado conforme al contrato de ChuspaNumeric.
+ * @returns {Object}
+ *
+ * @throws {ErrorParametros} Si los argumentos no cumplen los requisitos.
+ * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito.
+ * @throws {ErrorDivergencia} Si la estimación no es finita.
+ *
+ * @example
+ * // 1D: ∫₀¹ x² dx = 1/3
+ * const r1 = integracionMonteCarlo(x => x * x, 0, 1, 100000);
+ * console.log(r1.resultado, r1.valor, r1.errorEstandar);
+ *
+ * // 3D: ∫₀¹∫₀¹∫₀¹ (x+y+z) = 1.5
+ * const r3 = integracionMonteCarlo({
+ *   f: ([x, y, z]) => x + y + z,
+ *   limitesInferiores: [0, 0, 0],
+ *   limitesSuperiores: [1, 1, 1],
+ *   nMuestras: 100000,
+ *   semilla: 42,
+ * });
+ * console.log(r3.resultado);
  */
 export function integracionMonteCarlo(f, a, b, n) {
   if (typeof f === 'function' || arguments.length > 1) {
