@@ -1,4 +1,34 @@
-function gaussLegendre(f, a, b, puntos) {
+import { ErrorParametros, ErrorDominio, ErrorDivergencia } from "../core/errores.js";
+import { crearResultado, medirTiempo } from "../core/contrato.js";
+
+const METODO = "gaussLegendre";
+const PUNTOS_VALIDOS = [2, 3, 4, 5];
+
+function validarNumeroFinito(valor, nombre) {
+  if (typeof valor !== "number" || !Number.isFinite(valor)) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: '${nombre}' debe ser un número finito, se recibió ${String(valor)} (${typeof valor})`
+    );
+  }
+}
+
+function validarEntradas(f, a, b, puntos) {
+  if (typeof f !== "function") {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: 'f' debe ser una función, se recibió ${typeof f}`
+    );
+  }
+  validarNumeroFinito(a, "a");
+  validarNumeroFinito(b, "b");
+
+  if (!PUNTOS_VALIDOS.includes(puntos)) {
+    throw new ErrorParametros(
+      `ChuspaNumeric.${METODO}: 'puntos' debe ser 2, 3, 4 o 5, se recibió ${String(puntos)}`
+    );
+  }
+}
+
+function obtenerNodosYPesos(puntos) {
   let nodos;
   let pesos;
 
@@ -19,7 +49,7 @@ function gaussLegendre(f, a, b, puntos) {
       (18 + Math.sqrt(30)) / 36,
       (18 - Math.sqrt(30)) / 36,
     ];
-  } else if (puntos === 5) {
+  } else {
     const raiz10sobre7 = Math.sqrt(10 / 7);
     const nodoExterno5 = Math.sqrt(5 + 2 * raiz10sobre7) / 3;
     const nodoInterno5 = Math.sqrt(5 - 2 * raiz10sobre7) / 3;
@@ -31,21 +61,79 @@ function gaussLegendre(f, a, b, puntos) {
       (322 + 13 * Math.sqrt(70)) / 900,
       (322 - 13 * Math.sqrt(70)) / 900,
     ];
-  } else {
-    throw new Error("puntos debe ser 2, 3, 4 o 5");
   }
 
-  let suma = 0;
+  return { nodos, pesos };
+}
 
-  for (let i = 0; i < nodos.length; i++) {
-    const x =
-      ((b - a) / 2) * nodos[i] +
-      ((a + b) / 2);
-
-    suma += pesos[i] * f(x);
+function finalizar({ resultado, iteraciones, puntos, a, b, tiempo_ms }) {
+  if (!Number.isFinite(resultado)) {
+    throw new ErrorDivergencia(
+      `ChuspaNumeric.${METODO}: el resultado de la integral no es finito (${resultado})`
+    );
   }
 
-  return ((b - a) / 2) * suma;
+  return crearResultado({
+    resultado,
+    iteraciones,
+    convergio: true,
+    mensaje: `Integral aproximada con cuadratura de Gauss-Legendre de ${puntos} puntos`,
+    meta: {
+      metodo: METODO,
+      parametros: { a, b, puntos },
+      tiempo_ms,
+    },
+  });
+}
+
+/**
+ * Aproxima la integral de f en [a, b] con cuadratura de Gauss-Legendre.
+ *
+ * @param {Function} f - Función a integrar (recibe un número y devuelve un número finito).
+ * @param {number} a - Límite inferior (finito).
+ * @param {number} b - Límite superior (finito).
+ * @param {number} puntos - Número de nodos: 2, 3, 4 o 5.
+ * @returns {Object} Resultado estructurado creado con crearResultado. `iteraciones` es un
+ *   arreglo con un registro por nodo: { nodo, peso, x, fx, aporte }.
+ * @throws {ErrorParametros} Si f, a, b o puntos no son válidos.
+ * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito en algún nodo.
+ * @throws {ErrorDivergencia} Si el resultado final no es finito.
+ */
+function gaussLegendre(f, a, b, puntos) {
+  validarEntradas(f, a, b, puntos);
+
+  const { valor: calculo, tiempo_ms } = medirTiempo(() => {
+    const { nodos, pesos } = obtenerNodosYPesos(puntos);
+
+    const iteraciones = [];
+    let suma = 0;
+
+    for (let i = 0; i < nodos.length; i++) {
+      const x = ((b - a) / 2) * nodos[i] + (a + b) / 2;
+      const fx = f(x);
+
+      if (typeof fx !== "number" || !Number.isFinite(fx)) {
+        throw new ErrorDominio(
+          `ChuspaNumeric.${METODO}: f(${x}) devolvió un valor no finito o no numérico (${String(fx)})`
+        );
+      }
+
+      const aporte = pesos[i] * fx;
+      suma += aporte;
+      iteraciones.push({ nodo: nodos[i], peso: pesos[i], x, fx, aporte });
+    }
+
+    return { resultado: ((b - a) / 2) * suma, iteraciones };
+  });
+
+  return finalizar({
+    resultado: calculo.resultado,
+    iteraciones: calculo.iteraciones,
+    puntos,
+    a,
+    b,
+    tiempo_ms,
+  });
 }
 
 export default gaussLegendre;
