@@ -5,7 +5,7 @@
  */
 
 import { crearResultado, medirTiempo } from '../core/contrato.js';
-import { ErrorParametros, ErrorDominio } from '../core/errores.js';
+import { ErrorParametros, ErrorDominio, ErrorDivergencia } from '../core/errores.js';
 
 const METODO = 'puntoMedio';
 const PREFIJO = `ChuspaNumeric.${METODO}:`;
@@ -96,6 +96,42 @@ function evaluar(f, x) {
 }
 
 /**
+ * Verifica que un valor calculado sea finito (detecta desbordamiento numérico).
+ * @param {number} valor
+ * @param {string} descripcion - Qué se estaba calculando.
+ * @throws {ErrorDivergencia}
+ */
+function verificarFinito(valor, descripcion) {
+  if (!Number.isFinite(valor)) {
+    throw new ErrorDivergencia(
+      `${PREFIJO} desbordamiento numérico: ${descripcion} no es finito. Se obtuvo: ${String(valor)}.`
+    );
+  }
+}
+
+/**
+ * Verifica la finitud del resultado y arma el objeto del contrato.
+ * No mide tiempo: recibe `tiempo_ms` ya medido.
+ * @param {Object} datos
+ * @returns {Object}
+ * @throws {ErrorDivergencia}
+ */
+function finalizar({ resultado, iteraciones, a, b, n, tiempo_ms }) {
+  verificarFinito(resultado, 'el resultado de la integral');
+  return crearResultado({
+    resultado,
+    iteraciones,
+    convergio: true,
+    mensaje: `Integración por regla del punto medio con ${n} subintervalos.`,
+    meta: {
+      metodo: METODO,
+      parametros: { a, b, n },
+      tiempo_ms,
+    },
+  });
+}
+
+/**
  * Calcula la integral definida de una función con la regla compuesta del punto medio.
  *
  * Fórmula:
@@ -113,6 +149,7 @@ function evaluar(f, x) {
  *   arreglo con un registro por subintervalo: `{ i, xi, fxi, area }`.
  * @throws {ErrorParametros} Si los parámetros no son válidos.
  * @throws {ErrorDominio} Si f devuelve un valor no numérico o no finito.
+ * @throws {ErrorDivergencia} Si el cálculo desborda (área o resultado no finitos).
  *
  * @example
  * const res = puntoMedio({ f: x => x ** 2, a: 0, b: 1, n: 100 });
@@ -133,22 +170,20 @@ function puntoMedio(params) {
       const xi = a + (i - 0.5) * h;
       const fxi = evaluar(f, xi);
       const area = h * fxi;
+      verificarFinito(area, `el área del subintervalo ${i} (x=${xi})`);
       iteraciones.push({ i, xi, fxi, area });
       resultado += area;
     }
     return { resultado, iteraciones };
   });
 
-  return crearResultado({
+  return finalizar({
     resultado: valor.resultado,
     iteraciones: valor.iteraciones,
-    convergio: true,
-    mensaje: `Integración por regla del punto medio con ${n} subintervalos.`,
-    meta: {
-      metodo: METODO,
-      parametros: { a, b, n },
-      tiempo_ms,
-    },
+    a,
+    b,
+    n,
+    tiempo_ms,
   });
 }
 
