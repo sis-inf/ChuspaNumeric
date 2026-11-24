@@ -1,5 +1,9 @@
 import { secante } from '../../../src/no-lineales/secante.js';
-import { ErrorDominio, ErrorParametros } from '../../../src/core/errores.js';
+import {
+  ErrorDominio,
+  ErrorParametros,
+  ErrorDivergencia
+} from '../../../src/core/errores.js';
 
 // f(x) = x² - 2, raíz conocida √2
 const f = (x) => x * x - 2;
@@ -126,5 +130,73 @@ describe('secante - denominador nulo y parámetros inválidos', () => {
     ['maxIter no entero', { f, x0: 1, x1: 2, maxIter: 1.5 }],
   ])('%s lanza ErrorParametros', (_caso, opciones) => {
     expect(() => secante(opciones)).toThrow(ErrorParametros);
+  });
+});
+
+describe('secante - precisión y errores relativos', () => {
+  test.each([1e-4, 1e-8, 1e-12])(
+    'alcanza la raíz con tolerancia %s',
+    (tolerancia) => {
+      const res = secante({ f, x0: 1, x1: 2, tolerancia });
+
+      const errorRelativo = Math.abs(
+        (res.resultado - Math.SQRT2) / Math.SQRT2
+      );
+
+      expect(res.convergio).toBe(true);
+      expect(errorRelativo).toBeLessThan(tolerancia);
+    }
+  );
+
+  test('mantiene la convergencia con diferentes separaciones iniciales', () => {
+    const aproximaciones = [
+      [1, 2],
+      [1, 1.5],
+      [1.2, 2]
+    ];
+
+    for (const [x0, x1] of aproximaciones) {
+      const res = secante({ f, x0, x1, tolerancia: 1e-10 });
+
+      expect(res.convergio).toBe(true);
+      expect(res.resultado).toBeCloseTo(Math.SQRT2, 9);
+    }
+  });
+
+  test('presenta convergencia superlineal característica del método', () => {
+    const res = secante({
+      f,
+      x0: 1,
+      x1: 2,
+      tolerancia: 1e-8
+    });
+
+    const errores = res.iteraciones.map(
+      (it) => Math.abs(it.xNuevo - Math.SQRT2)
+    );
+
+    const n = errores.length;
+    const errorAnterior = errores[n - 3];
+    const errorActual = errores[n - 2];
+    const errorSiguiente = errores[n - 1];
+
+    const orden = Math.log(errorSiguiente / errorActual) /
+      Math.log(errorActual / errorAnterior);
+
+    expect(orden).toBeGreaterThan(1.5);
+    expect(orden).toBeLessThan(1.8);
+  });
+});
+
+describe('secante - detección de divergencia', () => {
+  test('lanza ErrorDivergencia cuando el resultado no es finito', () => {
+    const g = (x) => x === 0 ? 1e200 - 1e185 : 1e200;
+
+    expect(() => secante({
+      f: g,
+      x0: 0,
+      x1: 1e200,
+      maxIter: 1
+    })).toThrow(ErrorDivergencia);
   });
 });
