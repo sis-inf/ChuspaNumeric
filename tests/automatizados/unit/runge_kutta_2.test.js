@@ -50,4 +50,55 @@ describe('Métodos EDO - Runge-Kutta 2', () => {
         expect(errorPuntoMedio).toBeLessThan(0.01);
         expect(errorHeun).toBeCloseTo(errorPuntoMedio, 3);
     });
+
+    test('Heun reduce el error al disminuir el tamaño de paso', () => {
+        const solucionExacta = Math.exp(-1);
+
+        const resultadoH1 = metodHeun(f, 1, 0, 1, 0.1);
+        const resultadoH2 = metodHeun(f, 1, 0, 1, 0.05);
+        const resultadoH3 = metodHeun(f, 1, 0, 1, 0.025);
+
+        const errorH1 = Math.abs(resultadoH1.at(-1).y - solucionExacta);
+        const errorH2 = Math.abs(resultadoH2.at(-1).y - solucionExacta);
+        const errorH3 = Math.abs(resultadoH3.at(-1).y - solucionExacta);
+
+        expect(errorH2).toBeLessThan(errorH1);
+        expect(errorH3).toBeLessThan(errorH2);
+    });
+
+    test('Punto Medio reduce el error al disminuir el tamaño de paso', () => {
+        const solucionExacta = Math.exp(-1);
+
+        const resultadoH1 = metodoPuntoMedio(f, 1, 0, 1, 0.1);
+        const resultadoH2 = metodoPuntoMedio(f, 1, 0, 1, 0.05);
+        const resultadoH3 = metodoPuntoMedio(f, 1, 0, 1, 0.025);
+
+        const errorH1 = Math.abs(resultadoH1.at(-1).y - solucionExacta);
+        const errorH2 = Math.abs(resultadoH2.at(-1).y - solucionExacta);
+        const errorH3 = Math.abs(resultadoH3.at(-1).y - solucionExacta);
+
+        expect(errorH2).toBeLessThan(errorH1);
+        expect(errorH3).toBeLessThan(errorH2);
+    });
+
+    test('Heun y Punto Medio mantienen errores relativos decrecientes', () => {
+        const solucionExacta = Math.exp(-1);
+        const pasos = [0.1, 0.05, 0.025];
+
+        const erroresRelativosHeun = pasos.map(h => {
+            const resultado = metodHeun(f, 1, 0, 1, h);
+            return Math.abs((resultado.at(-1).y - solucionExacta) / solucionExacta);
+        });
+
+        const erroresRelativosPuntoMedio = pasos.map(h => {
+            const resultado = metodoPuntoMedio(f, 1, 0, 1, h);
+            return Math.abs((resultado.at(-1).y - solucionExacta) / solucionExacta);
+        });
+
+        expect(erroresRelativosHeun[1]).toBeLessThan(erroresRelativosHeun[0]);
+        expect(erroresRelativosHeun[2]).toBeLessThan(erroresRelativosHeun[1]);
+
+        expect(erroresRelativosPuntoMedio[1]).toBeLessThan(erroresRelativosPuntoMedio[0]);
+        expect(erroresRelativosPuntoMedio[2]).toBeLessThan(erroresRelativosPuntoMedio[1]);
+    });
 });
