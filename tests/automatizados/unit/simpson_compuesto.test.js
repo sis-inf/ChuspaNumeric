@@ -1,4 +1,5 @@
 import { simpsonCompuesto } from '../../../src/integracion/simpson_compuesto.js';
+import { ErrorDivergencia } from '../../../src/core/errores.js';
 
 describe('simpsonCompuesto - integración numérica', () => {
   const valorExacto = 1 / 3; // ∫₀¹ x² dx = 1/3
@@ -86,5 +87,65 @@ describe('simpsonCompuesto - integración numérica', () => {
     expect(res.meta).toHaveProperty('parametros');
     expect(res.meta.metodo).toBe('Simpson 1/3 Compuesto');
     expect(res.meta.parametros).toEqual({ a: 0, b: 1, n: 4 });
+  });
+});
+
+describe('simpsonCompuesto - precisión y convergencia', () => {
+  const f = (x) => Math.exp(x);
+  const valorExacto = Math.E - 1;
+
+  const errorRelativo = (aproximacion) =>
+    Math.abs((aproximacion - valorExacto) / valorExacto);
+
+  test.each([
+    [2, 1e-3],
+    [4, 1e-4],
+    [16, 1e-6],
+  ])(
+    'alcanza un error relativo menor que %i con tolerancia %s',
+    (n, tolerancia) => {
+      const res = simpsonCompuesto(f, 0, 1, n);
+
+      expect(res.convergio).toBe(true);
+      expect(errorRelativo(res.resultado)).toBeLessThan(tolerancia);
+    }
+  );
+
+  test('presenta convergencia de orden cuatro al reducir el paso', () => {
+    const res2 = simpsonCompuesto(f, 0, 1, 2);
+    const res4 = simpsonCompuesto(f, 0, 1, 4);
+    const res8 = simpsonCompuesto(f, 0, 1, 8);
+
+    const error2 = errorRelativo(res2.resultado);
+    const error4 = errorRelativo(res4.resultado);
+    const error8 = errorRelativo(res8.resultado);
+
+    const orden1 = error2 / error4;
+    const orden2 = error4 / error8;
+
+    expect(error4).toBeLessThan(error2);
+    expect(error8).toBeLessThan(error4);
+
+    expect(orden1).toBeGreaterThan(14);
+    expect(orden1).toBeLessThan(18);
+
+    expect(orden2).toBeGreaterThan(14);
+    expect(orden2).toBeLessThan(18);
+  });
+});
+
+describe('simpsonCompuesto - detección de divergencia', () => {
+  test('lanza ErrorDivergencia cuando la función produce Infinity', () => {
+    const f = () => Infinity;
+
+    expect(() => simpsonCompuesto(f, 0, 1, 2))
+      .toThrow(ErrorDivergencia);
+  });
+
+  test('lanza ErrorDivergencia cuando la función produce NaN', () => {
+    const f = () => NaN;
+
+    expect(() => simpsonCompuesto(f, 0, 1, 2))
+      .toThrow(ErrorDivergencia);
   });
 });
