@@ -3,6 +3,7 @@ import { newtonRaphson } from '../../../src/no-lineales/newton-raphson.js';
 import { biseccion } from '../../../src/no-lineales/biseccion.js';
 import { secante } from '../../../src/no-lineales/secante.js';
 import { errorRelativo } from '../../../src/utils/error_relativo.js';
+import { eulerMejorado } from '../../../src/edo/euler-mejorado.js';
 
 describe('crearResultado', () => {
   test('devuelve el resultado con los valores predeterminados', () => {
@@ -228,5 +229,41 @@ describe('contrato - precision y convergencia', () => {
 
     expect(resultado.convergio).toBe(true);
     expect(ordenEstimado).toBeCloseTo(1, 0);
+  });
+
+  test('Euler mejorado mejora la precisión al reducir el tamaño de paso', () => {
+    const opciones = {
+      f: (x, y) => y,
+      x0: 0,
+      y0: 1,
+      xFinal: 1,
+    };
+
+    const resultadoPasoGrande = eulerMejorado({
+      ...opciones,
+      h: 0.2,
+    });
+
+    const resultadoPasoPequeno = eulerMejorado({
+      ...opciones,
+      h: 0.1,
+    });
+
+    const valorExacto = Math.exp(1);
+
+    const yPasoGrande =
+      resultadoPasoGrande.resultado[
+        resultadoPasoGrande.resultado.length - 1
+      ][1];
+
+    const yPasoPequeno =
+      resultadoPasoPequeno.resultado[
+        resultadoPasoPequeno.resultado.length - 1
+      ][1];
+
+    const errorPasoGrande = Math.abs(yPasoGrande - valorExacto);
+    const errorPasoPequeno = Math.abs(yPasoPequeno - valorExacto);
+
+    expect(errorPasoPequeno).toBeLessThan(errorPasoGrande);
   });
 });
