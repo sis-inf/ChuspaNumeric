@@ -1,3 +1,4 @@
+import { ErrorParametros } from "../core/errores.js";
 
 /**
  * Utilidades para el redondeo y el cálculo de errores numéricos.
@@ -20,6 +21,12 @@
  * redondear(3.14159, 2); // 3.14
  */
 export function redondear(valor, decimales) {
+    if (typeof valor !== "number" || !Number.isFinite(valor)) {
+        throw new ErrorParametros("redondear: 'valor' debe ser un número finito.");
+    }
+    if (!Number.isInteger(decimales) || decimales < 0) {
+        throw new ErrorParametros("redondear: 'decimales' debe ser un entero no negativo.");
+    }
     const factor = Math.pow(10, decimales);
     return Math.round(valor * factor) / factor;
 }

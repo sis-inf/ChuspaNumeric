@@ -5,6 +5,7 @@ import {
   errorPorcentual,
   aproximadamenteIgual,
 } from '../../../src/utils/formato.js';
+import { ErrorParametros } from '../../../src/core/errores.js';
 
 describe('Pruebas unitarias de formato.js', () => {
   test('redondear(3.14159, 2) devuelve 3.14', () => {
@@ -120,5 +121,26 @@ describe('Pruebas unitarias de formato.js', () => {
 
     expect(erroresRelativos[1]).toBeGreaterThan(erroresRelativos[0]);
     expect(erroresRelativos[2]).toBeGreaterThan(erroresRelativos[1]);
+  });
+  
+  test('redondear lanza ErrorParametros si valor no es un número', () => {
+    expect(() => redondear('3.14', 2)).toThrow(ErrorParametros);
+  });
+
+  test('redondear lanza ErrorParametros si valor no es finito', () => {
+    expect(() => redondear(NaN, 2)).toThrow(ErrorParametros);
+    expect(() => redondear(Infinity, 2)).toThrow(ErrorParametros);
+  });
+
+  test('redondear lanza ErrorParametros si decimales es negativo', () => {
+    expect(() => redondear(3.14159, -1)).toThrow(ErrorParametros);
+  });
+
+  test('redondear lanza ErrorParametros si decimales no es entero', () => {
+    expect(() => redondear(3.14159, 1.5)).toThrow(ErrorParametros);
+  });
+
+  test('redondear acepta 0 decimales', () => {
+    expect(redondear(3.6, 0)).toBe(4);
   });
 });
