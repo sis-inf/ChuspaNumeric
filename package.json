@@ -58,7 +58,7 @@
     "lint-staged": "^17.6.0",
     "madge": "^8.0.0",
     "prettier": "^3.10.1",
-    "rollup": "^4.68.3"
+    "rollup": "^4.68.8"
   },
   "dependencies": {
     "mathjs": "^15.2.0"
