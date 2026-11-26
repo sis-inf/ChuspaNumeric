@@ -1,5 +1,8 @@
 import { puntoMedio } from '../../../src/integracion/punto_medio.js';
-import { ErrorParametros } from '../../../src/core/errores.js';
+import {
+  ErrorParametros,
+  ErrorDivergencia
+} from '../../../src/core/errores.js';
 
 describe('puntoMedio - integración numérica', () => {
   const cuadrado = (x) => x * x;
@@ -64,5 +67,76 @@ describe('puntoMedio - integración numérica', () => {
     expect(() => puntoMedio({ f: cuadrado, a, b, n: 4 })).toThrow(
       ErrorParametros
     );
+  });
+});
+
+describe('puntoMedio - precisión y convergencia', () => {
+  const integralExacta = 1 / 3;
+
+  // Calcula el error relativo respecto a la integral exacta de x² en [0, 1].
+  const obtenerErrorRelativo = (n) => {
+    const res = puntoMedio({
+      f: (x) => x * x,
+      a: 0,
+      b: 1,
+      n
+    });
+
+    return Math.abs(
+      (res.resultado - integralExacta) / integralExacta
+    );
+  };
+
+  test.each([4, 8, 16, 32])(
+    'reduce el error relativo al aumentar los subintervalos a %i',
+    (n) => {
+      const error = obtenerErrorRelativo(n);
+
+      expect(error).toBeGreaterThan(0);
+      expect(error).toBeLessThan(1 / (4 * (n / 2) ** 2));
+    }
+  );
+
+  test('presenta convergencia de segundo orden al reducir el tamaño del paso', () => {
+    const error4 = obtenerErrorRelativo(4);
+    const error8 = obtenerErrorRelativo(8);
+    const error16 = obtenerErrorRelativo(16);
+
+    const orden1 = error4 / error8;
+    const orden2 = error8 / error16;
+
+    expect(error8).toBeLessThan(error4);
+    expect(error16).toBeLessThan(error8);
+
+    expect(orden1).toBeGreaterThan(3.9);
+    expect(orden1).toBeLessThan(4.1);
+
+    expect(orden2).toBeGreaterThan(3.9);
+    expect(orden2).toBeLessThan(4.1);
+  });
+
+  test('disminuye el error relativo al reducir el tamaño del paso', () => {
+    const tamanosPaso = [0.25, 0.125, 0.0625];
+
+    const errores = tamanosPaso.map((h) => {
+      const n = 1 / h;
+      return obtenerErrorRelativo(n);
+    });
+
+    expect(errores[1]).toBeLessThan(errores[0]);
+    expect(errores[2]).toBeLessThan(errores[1]);
+  });
+});
+
+describe('puntoMedio - detección de divergencia', () => {
+  test('lanza ErrorDivergencia cuando el área calculada desborda', () => {
+    expect(() =>
+      puntoMedio({
+        f: () => Number.MAX_VALUE,
+        a: 0,
+        b: 2,
+        n: 1
+      })
+    ).toThrow(ErrorDivergencia);
   });
 });
