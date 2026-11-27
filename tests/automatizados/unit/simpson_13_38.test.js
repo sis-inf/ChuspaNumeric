@@ -1,5 +1,6 @@
 import { simpson13 } from '../../../src/integracion/simpson-13.js';
 import { simpson38 } from '../../../src/integracion/simpson-38.js';
+import { ErrorDivergencia } from '../../../src/core/errores.js';
 
 describe('simpson13 y simpson38 - reglas de Simpson', () => {
   const valorExacto = 1 / 3; // ∫₀¹ x² dx = 1/3
@@ -145,5 +146,92 @@ describe('simpson13 y simpson38 - reglas de Simpson', () => {
       expect(() => simpson13({ f, a: 0, b: 1, n: 3 })).toThrow();
       expect(() => simpson38({ f, a: 0, b: 1, n: 3 })).not.toThrow();
     });
+  });
+});
+
+describe('simpson13 y simpson38 - precisión y convergencia', () => {
+  const f = (x) => Math.exp(x);
+  const integralExacta = Math.E - 1;
+
+  const errorRelativo = (aproximacion) =>
+    Math.abs((aproximacion - integralExacta) / integralExacta);
+
+  describe('simpson13', () => {
+    test.each([2, 4, 8, 16])(
+      'reduce el error relativo al aumentar n=%i',
+      (n) => {
+        const res = simpson13({ f, a: 0, b: 1, n });
+
+        expect(res.convergio).toBe(true);
+        expect(errorRelativo(res.resultado)).toBeLessThan(1e-3);
+      }
+    );
+
+    test('presenta convergencia de orden cuatro al reducir el paso', () => {
+      const res2 = simpson13({ f, a: 0, b: 1, n: 2 });
+      const res4 = simpson13({ f, a: 0, b: 1, n: 4 });
+      const res8 = simpson13({ f, a: 0, b: 1, n: 8 });
+
+      const error2 = errorRelativo(res2.resultado);
+      const error4 = errorRelativo(res4.resultado);
+      const error8 = errorRelativo(res8.resultado);
+
+      const orden1 = error2 / error4;
+      const orden2 = error4 / error8;
+
+      expect(error4).toBeLessThan(error2);
+      expect(error8).toBeLessThan(error4);
+
+      expect(orden1).toBeGreaterThan(14);
+      expect(orden1).toBeLessThan(18);
+      expect(orden2).toBeGreaterThan(14);
+      expect(orden2).toBeLessThan(18);
+    });
+  });
+
+  describe('simpson38', () => {
+    test.each([3, 6, 12, 24])(
+      'reduce el error relativo al aumentar n=%i',
+      (n) => {
+        const res = simpson38({ f, a: 0, b: 1, n });
+
+        expect(res.convergio).toBe(true);
+        expect(errorRelativo(res.resultado)).toBeLessThan(1e-3);
+      }
+    );
+
+    test('presenta convergencia de orden cuatro al reducir el paso', () => {
+      const res3 = simpson38({ f, a: 0, b: 1, n: 3 });
+      const res6 = simpson38({ f, a: 0, b: 1, n: 6 });
+      const res12 = simpson38({ f, a: 0, b: 1, n: 12 });
+
+      const error3 = errorRelativo(res3.resultado);
+      const error6 = errorRelativo(res6.resultado);
+      const error12 = errorRelativo(res12.resultado);
+
+      const orden1 = error3 / error6;
+      const orden2 = error6 / error12;
+
+      expect(error6).toBeLessThan(error3);
+      expect(error12).toBeLessThan(error6);
+
+      expect(orden1).toBeGreaterThan(14);
+      expect(orden1).toBeLessThan(18);
+      expect(orden2).toBeGreaterThan(14);
+      expect(orden2).toBeLessThan(18);
+    });
+  });
+});
+
+describe('simpson38 - detección de divergencia', () => {
+  test('lanza ErrorDivergencia cuando la función produce Infinity', () => {
+    const f = () => Infinity;
+
+    expect(() => simpson38({
+      f,
+      a: 0,
+      b: 1,
+      n: 3
+    })).toThrow(ErrorDivergencia);
   });
 });
