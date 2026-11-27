@@ -49,6 +49,124 @@ describe('buscarTodasLasRaices - raíces conocidas', () => {
   });
 });
 
+describe('buscarTodasLasRaices - precisión y convergencia', () => {
+  const f = (x) => x * x - 2;
+  const raizEsperada = Math.sqrt(2);
+
+  test.each([1e-3, 1e-6, 1e-10])(
+    'aproxima la raíz de x² - 2 con tolerancia %s',
+    (tolerancia) => {
+      const res = buscarTodasLasRaices({
+        f,
+        inicio: 0,
+        fin: 2,
+        paso: 0.5,
+        tolerancia,
+      });
+
+      expect(res.resultado).toHaveLength(1);
+      expect(Math.abs(res.resultado[0] - raizEsperada)).toBeLessThan(tolerancia);
+      const errorRelativo =
+        Math.abs(res.resultado[0] - raizEsperada) / Math.abs(raizEsperada);
+
+      expect(errorRelativo).toBeLessThan(tolerancia);
+      expect(res.convergio).toBe(true);
+    }
+  );
+
+  test('una tolerancia más estricta mejora la precisión de la raíz', () => {
+    const menosEstricta = buscarTodasLasRaices({
+      f,
+      inicio: 0,
+      fin: 2,
+      paso: 0.5,
+      tolerancia: 1e-3,
+    });
+
+    const masEstricta = buscarTodasLasRaices({
+      f,
+      inicio: 0,
+      fin: 2,
+      paso: 0.5,
+      tolerancia: 1e-10,
+    });
+
+    const errorMenosEstricto = Math.abs(menosEstricta.resultado[0] - raizEsperada);
+    const errorMasEstricto = Math.abs(masEstricta.resultado[0] - raizEsperada);
+
+    expect(errorMasEstricto).toBeLessThan(errorMenosEstricto);
+    expect(masEstricta.iteraciones[0].iteraciones.length).toBeGreaterThan(
+      menosEstricta.iteraciones[0].iteraciones.length
+    );
+  });
+
+  test.each([0.25, 0.5, 1])(
+    'detecta la misma raíz con tamaño de paso %s',
+    (paso) => {
+      const res = buscarTodasLasRaices({
+        f,
+        inicio: 0,
+        fin: 2,
+        paso,
+        tolerancia: 1e-8,
+      });
+
+      expect(res.resultado).toHaveLength(1);
+      expect(res.resultado[0]).toBeCloseTo(raizEsperada, 7);
+      expect(res.convergio).toBe(true);
+    }
+  );
+
+  test('mantiene convergencia lineal reduciendo el error a la mitad', () => {
+    const res = buscarTodasLasRaices({
+      f,
+      inicio: 0,
+      fin: 2,
+      paso: 0.5,
+      tolerancia: 1e-6,
+    });
+
+    const errores = res.iteraciones[0].iteraciones.map(
+      (iteracion) => iteracion.error
+    );
+
+    for (let i = 1; i < errores.length; i++) {
+      expect(errores[i]).toBeCloseTo(errores[i - 1] / 2, 12);
+    }
+  });
+
+  test('informa que no convergió cuando las iteraciones son insuficientes', () => {
+    const res = buscarTodasLasRaices({
+      f,
+      inicio: 0,
+      fin: 2,
+      paso: 0.5,
+      tolerancia: 1e-12,
+      maxIter: 3,
+    });
+
+    expect(res.resultado).toHaveLength(1);
+    expect(res.convergio).toBe(false);
+    expect(res.iteraciones[0].convergio).toBe(false);
+    expect(res.iteraciones[0].iteraciones).toHaveLength(3);
+  });
+
+  test('devuelve raíces finitas y ordenadas al buscar varias raíces', () => {
+    const res = buscarTodasLasRaices({
+      f: (x) => (x + 2) * x * (x - 2),
+      inicio: -3,
+      fin: 3,
+      paso: 0.5,
+      tolerancia: 1e-8,
+    });
+
+    expect(res.resultado).toHaveLength(3);
+    expect(res.resultado.every(Number.isFinite)).toBe(true);
+    expect(res.resultado).toEqual([...res.resultado].sort((a, b) => a - b));
+    expect(res.convergio).toBe(true);
+  });
+});
+
 describe('buscarTodasLasRaices - sin cambio de signo', () => {
   test('devuelve una lista vacía si ningún subintervalo cambia de signo', () => {
     const res = buscarTodasLasRaices({ f: (x) => x * x + 1, inicio: -3, fin: 3, paso: 0.5 });
