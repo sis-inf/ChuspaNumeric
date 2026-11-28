@@ -1,27 +1,31 @@
+
 import { linearInterpolation } from '../../../src/interpolacion/linear.js';
 import { polyEval } from '../../../src/interpolacion/polyEval.js';
-import { ErrorParametros } from '../../../src/core/errores.js';
+import {
+  ErrorParametros,
+  ErrorNumerico
+} from '../../../src/core/errores.js';
 
 describe('linearInterpolation', () => {
   test('interpola correctamente entre dos puntos conocidos', () => {
-    // Puntos: (2, 4) y (6, 12)
-    // y = 4 + (4 - 2) * (12 - 4) / (6 - 2) = 8
-
     const resultado = linearInterpolation(2, 4, 6, 12, 4);
 
     expect(resultado).toBeCloseTo(8, 10);
   });
 
   test('devuelve y0 al evaluar en x0', () => {
-    expect(linearInterpolation(2, 4, 6, 12, 2)).toBeCloseTo(4, 10);
+    expect(linearInterpolation(2, 4, 6, 12, 2))
+      .toBeCloseTo(4, 10);
   });
 
   test('devuelve y1 al evaluar en x1', () => {
-    expect(linearInterpolation(2, 4, 6, 12, 6)).toBeCloseTo(12, 10);
+    expect(linearInterpolation(2, 4, 6, 12, 6))
+      .toBeCloseTo(12, 10);
   });
 
   test('rechaza x0 igual a x1 con ErrorParametros', () => {
-    expect(() => linearInterpolation(3, 4, 3, 12, 3)).toThrow(ErrorParametros);
+    expect(() => linearInterpolation(3, 4, 3, 12, 3))
+      .toThrow(ErrorParametros);
   });
 
   test.each([0, 1, 2, 3, 4])(
@@ -31,9 +35,8 @@ describe('linearInterpolation', () => {
         const argumentos = [2, 4, 6, 12, 4];
         argumentos[posicion] = valor;
 
-        expect(() => linearInterpolation(...argumentos)).toThrow(
-          ErrorParametros
-        );
+        expect(() => linearInterpolation(...argumentos))
+          .toThrow(ErrorParametros);
       }
     }
   );
@@ -41,42 +44,128 @@ describe('linearInterpolation', () => {
 
 describe('polyEval', () => {
   test('evalúa correctamente un polinomio cuadrático mediante Horner', () => {
-    // P(x) = 2x² + 3x + 1
-    // P(2) = 15
     const coeficientes = [2, 3, 1];
 
     const resultado = polyEval(coeficientes, 2);
 
-    expect(resultado).toBeCloseTo(15, 10);
+    expect(resultado.resultado).toBeCloseTo(15, 10);
   });
 
   test('evalúa correctamente un polinomio constante', () => {
-    // P(x) = 5
     const resultado = polyEval([5], 3);
 
-    expect(resultado).toBeCloseTo(5, 10);
+    expect(resultado.resultado).toBeCloseTo(5, 10);
   });
 
   test('evalúa correctamente un polinomio lineal', () => {
-    // P(x) = 3x + 2
-    // P(4) = 14
     const resultado = polyEval([3, 2], 4);
 
-    expect(resultado).toBeCloseTo(14, 10);
+    expect(resultado.resultado).toBeCloseTo(14, 10);
   });
 
   test('evalúa correctamente un polinomio en x igual a cero', () => {
-    // P(x) = 2x² + 3x + 1
-    // P(0) = 1
     const resultado = polyEval([2, 3, 1], 0);
 
-    expect(resultado).toBeCloseTo(1, 10);
+    expect(resultado.resultado).toBeCloseTo(1, 10);
   });
 
   test('rechaza una lista vacía de coeficientes', () => {
-    expect(() => polyEval([], 2)).toThrow(
-      'El array de coeficientes no puede estar vacío'
-    );
+    expect(() => polyEval([], 2))
+      .toThrow(ErrorParametros);
+  });
+});
+
+describe('polyEval - validacion de parametros y contrato', () => {
+  test.each([
+    null,
+    undefined,
+    5,
+    '123',
+    {}
+  ])('rechaza coeficientes que no sean arreglos: %p', (valor) => {
+    expect(() => polyEval(valor, 2))
+      .toThrow(ErrorParametros);
+  });
+
+  test.each([
+    NaN,
+    Infinity,
+    -Infinity,
+    '5',
+    null,
+    undefined,
+    true
+  ])('rechaza coeficientes invalidos: %p', (valor) => {
+    expect(() => polyEval([2, valor, 1], 2))
+      .toThrow(ErrorParametros);
+  });
+
+  test.each([
+    NaN,
+    Infinity,
+    -Infinity,
+    '2',
+    null,
+    undefined,
+    true
+  ])('rechaza valores invalidos de x: %p', (valor) => {
+    expect(() => polyEval([2, 3, 1], valor))
+      .toThrow(ErrorParametros);
+  });
+
+  test('rechaza arreglos con posiciones vacias', () => {
+    const coeficientes = new Array(3);
+
+    expect(() => polyEval(coeficientes, 2))
+      .toThrow(ErrorParametros);
+  });
+
+  test('retorna el contrato estructurado de ChuspaNumeric', () => {
+    const resultado = polyEval([2, 3, 1], 2);
+
+    expect(resultado).toMatchObject({
+      resultado: 15,
+      iteraciones: [],
+      convergio: true,
+      mensaje: expect.any(String),
+      meta: {
+        metodo: 'polyEval',
+        parametros: {
+          coefficients: [2, 3, 1],
+          x: 2
+        },
+        tiempo_ms: expect.any(Number)
+      }
+    });
+
+    expect(resultado.meta.tiempo_ms)
+      .toBeGreaterThanOrEqual(0);
+  });
+
+  test('no modifica el arreglo original de coeficientes', () => {
+    const coeficientes = [2, 3, 1];
+
+    polyEval(coeficientes, 2);
+
+    expect(coeficientes).toEqual([2, 3, 1]);
+  });
+
+  test('evalua correctamente un polinomio con coeficientes negativos', () => {
+    const resultado = polyEval([-2, 3, -1], 2);
+
+    expect(resultado.resultado).toBeCloseTo(-3, 10);
+  });
+
+  test('evalua correctamente un polinomio en x negativo', () => {
+    const resultado = polyEval([2, 3, 1], -2);
+
+    expect(resultado.resultado).toBeCloseTo(3, 10);
+  });
+
+  test('evalua correctamente el polinomio cero', () => {
+    const resultado = polyEval([0, 0, 0], 5);
+
+    expect(resultado.resultado).toBe(0);
   });
 });
 
@@ -189,7 +278,7 @@ describe('polyEval - precision y comportamiento numerico', () => {
   ])(
     'evalua x^2 + 1 con x=%p y error relativo estricto',
     (x, esperado) => {
-      const resultado = polyEval([1, 0, 1], x);
+      const resultado = polyEval([1, 0, 1], x).resultado;
 
       const errorRelativo =
         Math.abs(resultado - esperado) / Math.abs(esperado);
@@ -202,7 +291,7 @@ describe('polyEval - precision y comportamiento numerico', () => {
     const pasos = [0.1, 0.01, 0.001];
 
     const valores = pasos.map((h) =>
-      polyEval([1, 0, 1], h)
+      polyEval([1, 0, 1], h).resultado
     );
 
     valores.forEach((valor) => {
@@ -237,10 +326,8 @@ describe('linearInterpolation y polyEval - no convergencia y desbordamiento', ()
     expect(errores[3]).toBeCloseTo(errores[0], 10);
   });
 
-  test('identifica un resultado no finito por desbordamiento numerico', () => {
-    const resultado = polyEval([1, 0, 0], 1e200);
-
-    expect(resultado).toBe(Infinity);
-    expect(Number.isFinite(resultado)).toBe(false);
+  test('rechaza un resultado no finito por desbordamiento numerico', () => {
+    expect(() => polyEval([1, 0, 0], 1e200))
+      .toThrow(ErrorNumerico);
   });
 });
